@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1B4332">
+<title>스코어카드</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<style>
+:root{
+  --green:#1B4332;--green2:#2D6A4F;--green3:#40916C;
+  --bg:#F0F5F2;--card:#fff;--border:#D4E6DA;
+  --t1:#0A1F15;--t2:#3D6B52;--t3:#7BA892;
+  --safe-top:env(safe-area-inset-top,0px);--safe-bot:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:var(--bg);font-family:-apple-system,'Noto Sans KR',sans-serif;color:var(--t1);overflow:hidden;}
+.app{display:flex;flex-direction:column;position:fixed;inset:0;}
+
+/* 상단바 */
+.topbar{background:var(--green);color:#fff;padding:calc(var(--safe-top)+8px) 12px 8px;flex-shrink:0;}
+.tb1{display:flex;align-items:center;justify-content:space-between;}
+.tb2{display:flex;align-items:center;justify-content:space-between;margin-top:4px;}
+.tbtn{background:rgba(255,255,255,0.2);border:none;border-radius:8px;color:#fff;cursor:pointer;font-weight:700;display:flex;align-items:center;justify-content:center;gap:4px;white-space:nowrap;}
+
+/* 탭 */
+.tabs{background:var(--card);border-bottom:2px solid var(--border);display:flex;flex-shrink:0;}
+.tab{flex:1;padding:10px 4px;font-size:14px;font-weight:600;color:var(--t3);border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;}
+.tab.on{color:var(--green);border-bottom-color:var(--green);font-weight:800;}
+
+.body{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;}
+
+/* 테이블 공통 */
+.tbl-wrap{padding:6px;min-height:100%;}
+table{border-collapse:collapse;width:100%;}
+th{background:var(--green);color:#fff;font-weight:700;padding:6px 3px;text-align:center;white-space:nowrap;position:sticky;top:0;z-index:10;}
+th.sl{position:sticky;left:0;z-index:20;background:var(--green);}
+td{padding:3px 2px;text-align:center;border-bottom:1px solid var(--border);vertical-align:middle;}
+td.hl{position:sticky;left:0;background:#EBF5EE;z-index:5;border-right:2px solid var(--border);font-weight:700;white-space:nowrap;}
+tr.par-row td{background:#F0F5F2;font-size:11px;color:var(--t3);font-weight:600;}
+tr.par-row td.hl{background:#E0EEE5;color:var(--t2);}
+tr.sum-row td{background:#EBF5EE;font-weight:800;}
+tr.final-row td{background:#1A3A5C;color:#fff;font-weight:900;}
+
+/* 스코어 박스 */
+.sbox{
+  border-radius:8px;border:1.5px solid var(--border);
+  background:#fff;display:flex;align-items:center;justify-content:center;
+  font-weight:800;cursor:pointer;margin:0 auto;user-select:none;
+  transition:transform 0.08s;
+}
+.sbox:active{transform:scale(0.9);}
+.sbox.empty{color:#ccc;}
+.sbox.birdie{background:#D4F5E5;color:#0A6B42;border-color:#0F9E6A;border-width:2.5px;animation:glow 1.2s ease-in-out infinite;}
+@keyframes glow{0%{box-shadow:0 0 4px rgba(15,158,106,0.4);}50%{box-shadow:0 0 14px 6px rgba(15,158,106,0.9);}100%{box-shadow:0 0 4px rgba(15,158,106,0.4);}}
+.sbox.eagle{background:#FFF3CC;color:#7A4F00;border-color:#EF9F27;border-width:2px;}
+.sbox.albatross{background:#FFE0A0;color:#5A3000;border-color:#D4900A;border-width:2px;}
+.sbox.bogey{color:#CC5500;}
+.sbox.double{color:#CC0000;}
+.sbox.triple{color:#990000;font-weight:900;}
+.sbox.more{color:#660000;}
+
+/* 팝업 */
+.pop-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:flex-end;}
+.pop-ov.open{display:flex;}
+.pop{background:#fff;border-radius:20px 20px 0 0;width:100%;padding:0 0 calc(var(--safe-bot)+12px);animation:sup 0.2s;}
+@keyframes sup{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.pop-hd{padding:14px 16px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.pop-opts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:12px 14px;}
+.popt{padding:12px 4px;border-radius:10px;text-align:center;cursor:pointer;border:1.5px solid transparent;}
+.popt:active{transform:scale(0.95);}
+.popt .pl{font-size:11px;font-weight:600;opacity:0.8;margin-bottom:4px;}
+.popt .pv{font-size:22px;font-weight:900;}
+
+/* 버디 축하 */
+.birdie-ov{display:none;position:fixed;inset:0;z-index:500;align-items:center;justify-content:center;pointer-events:none;}
+.birdie-ov.show{display:flex;}
+.birdie-bang{text-align:center;animation:bpop 2s ease forwards;}
+@keyframes bpop{0%{transform:scale(0.2)rotate(-15deg);opacity:0;}25%{transform:scale(1.4)rotate(6deg);opacity:1;}75%{opacity:1;}100%{transform:scale(0.8);opacity:0;}}
+.birdie-txt{font-size:52px;font-weight:900;background:linear-gradient(135deg,#FFD700,#FF6B35,#FF1493);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.particle{position:fixed;pointer-events:none;z-index:499;border-radius:50%;animation:fall 1.6s ease-in forwards;}
+@keyframes fall{0%{opacity:1;}100%{transform:translateY(70vh)rotate(720deg);opacity:0;}}
+
+/* 하단 */
+.foot{background:var(--card);border-top:1px solid var(--border);padding:10px 12px calc(var(--safe-bot)+10px);flex-shrink:0;display:flex;gap:8px;}
+.btn{flex:1;padding:13px;border-radius:8px;font-size:14px;font-weight:700;border:none;cursor:pointer;white-space:nowrap;}
+.btn:active{transform:scale(0.97);}
+.btn-green{background:var(--green);color:#fff;}
+.btn-blue{background:#1A5C99;color:#fff;}
+.btn-lt{background:#EEF2F7;color:var(--t1);}
+.btn-or{background:#CC5500;color:#fff;}
+
+/* 설정 모달 */
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100;align-items:flex-end;}
+.mo.on{display:flex;}
+.ms{background:#fff;border-radius:20px 20px 0 0;width:100%;max-height:85vh;overflow-y:auto;padding:0 0 calc(var(--safe-bot)+14px);}
+.mh{width:36px;height:4px;background:#ddd;border-radius:2px;margin:12px auto 14px;}
+.mt{font-size:16px;font-weight:700;padding:0 16px 12px;border-bottom:1px solid var(--border);color:var(--green);}
+.mrow{display:flex;align-items:center;padding:11px 16px;border-bottom:1px solid var(--border);gap:10px;}
+.ml{font-size:13px;color:var(--t2);font-weight:500;min-width:70px;}
+.mi{flex:1;height:40px;padding:0 10px;font-size:14px;font-weight:600;border:1.5px solid var(--border);border-radius:8px;background:#fafcfa;color:var(--t1);}
+.mi:focus{outline:none;border-color:var(--green3);}
+
+/* 가로모드 */
+@media(orientation:landscape){
+  .topbar{padding:calc(var(--safe-top)+4px) 12px 4px;}
+  .tab{padding:6px 4px;font-size:13px;}
+  .foot{padding:7px 12px calc(var(--safe-bot)+7px);}
+  .btn{padding:10px;font-size:13px;}
+  .pop-opts{grid-template-columns:repeat(8,1fr);}
+}
+
+#_t{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:rgba(10,31,21,0.9);color:#fff;padding:9px 18px;border-radius:20px;font-size:13px;z-index:999;transition:opacity 0.4s;pointer-events:none;white-space:nowrap;opacity:0;}
+</style>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('/golf-app/sw.js',{scope:'/golf-app/'});
+  });
+}
+</script></head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="tb1">
+      <div style="display:flex;align-items:center;gap:6px;min-width:0;">
+        <a href="index.html" style="background:rgba(255,255,255,0.2);border:none;border-radius:8px;width:34px;height:34px;color:#fff;font-size:16px;display:flex;align-items:center;justify-content:center;text-decoration:none;flex-shrink:0;">🏠</a>
+        <h1 style="font-size:15px;font-weight:700;white-space:nowrap;">📋 스코어카드</h1>
+      </div>
+      <div style="display:flex;gap:5px;flex-shrink:0;">
+        <button class="tbtn" onclick="doLoad()" style="height:34px;padding:0 9px;font-size:12px;">📂</button>
+        <button class="tbtn" onclick="resetAll()" style="height:34px;padding:0 9px;font-size:12px;">🔄</button>
+        <button class="tbtn" onclick="doSave()" style="height:34px;padding:0 9px;font-size:12px;">💾</button>
+        <button class="tbtn" onclick="openMo()" style="width:34px;height:34px;font-size:16px;">⚙️</button>
+      </div>
+    </div>
+    <div class="tb2">
+      <div id="topDate" style="font-size:11px;color:rgba(255,255,255,0.7);"></div>
+      <div id="syncDot" style="font-size:11px;color:rgba(255,255,255,0.5);">● 연결중...</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" id="tab0" onclick="ST(0)">전반 (1~9홀)</button>
+    <button class="tab" id="tab1" onclick="ST(1)">후반 (10~18홀)</button>
+  </div>
+
+  <div class="body" id="body"></div>
+
+  <div class="foot">
+    <button class="btn btn-lt" id="switchBtn" onclick="ST(curTab===0?1:0)">후반 →</button>
+    <button class="btn btn-blue" onclick="doSave()">💾 저장</button>
+  </div>
+</div>
+
+<!-- 팝업 -->
+<div class="pop-ov" id="scorePop" onclick="if(event.target===this)closePop()">
+  <div class="pop">
+    <div class="pop-hd">
+      <div style="font-size:15px;font-weight:700;" id="popTitle">스코어</div>
+      <button onclick="closePop()" style="background:none;border:none;font-size:22px;color:#999;cursor:pointer;">✕</button>
+    </div>
+    <div class="pop-opts" id="scoreOpts"></div>
+  </div>
+</div>
+
+<!-- 버디 축하 -->
+<div class="birdie-ov" id="birdieOv">
+  <div class="birdie-bang">
+    <div style="font-size:50px;margin-bottom:4px;">🐦</div>
+    <div class="birdie-txt" id="birdieTxt">BIRDIE!</div>
+    <div style="font-size:20px;color:#fff;font-weight:800;text-shadow:0 2px 8px rgba(0,0,0,0.5);">🎉 버디! 🎉</div>
+  </div>
+</div>
+
+<!-- 설정 모달 -->
+<div class="mo" id="mo" onclick="if(event.target===this)closeMo()">
+  <div class="ms">
+    <div class="mh"></div>
+    <div class="mt">⚙️ 스코어카드 설정</div>
+    <div class="mrow"><div class="ml">날짜</div><input class="mi" type="date" id="s_date"></div>
+    <div class="mrow"><div class="ml">코스명</div><input class="mi" type="text" id="s_course" placeholder="골프장 이름"></div>
+    <div class="mrow"><div class="ml">스타트홀</div>
+      <input class="mi" type="number" id="s_start" min="1" max="18" inputmode="numeric" style="width:60px;flex:none;text-align:center;font-size:18px;font-weight:800;color:var(--green2);">
+      <span style="font-size:14px;color:var(--t2);">번홀</span>
+    </div>
+    <div style="padding:8px 16px 4px;font-size:12px;font-weight:700;color:var(--t2);">👤 플레이어</div>
+    <div id="s_players"></div>
+    <div style="padding:8px 16px 4px;font-size:12px;font-weight:700;color:var(--t2);">⛳ 홀별 파(Par) - 탭하여 변경</div>
+    <div style="padding:8px 16px 12px;display:grid;grid-template-columns:repeat(6,1fr);gap:6px;" id="s_pars"></div>
+    <div style="display:flex;gap:8px;padding:14px 16px 0;">
+      <button onclick="closeMo()" style="flex:1;padding:13px;border-radius:8px;background:#EEF2F7;font-size:14px;font-weight:700;border:none;cursor:pointer;">취소</button>
+      <button onclick="applyMo()" style="flex:1;padding:13px;border-radius:8px;background:var(--green);color:#fff;font-size:14px;font-weight:700;border:none;cursor:pointer;">적용</button>
+    </div>
+  </div>
+</div>
+
+<div id="_t"></div>
+
+<script>
+var AVCOL=['#EEEDFE','#E1F5EE','#FAECE7','#E6F1FB','#FEF9C3'];
+var AVTXT=['#3C3489','#085041','#712B13','#0C447C','#713F12'];
+
+var G={
+  players:[
+    {name:'김철민',handi:18},{name:'김연태',handi:11},
+    {name:'정수호',handi:18},{name:'김동기',handi:10},
+  ],
+  scores:Array.from({length:4},()=>Array(18).fill(null)),
+  pars:Array(18).fill(4),
+  date:'',course:'',startHole:1
+};
+var curTab=0;
+var _popPi=null,_popH=null;
+var _isSyncing=false;
+
+// ── Firebase ──
+firebase.initializeApp({databaseURL:"https://myeongnang-golf-adcb8-default-rtdb.asia-southeast1.firebasedatabase.app"});
+const _db=firebase.database();
+const _ref=_db.ref('scorecard');
+
+function syncToFirebase(){
+  if(_isSyncing) return;
+  _ref.set(JSON.stringify(G));
+}
+function startSync(){
+  _ref.on('value',snap=>{
+    if(!snap.exists()||_isSyncing) return;
+    _isSyncing=true;
+    try{Object.assign(G,JSON.parse(snap.val()));}catch(e){}
+    _isSyncing=false;
+    ST(curTab);
+    setSyncDot(true);
+  });
+  _db.ref('.info/connected').on('value',snap=>setSyncDot(snap.val()));
+}
+function setSyncDot(on){
+  const el=document.getElementById('syncDot');
+  if(el){el.textContent=on?'● 동기화됨':'● 오프라인';el.style.color=on?'#74C69D':'#FAC775';}
+}
+
+const SCORE_OPTS=[
+  {val:-3,label:'알바트로스',bg:'#FFE0A0',color:'#5A3000'},
+  {val:-2,label:'🦅 이글',bg:'#FFF3CC',color:'#7A4F00'},
+  {val:-1,label:'🐦 버디',bg:'#11C26E',color:'#fff',birdie:true},
+  {val:0, label:'파',bg:'#F0F0EE',color:'#444'},
+  {val:1, label:'보기',bg:'#F5C4B3',color:'#4A1B0C'},
+  {val:2, label:'더블',bg:'#F7C1C1',color:'#501313'},
+  {val:3, label:'트리플',bg:'#E24B4A',color:'#fff'},
+  {val:4, label:'4오버',bg:'#C0392B',color:'#fff'},
+  {val:null,label:'취소',bg:'#F5F5F0',color:'#999'},
+];
+
+function SV(){
+  try{localStorage.setItem('scorecard_g',JSON.stringify(G));}catch(e){}
+  syncToFirebase();
+}
+function LD(){try{const d=localStorage.getItem('scorecard_g');if(d)Object.assign(G,JSON.parse(d));}catch(e){}}
+function toast(m){const t=document.getElementById('_t');t.textContent=m;t.style.opacity='1';clearTimeout(t._x);t._x=setTimeout(()=>{t.style.opacity='0';},2200);}
+function ini(name){return name.length>=2?name.slice(-2):name;}
+function holeNum(h){return((G.startHole-1+h)%18)+1;}
+function overTxt(v){if(v===null)return'-';if(v===0)return'0';return v>0?'+'+v:String(v);}
+function colorCls(v){return !v&&v!==0?'':v===0?'color:#555':v>0?'color:#CC0000':'color:#0F6E56';}
+function sboxCls(v){
+  if(v===null) return 'empty';
+  if(v<=-3) return 'albatross';
+  if(v===-2) return 'eagle';
+  if(v===-1) return 'birdie';
+  if(v===0) return '';
+  if(v===1) return 'bogey';
+  if(v===2) return 'double';
+  if(v===3) return 'triple';
+  return 'more';
+}
+
+function updTop(){
+  const el=document.getElementById('topDate');
+  if(!el) return;
+  if(G.date){const d=new Date(G.date);el.textContent=d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0')+(G.course?' · '+G.course:'');}
+  else{const n=new Date();el.textContent=n.getFullYear()+'.'+String(n.getMonth()+1).padStart(2,'0')+'.'+String(n.getDate()).padStart(2,'0')+(G.course?' · '+G.course:'');}
+}
+
+function ST(tab){
+  curTab=tab;
+  document.getElementById('tab0').className='tab'+(tab===0?' on':'');
+  document.getElementById('tab1').className='tab'+(tab===1?' on':'');
+  document.getElementById('switchBtn').textContent=tab===0?'후반 →':'← 전반';
+  renderTable(tab);
+  updTop();
+}
+
+// ── 테이블 렌더링 ──
+function renderTable(half){
+  const isLand=window.matchMedia('(orientation:landscape)').matches;
+  const n=G.players.length;
+  const start=half*9;
+  const holes=Array.from({length:9},(_,i)=>start+i);
+
+  // 동적 크기 계산
+  const vw=window.innerWidth;
+  const vh=window.innerHeight;
+
+  if(isLand){
+    renderLandscape(half,holes,n,vw,vh);
+  } else {
+    renderPortrait(half,holes,n,vw,vh);
+  }
+}
+
+// ── 세로모드 ──
+function renderPortrait(half,holes,n,vw,vh){
+  const holeColW=58;
+  const extraCols=half===0?1:2; // 전반: 전반홀 / 후반: 후반홀+전체
+  const playerColW=Math.floor((vw-holeColW-4)/(n+extraCols));
+  const boxW=Math.min(playerColW-6,50);
+  const boxH=Math.min(boxW*0.82,42);
+  const fs=Math.max(11,Math.min(14,playerColW/4.2));
+
+  const parF=Array.from({length:9},(_,i)=>G.pars[i]).reduce((a,b)=>a+b,0);
+  const parB=Array.from({length:9},(_,i)=>G.pars[i+9]).reduce((a,b)=>a+b,0);
+  const par9=holes.reduce((s,h)=>s+G.pars[h],0);
+
+  let html='<div class="tbl-wrap"><table style="table-layout:fixed;width:100%;">';
+
+  // 헤더
+  html+='<tr>';
+  html+=`<th class="sl" style="width:${holeColW}px;font-size:${fs}px;">홀/파</th>`;
+  G.players.forEach((p,pi)=>{
+    html+=`<th style="width:${playerColW}px;font-size:${fs}px;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:1px;padding:3px 1px;">
+        <div style="font-size:${fs}px;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:${playerColW-4}px;">${p.name}</div>
+        <div style="font-size:${Math.max(9,fs-2)}px;color:rgba(255,255,255,0.7);">H${p.handi}</div>
+      </div>
+    </th>`;
+  });
+  if(half===0){
+    html+=`<th style="width:${playerColW}px;font-size:${fs-1}px;">전반홀</th>`;
+  } else {
+    html+=`<th style="width:${playerColW}px;font-size:${fs-1}px;">후반홀</th>`;
+    html+=`<th style="width:${playerColW}px;font-size:${fs-1}px;">전체</th>`;
+  }
+  html+='</tr>';
+
+  // 홀 행
+  holes.forEach(h=>{
+    const hn=holeNum(h);const par=G.pars[h];
+    html+=`<tr><td class="hl" style="font-size:${fs}px;padding:2px 5px;">
+      <div style="font-weight:800;">${hn}홀</div>
+      <div style="font-size:${Math.max(9,fs-2)}px;color:var(--t3);font-weight:600;">P${par}</div>
+    </td>`;
+    G.players.forEach((_,pi)=>{
+      const v=G.scores[pi][h];
+      html+=`<td style="padding:3px 2px;">
+        <div class="sbox ${sboxCls(v)}" onclick="openPop(${pi},${h})" style="width:${boxW}px;height:${boxH}px;font-size:${fs+2}px;">${v!==null?v:'-'}</div>
+      </td>`;
+    });
+    if(half===0){html+=`<td></td>`;}
+    else{html+=`<td></td><td></td>`;}
+    html+='</tr>';
+  });
+
+  // 전반: 전반홀 합계행
+  if(half===0){
+    html+=`<tr class="sum-row"><td class="hl" style="font-size:${fs}px;">전반홀</td>`;
+    G.players.forEach((p,pi)=>{
+      const s9=holes.map(h=>G.scores[pi][h]).filter(v=>v!==null).reduce((a,b)=>a+b,0);
+      const c9=holes.map(h=>G.scores[pi][h]).filter(v=>v!==null).length;
+      const ov9=s9-par9;
+      html+=`<td style="font-size:${fs+1}px;font-weight:900;${colorCls(c9?ov9:null)}">${c9>0?overTxt(ov9):'-'}</td>`;
+    });
+    html+=`<td></td></tr>`;
+  }
+
+  // 후반: 후반홀 합계행 + 전체행
+  if(half===1){
+    // 후반홀
+    html+=`<tr class="sum-row"><td class="hl" style="font-size:${fs}px;">후반홀</td>`;
+    G.players.forEach((p,pi)=>{
+      const s9=holes.map(h=>G.scores[pi][h]).filter(v=>v!==null).reduce((a,b)=>a+b,0);
+      const c9=holes.map(h=>G.scores[pi][h]).filter(v=>v!==null).length;
+      const ov9=s9-par9;
+      html+=`<td style="font-size:${fs+1}px;font-weight:900;${colorCls(c9?ov9:null)}">${c9>0?overTxt(ov9):'-'}</td>`;
+    });
+    html+=`<td></td><td></td></tr>`;
+
+    // 전체 (18홀 합계 + 넷)
+    html+=`<tr class="final-row"><td class="hl" style="background:#1A3A5C;color:#fff;font-size:${fs}px;">전체/넷</td>`;
+    G.players.forEach((p,pi)=>{
+      const f9=Array.from({length:9},(_,i)=>G.scores[pi][i]).filter(v=>v!==null).reduce((a,b)=>a+b,0);
+      const b9=holes.map(h=>G.scores[pi][h]).filter(v=>v!==null).reduce((a,b)=>a+b,0);
+      const f9c=Array.from({length:9},(_,i)=>G.scores[pi][i]).filter(v=>v!==null).length;
+      const b9c=holes.map(h=>G.scores[pi][h]).filter(v=>v!==null).length;
+      const cnt=f9c+b9c;
+      const ov18=(f9+b9)-(parF+parB);
+      const net=ov18-p.handi;
+      const col18=ov18<0?'#9FE1CB':ov18>0?'#FAC775':'#fff';
+      const colNet=net<0?'#74C69D':net>0?'#F9C74F':'#fff';
+      html+=`<td style="font-size:${fs}px;">
+        <div style="font-weight:900;color:${col18};">${cnt>0?overTxt(ov18):'-'}</div>
+        <div style="font-size:${Math.max(9,fs-1)}px;color:${colNet};font-weight:800;">${cnt>0?'넷'+overTxt(net):''}</div>
+      </td>`;
+    });
+    html+=`<td></td><td></td></tr>`;
+  }
+
+  html+='</table></div>';
+  document.getElementById('body').innerHTML=html;
+}
+
+// ── 가로모드 ──
+function renderLandscape(half,holes,n,vw,vh){
+  const parF=Array.from({length:9},(_,i)=>G.pars[i]).reduce((a,b)=>a+b,0);
+  const parB=Array.from({length:9},(_,i)=>G.pars[i+9]).reduce((a,b)=>a+b,0);
+
+  const nameColW=90;
+  const sumCols=half===0?1:3; // 전9 or 후9+전9+합계
+  const totalCols=9+sumCols;
+  const scoreColW=Math.floor((vw-nameColW-totalCols*2)/(totalCols));
+  const boxW=Math.min(scoreColW-4,46);
+  const boxH=Math.min(boxW*0.8,38);
+  const fontSize=Math.max(10,Math.min(13,scoreColW/3.5));
+
+  let html='<div class="tbl-wrap"><table style="table-layout:fixed;width:100%;">';
+
+  // 헤더: 홀번호+파
+  html+=`<tr>`;
+  html+=`<th class="sl" style="width:${nameColW}px;font-size:${fontSize}px;">이름/H</th>`;
+  holes.forEach(h=>{
+    const hn=holeNum(h);
+    html+=`<th style="width:${scoreColW}px;font-size:${fontSize}px;">${hn}<br><span style="font-size:${Math.max(9,fontSize-1)}px;opacity:0.7;">P${G.pars[h]}</span></th>`;
+  });
+  if(half===0){
+    html+=`<th style="width:${scoreColW}px;font-size:${fontSize-1}px;">전반홀</th>`;
+  } else {
+    html+=`<th style="width:${scoreColW}px;font-size:${fontSize-1}px;">후반홀</th>`;
+    html+=`<th style="width:${scoreColW}px;font-size:${fontSize-1}px;">전체/넷</th>`;
+  }
+  html+='</tr>';
+
+  // 플레이어 행
+  G.players.forEach((p,pi)=>{
+    const f9=Array.from({length:9},(_,i)=>G.scores[pi][i]).filter(v=>v!==null).reduce((a,b)=>a+b,0);
+    const f9c=Array.from({length:9},(_,i)=>G.scores[pi][i]).filter(v=>v!==null).length;
+    const b9=Array.from({length:9},(_,i)=>G.scores[pi][i+9]).filter(v=>v!==null).reduce((a,b)=>a+b,0);
+    const b9c=Array.from({length:9},(_,i)=>G.scores[pi][i+9]).filter(v=>v!==null).length;
+    const s9=holes.map(h=>G.scores[pi][h]).filter(v=>v!==null).reduce((a,b)=>a+b,0);
+    const c9=holes.map(h=>G.scores[pi][h]).filter(v=>v!==null).length;
+    const par9=holes.reduce((s,h)=>s+G.pars[h],0);
+
+    html+=`<tr>`;
+    html+=`<td class="hl" style="padding:4px 6px;">
+      <div style="display:flex;align-items:center;gap:5px;">
+        <div style="width:24px;height:24px;border-radius:50%;background:${AVCOL[pi]};color:${AVTXT[pi]};font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${ini(p.name)}</div>
+        <div>
+          <div style="font-size:${fontSize}px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:55px;">${p.name}</div>
+          <div style="font-size:${Math.max(9,fontSize-2)}px;color:var(--t3);">H${p.handi}</div>
+        </div>
+      </div>
+    </td>`;
+    holes.forEach(h=>{
+      const v=G.scores[pi][h];
+      html+=`<td style="padding:2px 1px;">
+        <div class="sbox ${sboxCls(v)}" onclick="openPop(${pi},${h})" style="width:${boxW}px;height:${boxH}px;font-size:${fontSize+2}px;">
+          ${v!==null?v:'-'}
+        </div>
+      </td>`;
+    });
+
+    // 합계 셀
+    const ov9=s9-par9;
+    const col9=colorCls(c9?ov9:null);
+    if(half===0){
+      html+=`<td style="font-size:${fontSize+1}px;font-weight:900;${col9}">${c9>0?overTxt(ov9):'-'}</td>`;
+    } else {
+      const ov18=(f9+s9)-(parF+par9);
+      const net=ov18-p.handi;
+      const col18=colorCls((f9c+c9)?ov18:null);
+      const colNet=net<0?'color:#0F6E56':net>0?'color:#CC0000':'color:#555';
+      html+=`<td style="font-size:${fontSize+1}px;font-weight:900;${col9}">${c9>0?overTxt(ov9):'-'}</td>`;
+      html+=`<td style="font-size:${fontSize}px;">
+        <div style="font-weight:900;${col18}">${(f9c+c9)>0?overTxt(ov18):'-'}</div>
+        <div style="font-size:${Math.max(9,fontSize-1)}px;${colNet}">${(f9c+c9)>0?'넷'+overTxt(net):''}</div>
+      </td>`;
+    }
+    html+='</tr>';
+  });
+  html+='</table></div>';
+  document.getElementById('body').innerHTML=html;
+}
+
+// ── 팝업 ──
+function openPop(pi,h){
+  _popPi=pi;_popH=h;
+  const hn=holeNum(h);
+  document.getElementById('popTitle').textContent=`${hn}홀 (Par${G.pars[h]}) · ${G.players[pi].name}`;
+  const cur=G.scores[pi][h];
+  document.getElementById('scoreOpts').innerHTML=SCORE_OPTS.map(o=>`
+    <div class="popt${o.birdie?' birdie-opt':''}" style="background:${o.bg};${cur===o.val?'outline:3px solid #333;':''}" onclick="setScore(${JSON.stringify(o.val)})">
+      <div class="pl" style="color:${o.color}">${o.label}</div>
+      <div class="pv" style="color:${o.color}">${o.val===null?'−':o.val===0?'0':o.val}</div>
+    </div>`).join('');
+  document.getElementById('scorePop').className='pop-ov open';
+  if(navigator.vibrate) navigator.vibrate(30);
+}
+function closePop(){document.getElementById('scorePop').className='pop-ov';_popPi=null;_popH=null;}
+
+function setScore(val){
+  if(_popPi===null) return;
+  G.scores[_popPi][_popH]=(val===null||val==='null')?null:val;
+  SV();closePop();
+  if(G.scores[_popPi]&&G.scores[_popPi][_popH]!==null&&G.scores[_popPi][_popH]<=-1) showBirdie(G.scores[_popPi][_popH]);
+  ST(curTab);
+}
+
+function showBirdie(v){
+  const o=document.getElementById('birdieOv');
+  document.getElementById('birdieTxt').textContent=v<=-3?'ALBATROSS!':v===-2?'EAGLE!':'BIRDIE!';
+  if(navigator.vibrate) navigator.vibrate([80,40,80,40,150]);
+  o.className='birdie-ov show';
+  const colors=['#FFD700','#FF6B35','#FF1493','#9B59B6','#3498DB','#2ECC71'];
+  for(let i=0;i<28;i++){
+    const p=document.createElement('div');p.className='particle';
+    p.style.cssText=`background:${colors[i%6]};width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;left:${Math.random()*100}vw;top:${Math.random()*30}vh;animation-duration:${1+Math.random()*0.8}s;animation-delay:${Math.random()*0.3}s;`;
+    document.body.appendChild(p);setTimeout(()=>p.remove(),2500);
+  }
+  setTimeout(()=>{o.className='birdie-ov';},2200);
+}
+
+// ── 설정 모달 ──
+function openMo(){
+  document.getElementById('s_date').value=G.date||'';
+  document.getElementById('s_course').value=G.course||'';
+  document.getElementById('s_start').value=G.startHole||1;
+  document.getElementById('s_players').innerHTML=G.players.map((p,i)=>`
+    <div class="mrow">
+      <div style="width:28px;height:28px;border-radius:50%;background:${AVCOL[i]};color:${AVTXT[i]};font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${ini(p.name)}</div>
+      <input class="mi" type="text" id="pn_${i}" value="${p.name}" placeholder="이름">
+      <span style="font-size:13px;color:var(--t2);">H</span>
+      <input class="mi" type="number" id="ph_${i}" value="${p.handi}" min="0" max="54" inputmode="numeric" style="width:56px;flex:none;text-align:center;font-size:16px;font-weight:800;color:var(--green2);">
+    </div>`).join('');
+  document.getElementById('s_pars').innerHTML=Array.from({length:18},(_,i)=>{
+    const p=G.pars[i];const bg=p===3?'#EFF6FF':p===5?'#F0FDF4':'#f5f5f5';const col=p===3?'#1A3A5C':p===5?'#166534':'#666';
+    return`<div onclick="togglePar(${i})" style="background:${bg};border-radius:8px;padding:7px 3px;text-align:center;cursor:pointer;border:1.5px solid ${p===3?'#93C5FD':p===5?'#86EFAC':'#ddd'};">
+      <div style="font-size:10px;color:#999;">${i+1}홀</div>
+      <div id="par_${i}" style="font-size:14px;font-weight:800;color:${col};">P${p}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('mo').className='mo on';
+}
+function closeMo(){document.getElementById('mo').className='mo';}
+function togglePar(i){
+  G.pars[i]=G.pars[i]===3?4:G.pars[i]===4?5:3;
+  const el=document.getElementById('par_'+i);const p=G.pars[i];
+  const col=p===3?'#1A3A5C':p===5?'#166534':'#666';
+  if(el){el.textContent='P'+p;el.style.color=col;}
+}
+function applyMo(){
+  G.date=document.getElementById('s_date').value||'';
+  G.course=document.getElementById('s_course').value||'';
+  G.startHole=Math.max(1,Math.min(18,parseInt(document.getElementById('s_start').value)||1));
+  G.players.forEach((_,i)=>{
+    G.players[i].name=document.getElementById('pn_'+i).value.trim()||'플레이어'+(i+1);
+    G.players[i].handi=parseInt(document.getElementById('ph_'+i).value)||0;
+  });
+  closeMo();SV();ST(curTab);updTop();toast('✅ 설정 저장됐어요');
+}
+
+// ── 초기화/저장/불러오기 ──
+function resetAll(){
+  if(!confirm('스코어를 모두 초기화할까요?')) return;
+  G.scores=Array.from({length:G.players.length},()=>Array(18).fill(null));
+  SV();ST(curTab);toast('🔄 초기화됐어요');
+}
+
+function doSave(){
+  try{
+    const now=new Date();
+    const dateStr=G.date||now.getFullYear()+'.'+String(now.getMonth()+1).padStart(2,'0')+'.'+String(now.getDate()).padStart(2,'0');
+    const names=G.players.map(p=>p.name).join('·');
+    const fileName=`스코어카드_${dateStr}_${names}.json`;
+    const blob=new Blob([JSON.stringify(G,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download=fileName;a.click();URL.revokeObjectURL(url);
+    toast(`💾 저장: ${fileName}`);
+  }catch(e){alert('저장 실패:'+e.message);}
+}
+
+function doLoad(){
+  const input=document.createElement('input');
+  input.type='file';input.accept='.json';
+  input.onchange=e=>{
+    const file=e.target.files[0];if(!file) return;
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      try{
+        const s=JSON.parse(ev.target.result);
+        if(!s.players||!s.scores){toast('❌ 올바른 파일이 아니에요');return;}
+        if(!confirm(`"${s.players.map(p=>p.name).join('·')}" 불러올까요?`)) return;
+        Object.assign(G,s);SV();ST(curTab);updTop();toast('📂 불러왔어요!');
+      }catch(err){alert('파일 오류:'+err.message);}
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+// ── 화면 방향 감지 강화 ──
+function onRotate(){setTimeout(()=>ST(curTab),200);}
+window.addEventListener('orientationchange',onRotate);
+window.addEventListener('resize',onRotate);
+if(screen.orientation){screen.orientation.addEventListener('change',onRotate);}
+window.matchMedia('(orientation:landscape)').addEventListener('change',onRotate);
+
+// ── 초기화 ──
+LD();updTop();ST(0);startSync();
+</script>
+</body>
+</html>

@@ -8,12 +8,6 @@
   "theme_color": "#3B6D11",
   "icons": [
     {
-      "src": "/golf-app/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any"
-    },
-    {
       "src": "/golf-app/icon192.png",
       "sizes": "192x192",
       "type": "image/png",

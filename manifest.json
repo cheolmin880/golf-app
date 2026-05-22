@@ -1,23 +1,13 @@
 {
   "name": "명랑골프",
   "short_name": "명랑골프",
-  "start_url": "/golf-app/index.html",
+  "start_url": "/golf-app/",
   "scope": "/golf-app/",
   "display": "standalone",
   "background_color": "#3B6D11",
   "theme_color": "#3B6D11",
   "icons": [
-    {
-      "src": "/golf-app/icon192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/golf-app/icon512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
-    }
+    {"src":"icon192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},
+    {"src":"icon512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
   ]
 }

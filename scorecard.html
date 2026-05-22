@@ -19,14 +19,14 @@ html,body{height:100%;background:var(--bg);font-family:-apple-system,'Noto Sans 
 .app{display:flex;flex-direction:column;position:fixed;inset:0;}
 
 /* 상단바 */
-.topbar{background:var(--green);color:#fff;padding:calc(var(--safe-top)+8px) 12px 8px;flex-shrink:0;}
+.topbar{background:var(--green);color:#fff;padding:calc(var(--safe-top)+4px) 10px 4px;flex-shrink:0;}
 .tb1{display:flex;align-items:center;justify-content:space-between;}
-.tb2{display:flex;align-items:center;justify-content:space-between;margin-top:4px;}
-.tbtn{background:rgba(255,255,255,0.2);border:none;border-radius:8px;color:#fff;cursor:pointer;font-weight:700;display:flex;align-items:center;justify-content:center;gap:4px;white-space:nowrap;}
+.tb2{display:flex;align-items:center;justify-content:space-between;margin-top:2px;}
+.tbtn{background:rgba(255,255,255,0.2);border:none;border-radius:7px;color:#fff;cursor:pointer;font-weight:700;display:flex;align-items:center;justify-content:center;gap:4px;white-space:nowrap;}
 
 /* 탭 */
 .tabs{background:var(--card);border-bottom:2px solid var(--border);display:flex;flex-shrink:0;}
-.tab{flex:1;padding:10px 4px;font-size:14px;font-weight:600;color:var(--t3);border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;}
+.tab{flex:1;padding:7px 4px;font-size:13px;font-weight:600;color:var(--t3);border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;}
 .tab.on{color:var(--green);border-bottom-color:var(--green);font-weight:800;}
 
 .body{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;}
@@ -83,8 +83,8 @@ tr.final-row td{background:#1A3A5C;color:#fff;font-weight:900;}
 @keyframes fall{0%{opacity:1;}100%{transform:translateY(70vh)rotate(720deg);opacity:0;}}
 
 /* 하단 */
-.foot{background:var(--card);border-top:1px solid var(--border);padding:10px 12px calc(var(--safe-bot)+10px);flex-shrink:0;display:flex;gap:8px;}
-.btn{flex:1;padding:13px;border-radius:8px;font-size:14px;font-weight:700;border:none;cursor:pointer;white-space:nowrap;}
+.foot{background:var(--card);border-top:1px solid var(--border);padding:7px 12px calc(var(--safe-bot)+7px);flex-shrink:0;display:flex;gap:8px;}
+.btn{flex:1;padding:10px;border-radius:8px;font-size:13px;font-weight:700;border:none;cursor:pointer;white-space:nowrap;}
 .btn:active{transform:scale(0.97);}
 .btn-green{background:var(--green);color:#fff;}
 .btn-blue{background:#1A5C99;color:#fff;}
@@ -125,14 +125,14 @@ if('serviceWorker' in navigator){
   <div class="topbar">
     <div class="tb1">
       <div style="display:flex;align-items:center;gap:6px;min-width:0;">
-        <a href="index.html" style="background:rgba(255,255,255,0.2);border:none;border-radius:8px;width:34px;height:34px;color:#fff;font-size:16px;display:flex;align-items:center;justify-content:center;text-decoration:none;flex-shrink:0;">🏠</a>
-        <h1 style="font-size:15px;font-weight:700;white-space:nowrap;">📋 스코어카드</h1>
+        <a href="index.html" style="background:rgba(255,255,255,0.2);border:none;border-radius:7px;width:30px;height:30px;color:#fff;font-size:15px;display:flex;align-items:center;justify-content:center;text-decoration:none;flex-shrink:0;">🏠</a>
+        <h1 style="font-size:14px;font-weight:700;white-space:nowrap;">📋 스코어카드</h1>
       </div>
       <div style="display:flex;gap:5px;flex-shrink:0;">
-        <button class="tbtn" onclick="doLoad()" style="height:34px;padding:0 9px;font-size:12px;">📂</button>
-        <button class="tbtn" onclick="resetAll()" style="height:34px;padding:0 9px;font-size:12px;">🔄</button>
-        <button class="tbtn" onclick="doSave()" style="height:34px;padding:0 9px;font-size:12px;">💾</button>
-        <button class="tbtn" onclick="openMo()" style="width:34px;height:34px;font-size:16px;">⚙️</button>
+        <button class="tbtn" onclick="doLoad()" style="height:30px;padding:0 8px;font-size:13px;">📂</button>
+        <button class="tbtn" onclick="resetAll()" style="height:30px;padding:0 8px;font-size:13px;">🔄</button>
+        <button class="tbtn" onclick="doSave()" style="height:30px;padding:0 8px;font-size:13px;">💾</button>
+        <button class="tbtn" onclick="openMo()" style="width:30px;height:30px;font-size:15px;">⚙️</button>
       </div>
     </div>
     <div class="tb2">
@@ -310,12 +310,15 @@ function renderTable(half){
 
 // ── 세로모드 ──
 function renderPortrait(half,holes,n,vw,vh){
-  const holeColW=58;
-  // 세로: 합계 열 없음! 플레이어 열만
+  const holeColW=56;
   const playerColW=Math.floor((vw-holeColW-4)/n);
-  const boxW=Math.min(playerColW-6,52);
-  const boxH=Math.min(boxW*0.82,44);
-  const fs=Math.max(11,Math.min(15,playerColW/4));
+  // 가용 높이: topbar(44)+탭(34)+하단(44) 빼기
+  const availH=vh-44-34-44;
+  const rows=half===0?10:11;
+  const rowH=Math.floor(availH/rows);
+  const boxW=Math.min(playerColW-6,48);
+  const boxH=Math.max(Math.min(rowH-6,42),28);
+  const fs=Math.max(10,Math.min(14,playerColW/4));
 
   const parF=Array.from({length:9},(_,i)=>G.pars[i]).reduce((a,b)=>a+b,0);
   const parB=Array.from({length:9},(_,i)=>G.pars[i+9]).reduce((a,b)=>a+b,0);

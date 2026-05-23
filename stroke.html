@@ -228,7 +228,7 @@ const firebaseConfig = {
   databaseURL: "https://myeongnang-golf-adcb8-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "myeongnang-golf-adcb8",
 };
-firebase.initializeApp(firebaseConfig);
+if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 var currentRoom=null, isHost=false, dbRef=null, _isSyncing=false;

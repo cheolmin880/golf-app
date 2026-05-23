@@ -525,7 +525,7 @@ function save(){try{localStorage.setItem('golf_g3',JSON.stringify(G));}catch(e){
 
 // ── Firebase 초기화 ──
 const firebaseConfig={databaseURL:"https://myeongnang-golf-adcb8-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"myeongnang-golf-adcb8"};
-firebase.initializeApp(firebaseConfig);
+if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db=firebase.database();
 var currentRoom=null,dbRef=null,_isSyncing=false;
 

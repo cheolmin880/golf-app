@@ -216,8 +216,8 @@ var _popPi=null,_popH=null;
 var _isSyncing=false;
 
 // ── Firebase ──
-firebase.initializeApp({databaseURL:"https://myeongnang-golf-adcb8-default-rtdb.asia-southeast1.firebasedatabase.app"});
-const _db=firebase.database();
+const _fbApp=firebase.apps.find(a=>a.name==='scorecard')||firebase.initializeApp({databaseURL:"https://myeongnang-golf-adcb8-default-rtdb.asia-southeast1.firebasedatabase.app"},'scorecard');
+const _db=_fbApp.database();
 const _ref=_db.ref('scorecard');
 
 function syncToFirebase(){

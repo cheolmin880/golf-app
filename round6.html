@@ -525,8 +525,8 @@ function save(){try{localStorage.setItem('golf_g3',JSON.stringify(G));}catch(e){
 
 // ── Firebase 초기화 ──
 const firebaseConfig={databaseURL:"https://myeongnang-golf-adcb8-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"myeongnang-golf-adcb8"};
-if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-const db=firebase.database();
+const _fbApp=firebase.apps.find(a=>a.name==='round6')||firebase.initializeApp(firebaseConfig,'round6');
+const db=_fbApp.database();
 var currentRoom=null,dbRef=null,_isSyncing=false;
 
 function genRoomCode(){const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';return Array.from({length:6},()=>c[Math.floor(Math.random()*c.length)]).join('');}

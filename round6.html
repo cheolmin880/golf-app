@@ -1504,6 +1504,8 @@ function doEnd(){
     showTab('result');
   });
 }
+
+function showConfirm(msg, onOk){
   const overlay=document.createElement('div');
   overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:400;display:flex;align-items:center;justify-content:center;padding:20px;';
   overlay.innerHTML=`

@@ -548,6 +548,16 @@ function createRoom(){
   if(!_db6){alert('Firebase 연결 오류. 새로고침 해주세요.');return;}
   const code=genRoomCode();currentRoom=code;
   document.getElementById('roomStatus').textContent='방 만드는 중...';
+  // 새 게임 - 초기 데이터로 리셋
+  G.players=[
+    {name:'플레이어1',handi:0},
+    {name:'플레이어2',handi:0},
+    {name:'플레이어3',handi:0},
+    {name:'플레이어4',handi:0},
+  ];
+  G.scores=Array.from({length:4},()=>Array(18).fill(null));
+  G.history=[];
+  G.gameDate=new Date().toISOString().slice(0,10);
   dbRef=_db6.ref('rooms6/'+code);
   dbRef.set({created:Date.now(),game:JSON.stringify(G)}).then(()=>{
     enterGame(code);startSync();

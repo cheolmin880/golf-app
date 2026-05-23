@@ -241,6 +241,16 @@ function genRoomCode(){
 function createRoom(){
   const code=genRoomCode();
   currentRoom=code; isHost=true;
+  // 새 게임 - 이름/핸디/스코어 초기화
+  G.players=[
+    {name:'플레이어1',handi:0},
+    {name:'플레이어2',handi:0},
+    {name:'플레이어3',handi:0},
+    {name:'플레이어4',handi:0},
+  ];
+  G.scores=Array.from({length:4},()=>Array(18).fill(null));
+  G.history=[];
+  G.gameDate=new Date().toISOString().slice(0,10);
   document.getElementById('roomStatus').textContent='방 만드는 중...';
   dbRef=db.ref('rooms/'+code);
   dbRef.set({created:Date.now(),game:JSON.stringify(G)}).then(()=>{

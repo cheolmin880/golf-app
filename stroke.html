@@ -317,14 +317,21 @@ function LD(){
     const d=localStorage.getItem('stroke_g2');
     if(d){
       const saved=JSON.parse(d);
-      // 설정값만 복원 (이름/핸디/스코어는 초기화)
       if(saved.unitPrice) G.unitPrice=saved.unitPrice;
       if(saved.baeban!==undefined) G.baeban=saved.baeban;
       if(saved.pars) G.pars=saved.pars;
       if(saved.startHole) G.startHole=saved.startHole;
-      // 이름/핸디/스코어는 기본값 유지
     }
   }catch(e){}
+  // 이름/핸디/스코어 반드시 초기값으로 리셋
+  G.players=[
+    {name:'플레이어1',handi:0},
+    {name:'플레이어2',handi:0},
+    {name:'플레이어3',handi:0},
+    {name:'플레이어4',handi:0},
+  ];
+  G.scores=Array.from({length:4},()=>Array(18).fill(null));
+  G.history=[];
 }
 function FN(el){const r=el.value.replace(/[^0-9]/g,'');el.value=r?Number(r).toLocaleString():'';el._r=r;}
 function GR(id){const el=document.getElementById(id);return parseInt(el&&(el._r||el.value.replace(/[^0-9]/g,'')))||0;}

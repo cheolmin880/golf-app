@@ -602,17 +602,25 @@ function syncToFirebase(){
   dbRef.child('game').set(JSON.stringify(G));
 }
 function load(){
+  // 이름/핸디/스코어는 항상 초기값 사용 (설정값만 복원)
   try{
     const d=localStorage.getItem('golf_g3');
     if(d){
       const p=JSON.parse(d);
-      // 설정값만 복원 (이름/핸디/스코어는 초기화)
       if(p.stakes) G.stakes=p.stakes;
       if(p.buddyFine!=null) G.buddyFine=p.buddyFine;
       if(p.startHole) G.startHole=p.startHole;
-      // 이름/핸디/스코어는 기본값 유지
     }
   }catch(e){}
+  // 이름/핸디/스코어는 반드시 초기값으로 리셋
+  G.players=[
+    {name:'플레이어1',handi:0},
+    {name:'플레이어2',handi:0},
+    {name:'플레이어3',handi:0},
+    {name:'플레이어4',handi:0},
+  ];
+  G.scores=Array.from({length:4},()=>Array(18).fill(null));
+  G.history=[];
 }
 
 // 스냅샷 저장 (undo용)

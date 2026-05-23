@@ -524,32 +524,47 @@ const RANK_EMOJI=['🥇','🥈','🥉','<svg width="1em" height="1.3em" viewBox=
 function save(){try{localStorage.setItem('golf_g3',JSON.stringify(G));}catch(e){}}
 
 // ── Firebase 초기화 ──
-const firebaseConfig={databaseURL:"https://myeongnang-golf-adcb8-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"myeongnang-golf-adcb8"};
-const _fbApp=firebase.apps.find(a=>a.name==='round6')||firebase.initializeApp(firebaseConfig,'round6');
-const db=_fbApp.database();
+var _db6=null;
 var currentRoom=null,dbRef=null,_isSyncing=false;
+
+(function initFirebase(){
+  try{
+    const cfg={databaseURL:"https://myeongnang-golf-adcb8-default-rtdb.asia-southeast1.firebasedatabase.app"};
+    var app;
+    try{
+      app=firebase.app('round6');
+    }catch(e){
+      app=firebase.initializeApp(cfg,'round6');
+    }
+    _db6=app.database();
+  }catch(e){
+    console.error('Firebase 초기화 오류:',e);
+  }
+})();
 
 function genRoomCode(){const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';return Array.from({length:6},()=>c[Math.floor(Math.random()*c.length)]).join('');}
 
 function createRoom(){
+  if(!_db6){alert('Firebase 연결 오류. 새로고침 해주세요.');return;}
   const code=genRoomCode();currentRoom=code;
   document.getElementById('roomStatus').textContent='방 만드는 중...';
-  dbRef=db.ref('rooms6/'+code);
+  dbRef=_db6.ref('rooms6/'+code);
   dbRef.set({created:Date.now(),game:JSON.stringify(G)}).then(()=>{
     enterGame(code);startSync();
   }).catch(e=>{document.getElementById('roomStatus').textContent='❌ 오류: '+e.message;});
 }
 
 function joinRoom(){
+  if(!_db6){alert('Firebase 연결 오류. 새로고침 해주세요.');return;}
   const code=document.getElementById('roomCodeInput').value.trim().toUpperCase();
   if(code.length!==6){alert('방 코드 6자리를 입력하세요');return;}
   document.getElementById('roomStatus').textContent='접속 중...';
-  dbRef=db.ref('rooms6/'+code);
+  dbRef=_db6.ref('rooms6/'+code);
   dbRef.once('value').then(snap=>{
     if(!snap.exists()){document.getElementById('roomStatus').textContent='❌ 방을 찾을 수 없어요';return;}
     currentRoom=code;
     const data=snap.val();
-    if(data.game){_isSyncing=true;try{Object.assign(G,JSON.parse(data.game));}catch(e){}; _isSyncing=false;}
+    if(data.game){_isSyncing=true;try{Object.assign(G,JSON.parse(data.game));}catch(e){}_isSyncing=false;}
     enterGame(code);startSync();
   }).catch(e=>{document.getElementById('roomStatus').textContent='❌ 오류: '+e.message;});
 }
@@ -564,7 +579,7 @@ function enterGame(code){
 }
 
 function startSync(){
-  if(!dbRef) return;
+  if(!dbRef||!_db6) return;
   dbRef.child('game').on('value',snap=>{
     if(!snap.exists()||_isSyncing) return;
     _isSyncing=true;
@@ -574,7 +589,7 @@ function startSync(){
     const el=document.getElementById('syncStatus');
     if(el){el.textContent='● 연결됨';el.style.color='#5CB85C';}
   });
-  db.ref('.info/connected').on('value',snap=>{
+  _db6.ref('.info/connected').on('value',snap=>{
     const el=document.getElementById('syncStatus');
     if(!el) return;
     if(snap.val()){el.textContent='● 연결됨';el.style.color='#5CB85C';}
@@ -583,7 +598,7 @@ function startSync(){
 }
 
 function syncToFirebase(){
-  if(!dbRef||!currentRoom||_isSyncing) return;
+  if(!dbRef||!currentRoom||_isSyncing||!_db6) return;
   dbRef.child('game').set(JSON.stringify(G));
 }
 function load(){

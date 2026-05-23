@@ -312,7 +312,20 @@ var G={
 var _popPi=null,_popH=null;
 
 function SV(){try{localStorage.setItem('stroke_g2',JSON.stringify(G));}catch(e){}}
-function LD(){try{const d=localStorage.getItem('stroke_g2');if(d)Object.assign(G,JSON.parse(d));}catch(e){}}
+function LD(){
+  try{
+    const d=localStorage.getItem('stroke_g2');
+    if(d){
+      const saved=JSON.parse(d);
+      // 설정값만 복원 (이름/핸디/스코어는 초기화)
+      if(saved.unitPrice) G.unitPrice=saved.unitPrice;
+      if(saved.baeban!==undefined) G.baeban=saved.baeban;
+      if(saved.pars) G.pars=saved.pars;
+      if(saved.startHole) G.startHole=saved.startHole;
+      // 이름/핸디/스코어는 기본값 유지
+    }
+  }catch(e){}
+}
 function FN(el){const r=el.value.replace(/[^0-9]/g,'');el.value=r?Number(r).toLocaleString():'';el._r=r;}
 function GR(id){const el=document.getElementById(id);return parseInt(el&&(el._r||el.value.replace(/[^0-9]/g,'')))||0;}
 function toast(m){const t=document.getElementById('_t');t.textContent=m;t.style.opacity='1';clearTimeout(t._x);t._x=setTimeout(()=>{t.style.opacity='0';},2200);}
@@ -432,12 +445,14 @@ function ST(tab){
     f.innerHTML='<button class="btn btn-lt" style="flex:0.6" onclick="prevHole('+tab+')">◀</button>'
       +'<button class="btn btn-lt" onclick="ST(\'handi\')">💰</button>'
       +'<button class="btn btn-nv" onclick="ST(\'result\')">📊결과</button>'
+      +'<button class="btn" style="background:#CC5500;color:#fff;flex:0.6" onclick="doEnd()">🔄</button>'
       +'<button class="btn btn-lt" style="flex:0.6" onclick="nextHole('+tab+')">▶</button>';
   } else if(tab==='result'){
     b.innerHTML=RResult();
     f.innerHTML='<button class="btn btn-lt" onclick="ST(0)">✏️ 수정</button>'
       +'<button class="btn btn-nv" onclick="doSave()">💾 저장</button>'
-      +'<button class="btn btn-lt" onclick="doLoad()">📂 불러오기</button>';
+      +'<button class="btn btn-lt" onclick="doLoad()">📂 불러오기</button>'
+      +'<button class="btn" style="background:#CC5500;color:#fff;" onclick="doEnd()">🔄 초기화</button>';
   }
   updTopInfo();
 }

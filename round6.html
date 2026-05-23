@@ -8,13 +8,19 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="명랑골프">
-<link rel="manifest" href="/golf-app/manifest.json">
-<link rel="apple-touch-icon" href="/golf-app/icon.svg">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.svg">
 <title>명랑골프</title>
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(e=>console.log(e));
+  });
+}
+</script>
 <style>
 :root {
   --green:#3B6D11;--green-light:#EAF3DE;--green-dark:#27500A;
@@ -287,13 +293,7 @@ body{height:100%;background:var(--bg);font-family:-apple-system,'Noto Sans KR',s
 .mbtn-cancel{background:#F0F0EE;color:var(--text);}
 .mbtn-apply{background:var(--green);color:#fff;}
 </style>
-<script>
-if('serviceWorker' in navigator){
-  window.addEventListener('load',function(){
-    navigator.serviceWorker.register('/golf-app/sw.js',{scope:'/golf-app/'});
-  });
-}
-</script></head>
+</head>
 <body>
 
 <!-- 방 입장 화면 -->
@@ -363,6 +363,7 @@ if('serviceWorker' in navigator){
       <button class="btn-main btn-start" onclick="doStart()" style="white-space:nowrap;font-size:14px;">▶ 시작</button>
       <button class="btn-main btn-end"   onclick="doEnd()"   style="white-space:nowrap;font-size:14px;">■ 종료</button>
       <button class="btn-main btn-save"  onclick="doSave()"  style="white-space:nowrap;font-size:14px;">💾 저장</button>
+      <button class="btn-main" style="background:#CC5500;color:#fff;font-size:14px;white-space:nowrap;" onclick="doReset()">🔄 초기화</button>
       <button class="btn-main" style="background:#6B4C9A;color:#fff;font-size:14px;white-space:nowrap;" onclick="openScoreBoard()">📋 스코어</button>
     </div>
   </div>
@@ -590,14 +591,11 @@ function load(){
     const d=localStorage.getItem('golf_g3');
     if(d){
       const p=JSON.parse(d);
-      // 데이터가 있어도 현재 G에 실제 스코어가 입력된 경우 localStorage를 무시
-      const hasInitialScores=G.scores.some(row=>row.some(v=>v!==null));
-      if(hasInitialScores) return; // 초기 데이터 우선
-      G.players=p.players;G.scores=p.scores;G.stakes=p.stakes;
-      if(p.startHole)G.startHole=p.startHole;
-      if(p.buddyFine!=null)G.buddyFine=p.buddyFine;
-      if(p.history)G.history=p.history;
-      if(p.gameDate)G.gameDate=p.gameDate;
+      // 설정값만 복원 (이름/핸디/스코어는 초기화)
+      if(p.stakes) G.stakes=p.stakes;
+      if(p.buddyFine!=null) G.buddyFine=p.buddyFine;
+      if(p.startHole) G.startHole=p.startHole;
+      // 이름/핸디/스코어는 기본값 유지
     }
   }catch(e){}
 }
@@ -1489,13 +1487,23 @@ function doStart(){
   },100);
 }
 
+function doReset(){
+  showConfirm('스코어를 모두 초기화할까요?\n설정(이름/핸디)은 유지돼요.', ()=>{
+    G.scores=Array.from({length:G.players.length},()=>Array(18).fill(null));
+    G.history=[];
+    G.curRound=0;
+    save();
+    syncToFirebase();
+    showTab('players');
+    showToast('🔄 스코어가 초기화됐어요');
+  });
+}
+
 function doEnd(){
   showConfirm('게임을 종료하고 최종 결과를 볼까요?', ()=>{
     showTab('result');
   });
 }
-
-function showConfirm(msg, onOk){
   const overlay=document.createElement('div');
   overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:400;display:flex;align-items:center;justify-content:center;padding:20px;';
   overlay.innerHTML=`

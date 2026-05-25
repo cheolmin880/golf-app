@@ -301,17 +301,31 @@ body{height:100%;background:var(--bg);font-family:-apple-system,'Noto Sans KR',s
   <div style="font-size:52px;margin-bottom:12px;">⛳</div>
   <div style="font-size:24px;font-weight:900;color:#fff;margin-bottom:4px;">6라운드 게임</div>
   <div style="font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:36px;">실시간 동기화</div>
-  <div id="hostSection" style="width:100%;max-width:320px;background:rgba(255,255,255,0.1);border-radius:16px;padding:20px;margin-bottom:12px;">
+
+  <!-- 이전 방 이어하기 버튼 -->
+  <div id="resumeSection" style="display:none;width:100%;max-width:320px;margin-bottom:16px;">
+    <button onclick="resumeRoom()" style="width:100%;padding:16px;background:linear-gradient(135deg,#F3722C,#F9844A);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;">
+      ▶️ 이전 방 이어하기 (<span id="resumeRoomCode"></span>)
+    </button>
+    <button onclick="clearResume()" style="width:100%;padding:8px;background:none;color:rgba(255,255,255,0.4);border:none;font-size:12px;cursor:pointer;margin-top:4px;">
+      새 게임 시작하기
+    </button>
+  </div>
+
+  <div id="newGameSection" style="width:100%;max-width:320px;">
+  <div id="hostSection" style="width:100%;background:rgba(255,255,255,0.1);border-radius:16px;padding:20px;margin-bottom:12px;">
     <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.6);margin-bottom:10px;">🎮 새 게임 만들기 (방장)</div>
     <button onclick="createRoom()" style="width:100%;padding:14px;background:#3B6D11;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;">방 만들기</button>
   </div>
-  <div style="width:100%;max-width:320px;background:rgba(255,255,255,0.1);border-radius:16px;padding:20px;">
+  <div style="width:100%;background:rgba(255,255,255,0.1);border-radius:16px;padding:20px;">
     <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.6);margin-bottom:10px;">🔑 게임 참가하기</div>
     <input id="roomCodeInput" type="number" maxlength="3" placeholder="방 코드 3자리"
       style="width:100%;padding:12px;background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.2);border-radius:10px;font-size:22px;font-weight:900;color:#fff;text-align:center;letter-spacing:6px;margin-bottom:10px;"
       oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,3)">
     <button onclick="joinRoom()" style="width:100%;padding:14px;background:#0F6E56;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;">참가하기</button>
   </div>
+  </div>
+
   <div id="roomStatus" style="margin-top:16px;font-size:13px;color:rgba(255,255,255,0.7);text-align:center;"></div>
   <a href="index.html" style="margin-top:20px;font-size:13px;color:rgba(255,255,255,0.4);text-decoration:none;">← 메인으로</a>
 
@@ -1865,23 +1879,31 @@ function updateDate(){
 }
 
 load();updateDate();
-// URL 파라미터 확인: ?join=1 이면 참가자용 (방 만들기 숨김)
 (function(){
   const params=new URLSearchParams(window.location.search);
   if(params.get('join')==='1'){
     const hs=document.getElementById('hostSection');
     if(hs) hs.style.display='none';
   }
-  // 저장된 방코드 있으면 자동입장 (Firebase 준비 후)
+  // 저장된 방코드 있으면 이어하기 버튼 표시
   const savedRoom=localStorage.getItem('round6_room');
   if(savedRoom){
-    const inp=document.getElementById('roomCodeInput');
-    if(inp) inp.value=savedRoom;
-    document.getElementById('roomStatus').textContent='이전 방에 재접속 중...';
-    setTimeout(()=>autoJoin(savedRoom), 800); // Firebase 초기화 대기
+    document.getElementById('resumeSection').style.display='block';
+    document.getElementById('resumeRoomCode').textContent=savedRoom;
+    document.getElementById('newGameSection').style.display='none';
   }
 })();
 // showTab은 enterGame() 후 호출됨
+
+function resumeRoom(){
+  const code=localStorage.getItem('round6_room');
+  if(code) autoJoin(code);
+}
+function clearResume(){
+  localStorage.removeItem('round6_room');
+  document.getElementById('resumeSection').style.display='none';
+  document.getElementById('newGameSection').style.display='block';
+}
 </script>
 </body>
 </html>

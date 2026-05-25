@@ -988,11 +988,17 @@ function goHome(){
     const choice=confirm('저장하고 나가시겠어요?\n\n확인 = 저장 후 나가기\n취소 = 그냥 나가기');
     if(choice===true){doSave();setTimeout(()=>{location.href='index.html';},800);}
     else if(choice===false){location.href='index.html';}
-    // x 버튼(null)이면 팝업만 닫힘
   } else {
     location.href='index.html';
   }
 }
+
+// ── 뒤로가기 버튼 가로채기 ──
+history.pushState(null,null,location.href);
+window.addEventListener('popstate',function(e){
+  history.pushState(null,null,location.href); // 뒤로가기 막기
+  goHome(); // 저장확인 팝업
+});
 
 // ── 초기화 ──
 LD();updTopInfo();

@@ -1566,6 +1566,13 @@ function goHome(){
   }
 }
 
+// ── 뒤로가기 버튼 가로채기 ──
+history.pushState(null,null,location.href);
+window.addEventListener('popstate',function(e){
+  history.pushState(null,null,location.href);
+  goHome();
+});
+
 // ── 결과 저장/불러오기 ──
 function saveResult(){
   try{

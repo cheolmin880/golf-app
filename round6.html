@@ -608,18 +608,26 @@ function syncToFirebase(){
   dbRef.child('game').set(JSON.stringify(G));
 }
 function load(){
-  // 이름/핸디/스코어는 항상 초기값 사용 (설정값만 복원)
   try{
     const d=localStorage.getItem('golf_g3');
     if(d){
       const p=JSON.parse(d);
+      // 진행중인 게임이 있으면 전체 복원
+      const hasScore=p.scores&&p.scores.some(r=>Array.isArray(r)&&r.some(v=>v!==null));
+      const hasPlayers=p.players&&p.players.some(pl=>pl.name&&!pl.name.startsWith('플레이어'));
+      if(hasScore||hasPlayers){
+        Object.assign(G, p);
+        G.history=[];
+        return; // 복원 완료 → 초기화 건너뜀
+      }
+      // 스코어 없으면 설정값만 복원
       if(p.stakes) G.stakes=p.stakes;
       if(p.buddyFine!=null) G.buddyFine=p.buddyFine;
       if(p.startHole) G.startHole=p.startHole;
       if(p.pars) G.pars=p.pars;
     }
   }catch(e){}
-  // 이름/핸디/스코어는 반드시 초기값으로 리셋
+  // 새 게임 초기화
   G.players=[
     {name:'플레이어1',handi:0},
     {name:'플레이어2',handi:0},
@@ -1566,9 +1574,12 @@ function goHome(){
   }
 }
 
-// ── 뒤로가기 버튼 가로채기 ──
+// ── 뒤로가기 버튼 가로채기 (갤럭시 대응) ──
+let _backReady=false;
 history.pushState(null,null,location.href);
+setTimeout(()=>{_backReady=true;},300);
 window.addEventListener('popstate',function(e){
+  if(!_backReady)return;
   history.pushState(null,null,location.href);
   goHome();
 });

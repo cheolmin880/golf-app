@@ -327,13 +327,22 @@ function LD(){
     const d=localStorage.getItem('stroke_g2');
     if(d){
       const saved=JSON.parse(d);
+      // 진행중인 게임이 있으면 전체 복원
+      const hasScore=saved.scores&&saved.scores.some(r=>Array.isArray(r)&&r.some(v=>v!==null));
+      const hasPlayers=saved.players&&saved.players.some(p=>p.name&&p.name!=='플레이어'&&!p.name.startsWith('플레이어'));
+      if(hasScore||hasPlayers){
+        Object.assign(G, saved);
+        G.history=[];
+        return; // 복원 완료 → 초기화 건너뜀
+      }
+      // 스코어 없으면 설정값만 복원
       if(saved.unitPrice) G.unitPrice=saved.unitPrice;
       if(saved.baeban!==undefined) G.baeban=saved.baeban;
       if(saved.pars) G.pars=saved.pars;
       if(saved.startHole) G.startHole=saved.startHole;
     }
   }catch(e){}
-  // 이름/핸디/스코어 반드시 초기값으로 리셋
+  // 새 게임 초기화
   G.players=[
     {name:'플레이어1',handi:0},
     {name:'플레이어2',handi:0},
@@ -993,11 +1002,14 @@ function goHome(){
   }
 }
 
-// ── 뒤로가기 버튼 가로채기 ──
+// ── 뒤로가기 버튼 가로채기 (갤럭시 대응) ──
+let _backReady=false;
 history.pushState(null,null,location.href);
+setTimeout(()=>{_backReady=true;},300);
 window.addEventListener('popstate',function(e){
-  history.pushState(null,null,location.href); // 뒤로가기 막기
-  goHome(); // 저장확인 팝업
+  if(!_backReady)return;
+  history.pushState(null,null,location.href);
+  goHome();
 });
 
 // ── 초기화 ──

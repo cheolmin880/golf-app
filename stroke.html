@@ -103,9 +103,9 @@ if('serviceWorker' in navigator){
 
   <div style="width:100%;max-width:320px;background:rgba(255,255,255,0.08);border-radius:16px;padding:20px;">
     <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.6);margin-bottom:10px;">🔑 게임 참가하기</div>
-    <input id="roomCodeInput" type="text" maxlength="6" placeholder="방 코드 6자리 입력"
+    <input id="roomCodeInput" type="number" maxlength="3" placeholder="방 코드 3자리 입력"
       style="width:100%;padding:12px;background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.2);border-radius:10px;font-size:22px;font-weight:900;color:#fff;text-align:center;letter-spacing:6px;margin-bottom:10px;text-transform:uppercase;"
-      oninput="this.value=this.value.toUpperCase()">
+      oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,3)">
     <button onclick="joinRoom()" style="width:100%;padding:14px;background:#0F6E56;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;">참가하기</button>
   </div>
 
@@ -132,10 +132,11 @@ if('serviceWorker' in navigator){
   <div class="topbar">
     <div class="r1">
       <div style="display:flex;align-items:center;gap:6px;">
-        <a href="index.html" style="background:rgba(255,255,255,0.2);border:none;border-radius:7px;width:34px;height:34px;color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;text-decoration:none;">🏠</a>
+        <button onclick="goHome()" style="background:rgba(255,255,255,0.2);border:none;border-radius:7px;width:34px;height:34px;color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;">🏠</button>
         <h1 style="font-size:16px;font-weight:700;">📊 스트로크 게임</h1>
       </div>
-      <div style="display:flex;gap:5px;">
+      <div style="display:flex;gap:5px;align-items:center;">
+        <span style="font-size:11px;font-weight:800;color:rgba(255,255,255,0.5);letter-spacing:1px;">KCM</span>
         <button onclick="undo()" style="background:rgba(255,255,255,0.2);border:none;border-radius:7px;width:34px;height:34px;color:#fff;font-size:20px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;">↩</button>
         <button onclick="OMo()" style="background:rgba(255,255,255,0.2);border:none;border-radius:7px;height:34px;padding:0 10px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;">⚙️ 설정</button>
       </div>
@@ -234,8 +235,7 @@ const db=_fbApp.database();
 var currentRoom=null, isHost=false, dbRef=null, _isSyncing=false;
 
 function genRoomCode(){
-  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  return Array.from({length:6},()=>chars[Math.floor(Math.random()*chars.length)]).join('');
+  return String(Math.floor(Math.random()*900)+100); // 100~999 3자리 숫자
 }
 
 function createRoom(){
@@ -259,8 +259,8 @@ function createRoom(){
 }
 
 function joinRoom(){
-  const code=document.getElementById('roomCodeInput').value.trim().toUpperCase();
-  if(code.length!==6){alert('방 코드 6자리를 입력하세요');return;}
+  const code=document.getElementById('roomCodeInput').value.trim();
+  if(code.length!==3){alert('방 코드 3자리를 입력하세요');return;}
   document.getElementById('roomStatus').textContent='접속 중...';
   dbRef=db.ref('rooms/'+code);
   dbRef.once('value').then(snap=>{
@@ -980,6 +980,18 @@ function doEnd(){
   G.scores=Array.from({length:G.players.length},()=>Array(18).fill(null));
   G.history=[];
   SV();ST('setup');toast('게임이 초기화됐어요');
+}
+
+// ── 홈으로 (저장 확인) ──
+function goHome(){
+  if(G.scores.some(r=>r.some(v=>v!==null))){
+    const choice=confirm('저장하고 나가시겠어요?\n\n확인 = 저장 후 나가기\n취소 = 그냥 나가기');
+    if(choice===true){doSave();setTimeout(()=>{location.href='index.html';},800);}
+    else if(choice===false){location.href='index.html';}
+    // x 버튼(null)이면 팝업만 닫힘
+  } else {
+    location.href='index.html';
+  }
 }
 
 // ── 초기화 ──

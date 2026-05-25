@@ -307,9 +307,9 @@ body{height:100%;background:var(--bg);font-family:-apple-system,'Noto Sans KR',s
   </div>
   <div style="width:100%;max-width:320px;background:rgba(255,255,255,0.1);border-radius:16px;padding:20px;">
     <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.6);margin-bottom:10px;">🔑 게임 참가하기</div>
-    <input id="roomCodeInput" type="text" maxlength="6" placeholder="방 코드 6자리"
+    <input id="roomCodeInput" type="number" maxlength="3" placeholder="방 코드 3자리"
       style="width:100%;padding:12px;background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.2);border-radius:10px;font-size:22px;font-weight:900;color:#fff;text-align:center;letter-spacing:6px;margin-bottom:10px;"
-      oninput="this.value=this.value.toUpperCase()">
+      oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,3)">
     <button onclick="joinRoom()" style="width:100%;padding:14px;background:#0F6E56;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;">참가하기</button>
   </div>
   <div id="roomStatus" style="margin-top:16px;font-size:13px;color:rgba(255,255,255,0.7);text-align:center;"></div>
@@ -336,10 +336,11 @@ body{height:100%;background:var(--bg);font-family:-apple-system,'Noto Sans KR',s
   <div class="top-bar">
     <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
     <div style="display:flex;align-items:center;gap:6px;">
-      <a href="index.html" style="background:rgba(255,255,255,0.2);border:none;border-radius:7px;width:34px;height:34px;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;">🏠</a>
+      <button onclick="goHome()" style="background:rgba(255,255,255,0.2);border:none;border-radius:7px;width:34px;height:34px;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">🏠</button>
       <h1 style="font-size:16px;font-weight:700;white-space:nowrap;">⛳ 명랑골프</h1>
     </div>
       <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
+        <span style="font-size:11px;font-weight:800;color:rgba(255,255,255,0.5);letter-spacing:1px;">KCM</span>
         <button onclick="undo()" style="background:rgba(255,255,255,0.2);border:none;border-radius:7px;width:34px;height:34px;color:#fff;font-size:20px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;">↩</button>
         <button onclick="openSavedResults()" style="background:rgba(255,255,255,0.2);border:none;border-radius:7px;height:34px;padding:0 10px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">📂 불러오기</button>
         <button onclick="openModal()" style="background:rgba(255,255,255,0.2);border:none;border-radius:7px;width:34px;height:34px;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">⚙️</button>
@@ -537,7 +538,7 @@ var currentRoom=null,dbRef=null,_isSyncing=false;
   }
 })();
 
-function genRoomCode(){const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';return Array.from({length:6},()=>c[Math.floor(Math.random()*c.length)]).join('');}
+function genRoomCode(){return String(Math.floor(Math.random()*900)+100);} // 100~999 3자리
 
 function createRoom(){
   if(!_db6){alert('Firebase 연결 오류. 새로고침 해주세요.');return;}
@@ -561,8 +562,8 @@ function createRoom(){
 
 function joinRoom(){
   if(!_db6){alert('Firebase 연결 오류. 새로고침 해주세요.');return;}
-  const code=document.getElementById('roomCodeInput').value.trim().toUpperCase();
-  if(code.length!==6){alert('방 코드 6자리를 입력하세요');return;}
+  const code=document.getElementById('roomCodeInput').value.trim();
+  if(code.length!==3){alert('방 코드 3자리를 입력하세요');return;}
   document.getElementById('roomStatus').textContent='접속 중...';
   dbRef=_db6.ref('rooms6/'+code);
   dbRef.once('value').then(snap=>{
@@ -1552,6 +1553,17 @@ function showConfirm(msg, onOk){
 
 function doSave(){
   saveResult();
+}
+
+function goHome(){
+  const hasData=G&&G.players&&G.players.length>0&&G.scores&&G.scores.some(r=>r&&r.some(v=>v!==null&&v!==undefined));
+  if(hasData){
+    const choice=confirm('저장하고 나가시겠어요?\n\n확인 = 저장 후 나가기\n취소 = 그냥 나가기');
+    if(choice===true){doSave();setTimeout(()=>{location.href='index.html';},400);}
+    else if(choice===false){location.href='index.html';}
+  } else {
+    location.href='index.html';
+  }
 }
 
 // ── 결과 저장/불러오기 ──

@@ -251,6 +251,7 @@ function createRoom(){
   G.scores=Array.from({length:4},()=>Array(18).fill(null));
   G.history=[];
   G.gameDate=new Date().toISOString().slice(0,10);
+  localStorage.setItem('stroke_room',code); // 방코드 저장
   document.getElementById('roomStatus').textContent='방 만드는 중...';
   dbRef=db.ref('rooms/'+code);
   dbRef.set({created:Date.now(),game:JSON.stringify(G)}).then(()=>{
@@ -261,11 +262,20 @@ function createRoom(){
 function joinRoom(){
   const code=document.getElementById('roomCodeInput').value.trim();
   if(code.length!==3){alert('방 코드 3자리를 입력하세요');return;}
+  autoJoin(code);
+}
+
+function autoJoin(code){
   document.getElementById('roomStatus').textContent='접속 중...';
   dbRef=db.ref('rooms/'+code);
   dbRef.once('value').then(snap=>{
-    if(!snap.exists()){document.getElementById('roomStatus').textContent='❌ 방을 찾을 수 없어요';return;}
+    if(!snap.exists()){
+      document.getElementById('roomStatus').textContent='❌ 방을 찾을 수 없어요';
+      localStorage.removeItem('stroke_room'); // 방 없으면 저장된 코드 삭제
+      return;
+    }
     currentRoom=code; isHost=false;
+    localStorage.setItem('stroke_room',code); // 방코드 저장
     const data=snap.val();
     if(data.game){_isSyncing=true;Object.assign(G,JSON.parse(data.game));_isSyncing=false;}
     enterGame(code); startSync();
@@ -278,7 +288,9 @@ function enterGame(code){
   badge.style.display='flex';
   document.getElementById('roomCodeDisplay').textContent=code;
   document.querySelector('.topbar').style.paddingTop='calc(env(safe-area-inset-top,0px) + 28px)';
-  ST('setup');
+  // 저장된 게임 있으면 마지막 탭으로, 없으면 setup으로
+  const hasData=G.scores&&G.scores.some(r=>r.some(v=>v!==null));
+  ST(hasData ? (G.curTab||'setup') : 'setup');
 }
 
 function startSync(){
@@ -1002,15 +1014,11 @@ function goHome(){
   }
 }
 
-// ── 뒤로가기 버튼 가로채기 (갤럭시 대응) ──
-let _backReady=false;
-history.pushState(null,null,location.href);
-setTimeout(()=>{_backReady=true;},300);
-window.addEventListener('popstate',function(e){
-  if(!_backReady)return;
-  history.pushState(null,null,location.href);
-  goHome();
+// ── 화면 벗어날 때 자동저장 (뒤로가기 포함) ──
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='hidden') doSave();
 });
+window.addEventListener('pagehide',function(){ doSave(); });
 
 // ── 초기화 ──
 LD();updTopInfo();
@@ -1020,6 +1028,14 @@ LD();updTopInfo();
   if(params.get('join')==='1'){
     const hs=document.getElementById('hostSection');
     if(hs) hs.style.display='none';
+  }
+  // 저장된 방코드 있으면 자동입장
+  const savedRoom=localStorage.getItem('stroke_room');
+  if(savedRoom){
+    const inp=document.getElementById('roomCodeInput');
+    if(inp) inp.value=savedRoom;
+    document.getElementById('roomStatus').textContent='이전 방에 재접속 중...';
+    autoJoin(savedRoom);
   }
 })();
 </script>

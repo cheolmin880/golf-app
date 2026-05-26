@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1B4332">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>명랑골프 도움말</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --green:#1B4332;--green2:#2D6A4F;--green3:#40916C;--green4:#74C69D;
+  --orange:#F3722C;--yellow:#F9C74F;--blue:#1A5C8A;--blue2:#2D8FC0;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bot:env(safe-area-inset-bottom,0px);
+}
+html,body{height:100%;font-family:-apple-system,'Noto Sans KR',sans-serif;background:#f4f6f4;}
+
+/* 상단바 */
+.topbar{
+  position:sticky;top:0;z-index:100;
+  background:var(--green);color:#fff;
+  padding:calc(var(--safe-top)+10px) 16px 10px;
+  display:flex;align-items:center;gap:10px;
+}
+.topbar-title{font-size:17px;font-weight:800;flex:1;}
+
+/* 탭 */
+.tabs{
+  position:sticky;top:calc(var(--safe-top)+44px);z-index:99;
+  background:#fff;border-bottom:2px solid #e8ede8;
+  display:flex;overflow-x:auto;
+  scrollbar-width:none;
+}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{
+  flex-shrink:0;padding:12px 16px;
+  font-size:13px;font-weight:700;color:#888;
+  border-bottom:3px solid transparent;
+  cursor:pointer;white-space:nowrap;
+  transition:all 0.2s;
+}
+.tab.active{color:var(--green2);border-bottom-color:var(--green2);}
+
+/* 컨텐츠 */
+.content{display:none;padding:0 0 calc(var(--safe-bot)+24px);}
+.content.active{display:block;}
+
+/* 섹션 */
+.section{padding:20px 16px 0;}
+.section-title{
+  font-size:18px;font-weight:900;color:var(--green);
+  margin-bottom:14px;display:flex;align-items:center;gap:8px;
+}
+
+/* 카드 */
+.card{
+  background:#fff;border-radius:14px;
+  padding:16px;margin-bottom:12px;
+  box-shadow:0 1px 4px rgba(0,0,0,0.07);
+}
+.card-title{font-size:14px;font-weight:800;color:#222;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.card-body{font-size:13px;color:#555;line-height:1.8;}
+
+/* 스텝 */
+.steps{counter-reset:step;}
+.step{
+  display:flex;gap:12px;align-items:flex-start;
+  padding:10px 0;border-bottom:1px solid #f0f0f0;
+}
+.step:last-child{border-bottom:none;}
+.step-num{
+  width:26px;height:26px;border-radius:50%;
+  background:var(--green2);color:#fff;
+  font-size:12px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin-top:1px;
+}
+.step-text{font-size:13px;color:#444;line-height:1.7;flex:1;}
+.step-text b{color:var(--green2);}
+
+/* 뱃지 */
+.badge{
+  display:inline-block;padding:2px 8px;border-radius:20px;
+  font-size:11px;font-weight:800;margin-right:4px;
+}
+.badge-green{background:#e8f5e9;color:#2D6A4F;}
+.badge-orange{background:#fff3e0;color:#e65100;}
+.badge-blue{background:#e3f2fd;color:#1565c0;}
+.badge-red{background:#fce4ec;color:#c62828;}
+
+/* 점수표 */
+.score-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px;}
+.score-table th{background:var(--green2);color:#fff;padding:6px 4px;text-align:center;font-weight:700;}
+.score-table td{padding:6px 4px;text-align:center;border-bottom:1px solid #eee;}
+.score-table tr:nth-child(even) td{background:#f9f9f9;}
+
+/* 하이라이트 박스 */
+.highlight{
+  background:linear-gradient(135deg,#e8f5e9,#f1f8e9);
+  border-left:4px solid var(--green3);
+  border-radius:0 10px 10px 0;
+  padding:12px 14px;margin-bottom:12px;
+  font-size:13px;color:#2D4A32;line-height:1.8;
+}
+.highlight b{color:var(--green);}
+
+.warn{
+  background:#fff8e1;border-left:4px solid var(--yellow);
+  border-radius:0 10px 10px 0;
+  padding:12px 14px;margin-bottom:12px;
+  font-size:13px;color:#5D4037;line-height:1.8;
+}
+
+/* 아이콘 칩 */
+.chip{
+  display:inline-flex;align-items:center;gap:4px;
+  background:#f0f4f0;border-radius:8px;
+  padding:4px 10px;font-size:12px;font-weight:700;
+  color:#2D6A4F;margin:3px 2px;
+}
+
+/* 점수 색상 박스 */
+.sbox-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.sbox{
+  border-radius:8px;padding:6px 12px;
+  font-size:12px;font-weight:800;color:#fff;text-align:center;
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html" style="background:rgba(255,255,255,0.2);border:none;border-radius:8px;width:34px;height:34px;color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;text-decoration:none;flex-shrink:0;">🏠</a>
+  <div class="topbar-title">📖 명랑골프 도움말</div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('intro')">🏠 소개</div>
+  <div class="tab" onclick="showTab('round6')">⛳ 6라운드</div>
+  <div class="tab" onclick="showTab('stroke')">📊 스트로크</div>
+  <div class="tab" onclick="showTab('scorecard')">📋 스코어카드</div>
+  <div class="tab" onclick="showTab('tips')">💡 팁</div>
+</div>
+
+<!-- ① 소개 -->
+<div id="tab-intro" class="content active">
+  <div class="section">
+    <div class="section-title">⛳ 명랑골프란?</div>
+    <div class="highlight">
+      친구들과 골프 칠 때 <b>점수 계산, 핸디 조정, 정산</b>을 스마트폰으로 간편하게!<br>
+      라운딩 중 실시간으로 입력하고 결과를 바로 확인할 수 있어요.
+    </div>
+
+    <div class="card">
+      <div class="card-title">🎮 게임 종류</div>
+      <div class="card-body">
+        <div style="display:flex;flex-direction:column;gap:12px;margin-top:4px;">
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+            <div style="width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,#74C69D,#40916C);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🏌️</div>
+            <div>
+              <div style="font-weight:800;color:#1B4332;font-size:14px;">6라운드 게임</div>
+              <div style="font-size:12px;color:#666;margin-top:2px;">18홀을 6홀씩 3라운드로 나눠서 진행<br>라운드별 핸디 조정 · 버디벌금 포함</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+            <div style="width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,#F9C74F,#F3722C);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">📊</div>
+            <div>
+              <div style="font-weight:800;color:#1B4332;font-size:14px;">스트로크 게임</div>
+              <div style="font-size:12px;color:#666;margin-top:2px;">18홀 총 타수 합산<br>핸디캡 적용 넷스코어로 순위 결정</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+            <div style="width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,#1A5C8A,#2D8FC0);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">📋</div>
+            <div>
+              <div style="font-weight:800;color:#1B4332;font-size:14px;">스코어카드</div>
+              <div style="font-size:12px;color:#666;margin-top:2px;">전반/후반 9홀 스코어 기록<br>핸디캡 · 넷스코어 자동 계산</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📱 시작하는 방법</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-text">방장(입력담당)이 <b>방 만들기</b> 버튼 탭</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text"><b>3자리 방 코드</b>가 생성됨 (예: 473)</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-text">동반자에게 방 코드 알려주기 (카톡 등)</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-text">동반자는 <b>참가하기</b> → 방 코드 입력 → 실시간으로 함께 보기</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ② 6라운드 게임 -->
+<div id="tab-round6" class="content">
+  <div class="section">
+    <div class="section-title">🏌️ 6라운드 게임</div>
+
+    <div class="highlight">
+      18홀을 <b>6홀씩 3라운드</b>로 나눠 진행해요.<br>
+      각 라운드마다 순위를 매기고 핸디를 조정해서<br>실력 차이가 있어도 <b>재미있게</b> 즐길 수 있어요!
+    </div>
+
+    <div class="card">
+      <div class="card-title">⚙️ 게임 설정</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-text"><b>플레이어 이름</b> 입력 (최대 4명)</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text"><b>18홀 핸디캡</b> 입력 (예: 핸디 12 → 18홀에서 12타 감점)</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-text"><b>납부금액</b> 설정 (1등/2등/3등/4등 금액)</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-text"><b>버디벌금</b> 설정 (버디/이글 시 모두가 내는 금액)</div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-text"><b>스타트홀</b> 설정 (1번홀 또는 10번홀 등)</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🏆 점수 계산 방법</div>
+      <div class="card-body">
+        <div class="sbox-row">
+          <div class="sbox" style="background:#1565c0;">이글 -2</div>
+          <div class="sbox" style="background:#2e7d32;">버디 -1</div>
+          <div class="sbox" style="background:#555;">파 0</div>
+          <div class="sbox" style="background:#e65100;">보기 +1</div>
+          <div class="sbox" style="background:#b71c1c;">더블 +2</div>
+          <div class="sbox" style="background:#880e4f;">트리 +3</div>
+        </div>
+        <div style="margin-top:12px;font-size:13px;color:#444;line-height:1.8;">
+          각 홀의 <b>오버/언더 타수</b>를 입력해요.<br>
+          파 기준으로 ±타수로 입력합니다.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔄 라운드별 핸디 조정</div>
+      <div class="card-body" style="line-height:1.9;">
+        6홀 라운드가 끝날 때마다 자동으로 핸디가 조정돼요.<br>
+        <span class="badge badge-green">1등</span> 핸디 감소 (더 불리해짐)<br>
+        <span class="badge badge-red">꼴등</span> 핸디 증가 (더 유리해짐)<br>
+        <span style="font-size:12px;color:#888;">→ 실력 차이를 줄여서 모두가 경쟁할 수 있어요!</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">💰 버디벌금</div>
+      <div class="card-body" style="line-height:1.9;">
+        버디(-1) 또는 이글(-2)을 하면<br>
+        <b>나머지 플레이어 전원</b>이 설정된 금액을 버디한 사람에게 내요.<br>
+        <span style="font-size:12px;color:#888;">예) 버디벌금 Rp10,000 × 3명 = Rp30,000 획득</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">💳 최종 정산</div>
+      <div class="card-body" style="line-height:1.9;">
+        <b>결과 탭</b>에서 최종 순위와 정산금액 확인<br>
+        버디벌금 + 라운드 납부금이 자동 계산돼요.<br>
+        <span class="badge badge-orange">누가 누구에게 얼마</span> 형식으로 표시!
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ③ 스트로크 게임 -->
+<div id="tab-stroke" class="content">
+  <div class="section">
+    <div class="section-title">📊 스트로크 게임</div>
+
+    <div class="highlight">
+      18홀 <b>총 타수</b>로 순위를 정하는 가장 기본적인 방식이에요.<br>
+      핸디캡을 적용한 <b>넷스코어</b>로 공평하게 경쟁해요!
+    </div>
+
+    <div class="card">
+      <div class="card-title">⚙️ 게임 설정</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-text"><b>플레이어 이름</b> 입력 (최대 4명)</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text"><b>핸디캡</b> 입력 (18홀 기준)</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-text"><b>단가</b> 설정 (1타당 금액)</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-text"><b>배반</b> 설정 (꼴등 배수)</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🧮 넷스코어 계산</div>
+      <div class="card-body">
+        <div class="highlight" style="margin-bottom:0;">
+          <b>넷스코어 = 총타수 - 핸디캡</b><br>
+          <span style="font-size:12px;">예) 총타수 90, 핸디 18 → 넷스코어 72</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">💰 정산 방법</div>
+      <div class="card-body" style="line-height:1.9;">
+        넷스코어 차이 × 단가로 계산해요.<br>
+        <span class="badge badge-red">꼴등</span>은 배반(배수) 적용!<br>
+        <span style="font-size:12px;color:#888;">예) 단가 Rp5,000, 타수차 3타 → Rp15,000</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📱 스코어 입력 방법</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-text">플레이어 이름 탭 → 해당 홀 탭</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">팝업에서 <b>이글/버디/파/보기/더블+</b> 선택</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-text">입력 즉시 Firebase에 <b>실시간 동기화</b></div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-text"><b>결과 탭</b>에서 순위 및 정산 확인</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ④ 스코어카드 -->
+<div id="tab-scorecard" class="content">
+  <div class="section">
+    <div class="section-title">📋 스코어카드</div>
+
+    <div class="highlight">
+      전통적인 골프 스코어카드 방식이에요.<br>
+      전반(1~9홀) / 후반(10~18홀)로 나눠서<br>
+      각 홀 타수를 직접 입력해요.
+    </div>
+
+    <div class="card">
+      <div class="card-title">⚙️ 설정 방법</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-text"><b>코스명</b> 입력 (예: 자바베카)</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text"><b>스타트홀</b> 설정 (1번홀 또는 10번홀 등)</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-text"><b>홀별 파(Par)</b> 설정 - 탭해서 P3/P4/P5 변경</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-text">플레이어 이름 · <b>핸디캡</b> 입력</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">⛳ 파(Par) 설정 팁</div>
+      <div class="card-body" style="line-height:1.9;">
+        홀별 파 설정은 <b>1~18홀 전체 기준</b>으로 입력해요.<br>
+        스타트홀이 12번이면 → 12번홀부터 시작되지만<br>
+        파 설정은 항상 <b>실제 홀번호 기준</b>으로 입력!<br>
+        <span class="chip">P3</span><span class="chip">P4</span><span class="chip">P5</span> 탭할 때마다 순환해요.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📱 스코어 입력 방법</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-text">표에서 입력할 칸 탭</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">팝업에서 타수 선택</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-text">전반 완료 후 <b>후반→</b> 버튼으로 이동</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-text"><b>💾 저장</b> 버튼으로 저장</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🧮 넷스코어 자동 계산</div>
+      <div class="card-body">
+        <div class="highlight" style="margin-bottom:0;">
+          <b>그로스 = 실제 총타수</b><br>
+          <b>넷스코어 = 그로스 - 핸디캡</b><br>
+          <span style="font-size:12px;">각 플레이어별로 자동 계산돼요</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ⑤ 팁 -->
+<div id="tab-tips" class="content">
+  <div class="section">
+    <div class="section-title">💡 알아두면 좋은 팁</div>
+
+    <div class="card">
+      <div class="card-title">📶 실시간 동기화</div>
+      <div class="card-body" style="line-height:1.9;">
+        방장이 스코어를 입력하면 <b>참가자 화면에 즉시</b> 반영돼요.<br>
+        <span class="badge badge-green">● 연결됨</span> 표시 확인!<br>
+        <div class="warn" style="margin-top:8px;margin-bottom:0;">
+          ⚠️ 카카오톡 브라우저는 동기화가 안 될 수 있어요!<br>
+          <b>우측 하단 ··· → 크롬으로 열기</b> 를 선택하세요.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔄 이전 방 이어하기</div>
+      <div class="card-body" style="line-height:1.9;">
+        앱을 껐다가 다시 켜도 걱정 없어요!<br>
+        <b>▶️ 이전 방 이어하기</b> 버튼이 자동으로 뜨고<br>
+        탭하면 방금 전 게임으로 바로 복귀해요.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">💾 자동 저장</div>
+      <div class="card-body" style="line-height:1.9;">
+        스코어 입력 즉시 <b>자동으로 저장</b>돼요.<br>
+        앱을 나가도 데이터가 사라지지 않아요.<br>
+        🏠 홈 버튼을 누르면 저장 확인 팝업이 뜨는 경우도 있어요.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">↩ 되돌리기</div>
+      <div class="card-body" style="line-height:1.9;">
+        잘못 입력했을 때 <b>↩ 버튼</b>을 탭하면<br>
+        직전 입력으로 되돌릴 수 있어요.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📂 불러오기</div>
+      <div class="card-body" style="line-height:1.9;">
+        이전에 저장한 게임 결과를<br>
+        <b>📂 불러오기</b> 버튼으로 다시 볼 수 있어요.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔃 새 게임 시작</div>
+      <div class="card-body" style="line-height:1.9;">
+        새 라운딩을 시작할 때는<br>
+        <b>⚙️ 설정 → 🔄 초기화</b> 버튼을 탭하세요.<br>
+        새 방 코드가 생성되고 게임이 초기화돼요.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📱 홈화면에 설치하기</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-text">크롬 브라우저에서 접속</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">우측 상단 <b>⋮</b> 탭</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-num" style="width:auto;border-radius:8px;padding:0 8px;background:#40916C;white-space:nowrap;">홈 화면에 추가</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-text">앱처럼 사용 가능! 🎉</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function showTab(id){
+  document.querySelectorAll('.content').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  event.target.classList.add('active');
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>

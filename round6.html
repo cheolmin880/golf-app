@@ -1771,8 +1771,8 @@ function openModal(){
     }
     const titleEl=document.getElementById('settingModalTitle');
     const applyEl=document.getElementById('settingModalApply');
-    if(titleEl) titleEl.textContent=isNew?'▶ 새 게임 시작':'⚙️ 게임 설정';
-    if(applyEl) applyEl.textContent=isNew?'시작하기':'적용';
+    if(titleEl) titleEl.textContent=G._isNewGame?'▶ 새 게임 시작':'⚙️ 게임 설정';
+    if(applyEl) applyEl.textContent=G._isNewGame?'시작하기':'적용';
 
     document.getElementById('modalOverlay').classList.add('open');
   }catch(e){

@@ -321,8 +321,8 @@ function renderPortrait(half,holes,n,vw,vh){
   const boxH=Math.max(Math.min(rowH-6,42),28);
   const fs=Math.max(10,Math.min(14,playerColW/4));
 
-  const parF=Array.from({length:9},(_,i)=>G.pars[holeNum(i)-1]).reduce((a,b)=>a+b,0);
-  const parB=Array.from({length:9},(_,i)=>G.pars[holeNum(i+9)-1]).reduce((a,b)=>a+b,0);
+  const parF=Array.from({length:9},(_,i)=>G.pars[(G.startHole-1+i)%18]).reduce((a,b)=>a+b,0);
+  const parB=Array.from({length:9},(_,i)=>G.pars[(G.startHole-1+i+9)%18]).reduce((a,b)=>a+b,0);
 
   let html='<div class="tbl-wrap"><table style="table-layout:fixed;width:100%;">';
 
@@ -341,7 +341,7 @@ function renderPortrait(half,holes,n,vw,vh){
 
   // 홀 행
   holes.forEach(h=>{
-    const hn=holeNum(h);const par=G.pars[hn-1];
+    const hn=holeNum(h);const par=G.pars[((G.startHole-1+h)%18)];
     html+=`<tr><td class="hl" style="font-size:${fs}px;padding:2px 5px;">
       <div style="font-weight:800;">${hn}홀</div>
       <div style="font-size:${Math.max(9,fs-2)}px;color:var(--t3);font-weight:600;">P${par}</div>
@@ -420,7 +420,7 @@ function renderLandscape(half,holes,n,vw,vh){
   html+=`<th class="sl" style="width:${nameColW}px;font-size:${fs}px;">이름/H</th>`;
   holes.forEach(h=>{
     const hn=holeNum(h);
-    html+=`<th style="width:${scoreColW}px;font-size:${fs}px;">${hn}<br><span style="font-size:${Math.max(9,fs-1)}px;opacity:0.7;">P${G.pars[hn-1]}</span></th>`;
+    html+=`<th style="width:${scoreColW}px;font-size:${fs}px;">${hn}<br><span style="font-size:${Math.max(9,fs-1)}px;opacity:0.7;">P${G.pars[((G.startHole-1+h)%18)]}</span></th>`;
   });
   if(half===0){
     html+=`<th style="width:${scoreColW}px;font-size:${fs-1}px;">전반홀</th>`;
@@ -483,7 +483,7 @@ function renderLandscape(half,holes,n,vw,vh){
 function openPop(pi,h){
   _popPi=pi;_popH=h;
   const hn=holeNum(h);
-  document.getElementById('popTitle').textContent=`${hn}홀 (Par${G.pars[hn-1]}) · ${G.players[pi].name}`;
+  document.getElementById('popTitle').textContent=`${hn}홀 (Par${G.pars[((G.startHole-1+_popH)%18)]}) · ${G.players[pi].name}`;
   const cur=G.scores[pi][h];
   document.getElementById('scoreOpts').innerHTML=SCORE_OPTS.map(o=>`
     <div class="popt${o.birdie?' birdie-opt':''}" style="background:${o.bg};${cur===o.val?'outline:3px solid #333;':''}" onclick="setScore(${JSON.stringify(o.val)})">

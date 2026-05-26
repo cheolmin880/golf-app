@@ -46,7 +46,7 @@ body{height:100%;background:var(--bg);font-family:-apple-system,'Noto Sans KR',s
 /* 탭 */
 .tab-bar{background:var(--card);border-bottom:1px solid var(--border);display:flex;flex-shrink:0;overflow-x:auto;scrollbar-width:none;}
 .tab-bar::-webkit-scrollbar{display:none;}
-.tab-btn{flex:1;min-width:52px;padding:8px 2px;font-size:13px;font-weight:500;color:var(--text2);border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;white-space:normal;line-height:1.2;text-align:center;}
+.tab-btn{flex:1;min-width:48px;padding:8px 2px;font-size:12px;font-weight:500;color:var(--text2);border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;white-space:normal;line-height:1.2;text-align:center;}
 .tab-btn.active{color:var(--green);border-bottom-color:var(--green);font-weight:700;}
 
 .content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:12px;}
@@ -367,9 +367,9 @@ body{height:100%;background:var(--bg);font-family:-apple-system,'Noto Sans KR',s
   </div>
   <div class="tab-bar">
     <button class="tab-btn active" onclick="showTab('players')">플레이어</button>
-    <button class="tab-btn" onclick="showTab('r0')">1R</button>
-    <button class="tab-btn" onclick="showTab('r1')">2R</button>
-    <button class="tab-btn" onclick="showTab('r2')">3R</button>
+    <button class="tab-btn" onclick="showTab('r0')">1R<br><span style="font-size:10px;opacity:0.7;">1~6홀</span></button>
+    <button class="tab-btn" onclick="showTab('r1')">2R<br><span style="font-size:10px;opacity:0.7;">7~12홀</span></button>
+    <button class="tab-btn" onclick="showTab('r2')">3R<br><span style="font-size:10px;opacity:0.7;">13~18홀</span></button>
     <button class="tab-btn" onclick="showTab('result')">결과</button>
   </div>
   <div class="content" id="content"></div>

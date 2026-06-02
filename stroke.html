@@ -507,8 +507,8 @@ function ST(tab){
       +'<button class="btn btn-nv" onclick="ST(\'result\')">📊결과</button>'
       +'<button class="btn" style="background:#CC5500;color:#fff;flex:0.6" onclick="doEnd()">🔄</button>'
       +'<button class="btn btn-lt" style="flex:0.6" onclick="nextHole('+tab+')">▶</button>';
-  } else if(tab==='result'){setTimeout(renderStPhotos,100);
-    b.innerHTML=RResult();
+  } else if(tab==='result'){
+    b.innerHTML=RResult();setTimeout(renderStPhotos,100);
     f.innerHTML='<button class="btn btn-lt" onclick="ST(0)">✏️ 수정</button>'
       +'<button class="btn btn-nv" onclick="doSave()">💾 저장</button>'
       +'<button class="btn btn-lt" onclick="doLoad()">📂 불러오기</button>'

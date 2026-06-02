@@ -112,6 +112,17 @@ tr.final-row td{background:#1A3A5C;color:#fff;font-weight:900;}
 }
 
 #_t{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:rgba(10,31,21,0.9);color:#fff;padding:9px 18px;border-radius:20px;font-size:13px;z-index:999;transition:opacity 0.4s;pointer-events:none;white-space:nowrap;opacity:0;}
+
+/* 사진 섹션 */
+.photo-section{padding:12px;border-top:1px solid var(--border);background:var(--card);}
+.photo-title{font-size:13px;font-weight:700;color:var(--t1);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;}
+.photo-grid{display:flex;flex-wrap:wrap;gap:6px;}
+.photo-item{position:relative;width:80px;height:80px;border-radius:8px;overflow:hidden;flex-shrink:0;}
+.photo-item img{width:100%;height:100%;object-fit:cover;}
+.photo-del{position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.6);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;}
+.photo-add{width:80px;height:80px;border-radius:8px;border:2px dashed #ccc;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;background:#f9f9f9;flex-shrink:0;gap:2px;}
+.photo-add span{font-size:22px;}
+.photo-add small{font-size:10px;color:#aaa;font-weight:600;}
 </style>
 <script>
 if('serviceWorker' in navigator){
@@ -148,6 +159,22 @@ if('serviceWorker' in navigator){
   </div>
 
   <div class="body" id="body"></div>
+
+
+  <!-- 사진 섹션 -->
+  <div class="photo-section" id="photoSection">
+    <div class="photo-title">
+      <span>📸 라운딩 사진</span>
+      <span style="font-size:11px;color:var(--t3);" id="photoCount"></span>
+    </div>
+    <div class="photo-grid" id="photoGrid">
+      <div class="photo-add" onclick="addPhoto()">
+        <span>📷</span>
+        <small>사진 추가</small>
+      </div>
+    </div>
+  </div>
+  <input type="file" id="photoInput" accept="image/*" multiple style="display:none" onchange="handlePhoto(event)">
 
   <div class="foot">
     <button class="btn btn-lt" id="switchBtn" onclick="ST(curTab===0?1:0)">후반 →</button>
@@ -628,6 +655,95 @@ setInterval(checkRotation,500);
 
 // ── 초기화 ──
 LD();updTop();ST(0);startSync();
+
+// ── 사진 기능 ──
+function getPhotoKey(){
+  const d=G.date||new Date().toISOString().slice(0,10);
+  const n=G.players.map(p=>p.name).join('');
+  return 'sc_photos_'+d+'_'+n;
+}
+
+function loadPhotos(){
+  try{
+    const key=getPhotoKey();
+    const saved=localStorage.getItem(key);
+    return saved?JSON.parse(saved):[];
+  }catch(e){return[];}
+}
+
+function savePhotos(photos){
+  try{localStorage.setItem(getPhotoKey(),JSON.stringify(photos));}catch(e){
+    toast('⚠️ 사진 저장 공간 부족');
+  }
+}
+
+function renderPhotos(){
+  const photos=loadPhotos();
+  const grid=document.getElementById('photoGrid');
+  const cnt=document.getElementById('photoCount');
+  if(!grid)return;
+  cnt.textContent=photos.length?photos.length+'장':'';
+  let html='';
+  photos.forEach((src,i)=>{
+    html+=`<div class="photo-item">
+      <img src="${src}" onclick="viewPhoto('${src}')">
+      <button class="photo-del" onclick="delPhoto(${i})">✕</button>
+    </div>`;
+  });
+  html+=`<div class="photo-add" onclick="addPhoto()"><span>📷</span><small>추가</small></div>`;
+  grid.innerHTML=html;
+}
+
+function addPhoto(){
+  document.getElementById('photoInput').click();
+}
+
+function handlePhoto(e){
+  const files=Array.from(e.target.files);
+  const photos=loadPhotos();
+  let loaded=0;
+  files.forEach(file=>{
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      // 이미지 리사이즈 (최대 800px)
+      const img=new Image();
+      img.onload=()=>{
+        const canvas=document.createElement('canvas');
+        const max=800;
+        let w=img.width,h=img.height;
+        if(w>max){h=h*(max/w);w=max;}
+        if(h>max){w=w*(max/h);h=max;}
+        canvas.width=w;canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        photos.push(canvas.toDataURL('image/jpeg',0.7));
+        loaded++;
+        if(loaded===files.length){savePhotos(photos);renderPhotos();}
+      };
+      img.src=ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+  e.target.value='';
+}
+
+function delPhoto(idx){
+  if(!confirm('사진을 삭제할까요?'))return;
+  const photos=loadPhotos();
+  photos.splice(idx,1);
+  savePhotos(photos);
+  renderPhotos();
+}
+
+function viewPhoto(src){
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;display:flex;align-items:center;justify-content:center;';
+  ov.innerHTML=`<img src="${src}" style="max-width:95vw;max-height:90vh;border-radius:8px;object-fit:contain;">`;
+  ov.onclick=()=>document.body.removeChild(ov);
+  document.body.appendChild(ov);
+}
+
+// 초기 사진 로드
+setTimeout(renderPhotos, 300);
 </script>
 </body>
 </html>

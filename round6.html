@@ -961,6 +961,7 @@ function renderPlayers(){
       <span id="r6PhotoCount" style="font-size:11px;color:var(--text2);"></span>
     </div>
     <div class="photo-grid" id="r6PhotoGrid"></div>
+    <input type="file" id="r6PhotoCam" accept="image/*" capture="environment" style="display:none" onchange="handleR6Photo(event)">
     <input type="file" id="r6PhotoInput" accept="image/*" multiple style="display:none" onchange="handleR6Photo(event)">
   </div>`;
 
@@ -1648,7 +1649,8 @@ function renderR6Photos(){
   photos.forEach((src,i)=>{
     h+=`<div class="photo-item"><img src="${src}" onclick="viewR6Photo('${src}')"><button class="photo-del" onclick="delR6Photo(${i})">✕</button></div>`;
   });
-  h+=`<div class="photo-add" onclick="document.getElementById('r6PhotoInput').click()"><span>📷</span><small>추가</small></div>`;
+  h+=`<div class="photo-add" onclick="document.getElementById('r6PhotoCam').click()" style="background:#e8f5e9;border-color:#74C69D;"><span>📸</span><small style="color:#2D6A4F;">촬영</small></div>`;
+  h+=`<div class="photo-add" onclick="document.getElementById('r6PhotoInput').click()"><span>🖼️</span><small>갤러리</small></div>`;
   grid.innerHTML=h;
 }
 

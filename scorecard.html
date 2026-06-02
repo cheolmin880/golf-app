@@ -168,13 +168,18 @@ if('serviceWorker' in navigator){
       <span style="font-size:11px;color:var(--t3);" id="photoCount"></span>
     </div>
     <div class="photo-grid" id="photoGrid">
-      <div class="photo-add" onclick="addPhoto()">
-        <span>📷</span>
-        <small>사진 추가</small>
+      <div class="photo-add" onclick="document.getElementById('photoCam').click()" style="background:#e8f5e9;border-color:#74C69D;">
+        <span>📸</span>
+        <small style="color:#2D6A4F;">촬영</small>
+      </div>
+      <div class="photo-add" onclick="document.getElementById('photoGallery').click()">
+        <span>🖼️</span>
+        <small>갤러리</small>
       </div>
     </div>
   </div>
-  <input type="file" id="photoInput" accept="image/*" multiple style="display:none" onchange="handlePhoto(event)">
+  <input type="file" id="photoCam" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto(event)">
+  <input type="file" id="photoGallery" accept="image/*" multiple style="display:none" onchange="handlePhoto(event)">
 
   <div class="foot">
     <button class="btn btn-lt" id="switchBtn" onclick="ST(curTab===0?1:0)">후반 →</button>
@@ -690,13 +695,11 @@ function renderPhotos(){
       <button class="photo-del" onclick="delPhoto(${i})">✕</button>
     </div>`;
   });
-  html+=`<div class="photo-add" onclick="addPhoto()"><span>📷</span><small>추가</small></div>`;
+  html+=`<div class="photo-add" onclick="document.getElementById('photoCam').click()" style="background:#e8f5e9;border-color:#74C69D;"><span>📸</span><small style="color:#2D6A4F;">촬영</small></div>`;
+  html+=`<div class="photo-add" onclick="document.getElementById('photoGallery').click()"><span>🖼️</span><small>갤러리</small></div>`;
   grid.innerHTML=html;
 }
 
-function addPhoto(){
-  document.getElementById('photoInput').click();
-}
 
 function handlePhoto(e){
   const files=Array.from(e.target.files);

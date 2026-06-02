@@ -81,6 +81,16 @@ html,body{height:100%;background:var(--bg);font-family:-apple-system,'Noto Sans 
 .birdie-txt{font-size:52px;font-weight:900;background:linear-gradient(135deg,#FFD700,#FF6B35,#FF1493);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1.1;}
 .particle{position:fixed;pointer-events:none;z-index:499;border-radius:50%;animation:fall 1.6s ease-in forwards;}
 @keyframes fall{0%{opacity:1;}100%{transform:translateY(70vh)rotate(720deg);opacity:0;}}
+
+/* 사진 섹션 */
+.photo-section{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:14px;margin-bottom:12px;}
+.photo-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.photo-item{position:relative;width:80px;height:80px;border-radius:8px;overflow:hidden;flex-shrink:0;}
+.photo-item img{width:100%;height:100%;object-fit:cover;}
+.photo-del{position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.6);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;}
+.photo-add{width:80px;height:80px;border-radius:8px;border:2px dashed #ccc;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;background:#f9f9f9;flex-shrink:0;gap:2px;}
+.photo-add span{font-size:22px;}
+.photo-add small{font-size:10px;color:#aaa;font-weight:600;}
 </style>
 <script>
 if('serviceWorker' in navigator){
@@ -497,7 +507,7 @@ function ST(tab){
       +'<button class="btn btn-nv" onclick="ST(\'result\')">📊결과</button>'
       +'<button class="btn" style="background:#CC5500;color:#fff;flex:0.6" onclick="doEnd()">🔄</button>'
       +'<button class="btn btn-lt" style="flex:0.6" onclick="nextHole('+tab+')">▶</button>';
-  } else if(tab==='result'){
+  } else if(tab==='result'){setTimeout(renderStPhotos,100);
     b.innerHTML=RResult();
     f.innerHTML='<button class="btn btn-lt" onclick="ST(0)">✏️ 수정</button>'
       +'<button class="btn btn-nv" onclick="doSave()">💾 저장</button>'
@@ -908,6 +918,18 @@ function RResult(){
     }).join('')+'</tr>';
 
   h+='</table></div></div>';
+
+  // 사진 섹션
+  h+=`<div class="photo-section">
+    <div style="font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <span>📸 라운딩 사진</span>
+      <span id="stPhotoCount" style="font-size:11px;color:#888;"></span>
+    </div>
+    <div class="photo-grid" id="stPhotoGrid"></div>
+    <input type="file" id="stPhotoCam" accept="image/*" capture="environment" style="display:none" onchange="handleStPhoto(event)">
+    <input type="file" id="stPhotoGallery" accept="image/*" multiple style="display:none" onchange="handleStPhoto(event)">
+  </div>`;
+
   return h;
 }
 
@@ -1031,6 +1053,67 @@ document.addEventListener('visibilitychange',function(){
   if(document.visibilityState==='hidden') doSave();
 });
 window.addEventListener('pagehide',function(){ doSave(); });
+
+
+// ── 사진 기능 (스트로크) ──
+function getStPhotoKey(){
+  const d=G.gameDate||new Date().toISOString().slice(0,10);
+  const n=G.players.map(p=>p.name).join('');
+  return 'st_photos_'+d+'_'+n;
+}
+function loadStPhotos(){try{const s=localStorage.getItem(getStPhotoKey());return s?JSON.parse(s):[]}catch(e){return[];}}
+function saveStPhotos(p){try{localStorage.setItem(getStPhotoKey(),JSON.stringify(p));}catch(e){toast('⚠️ 저장공간 부족');}}
+
+function renderStPhotos(){
+  const grid=document.getElementById('stPhotoGrid');
+  if(!grid)return;
+  const photos=loadStPhotos();
+  const cnt=document.getElementById('stPhotoCount');
+  if(cnt)cnt.textContent=photos.length?photos.length+'장':'';
+  let h='';
+  photos.forEach((src,i)=>{
+    h+=`<div class="photo-item"><img src="${src}" onclick="viewStPhoto('${src}')"><button class="photo-del" onclick="delStPhoto(${i})">✕</button></div>`;
+  });
+  h+=`<div class="photo-add" onclick="document.getElementById('stPhotoCam').click()" style="background:#e8f5e9;border-color:#74C69D;"><span>📸</span><small style="color:#2D6A4F;">촬영</small></div>`;
+  h+=`<div class="photo-add" onclick="document.getElementById('stPhotoGallery').click()"><span>🖼️</span><small>갤러리</small></div>`;
+  grid.innerHTML=h;
+}
+function handleStPhoto(e){
+  const files=Array.from(e.target.files);
+  const photos=loadStPhotos();
+  let loaded=0;
+  files.forEach(file=>{
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      const img=new Image();
+      img.onload=()=>{
+        const canvas=document.createElement('canvas');
+        const max=800;let w=img.width,hh=img.height;
+        if(w>max){hh=hh*(max/w);w=max;}
+        if(hh>max){w=w*(max/hh);hh=max;}
+        canvas.width=w;canvas.height=hh;
+        canvas.getContext('2d').drawImage(img,0,0,w,hh);
+        photos.push(canvas.toDataURL('image/jpeg',0.7));
+        loaded++;
+        if(loaded===files.length){saveStPhotos(photos);renderStPhotos();}
+      };
+      img.src=ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+  e.target.value='';
+}
+function delStPhoto(idx){
+  if(!confirm('사진을 삭제할까요?'))return;
+  const p=loadStPhotos();p.splice(idx,1);saveStPhotos(p);renderStPhotos();
+}
+function viewStPhoto(src){
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;display:flex;align-items:center;justify-content:center;';
+  ov.innerHTML=`<img src="${src}" style="max-width:95vw;max-height:90vh;border-radius:8px;object-fit:contain;">`;
+  ov.onclick=()=>document.body.removeChild(ov);
+  document.body.appendChild(ov);
+}
 
 // ── 초기화 ──
 LD();updTopInfo();

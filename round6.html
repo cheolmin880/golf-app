@@ -847,9 +847,10 @@ function overCls(v){
 }
 function overTxt(v){
   if(v===null)return'−';
+  if(v==='mb')return'🔄';
   if(v===0)return'0';
-  if(v<0)return String(v); // 버디(-1), 이글(-2) 등은 -부호 표시
-  return String(v); // 보기(1), 더블(2) 등은 숫자만
+  if(v<0)return String(v);
+  return String(v);
 }
 // 부호 표시용 (결과화면, 소계 넷스코어)
 function signTxt(v){
@@ -879,7 +880,7 @@ function getConfirmedPool(){
     const buddiers=new Set();
     for(let pi=0;pi<4;pi++)
       for(let h=start;h<start+6;h++)
-        if(G.scores[pi][h]!==null&&G.scores[pi][h]<=-1) buddiers.add(pi);
+        if(G.scores[pi][h]!==null&&G.scores[pi][h]!=='mb'&&G.scores[pi][h]<=-1) buddiers.add(pi);
     buddiers.forEach(bpi=>{
       for(let pi=0;pi<4;pi++) if(pi!==bpi) total+=G.buddyFine;
     });
@@ -1217,7 +1218,7 @@ function renderResult(){
     G.players.forEach((pl,pi)=>{
       const start=r*6;
       let tot=0,cnt=0;
-      for(let h=start;h<start+6;h++){if(G.scores[pi][h]!==null){tot+=G.scores[pi][h];cnt++;}}
+      for(let h=start;h<start+6;h++){const sv=scoreVal(G.scores[pi][h]);if(sv!==null){tot+=sv;cnt++;}}
       if(cnt>0){
         const handi=getRoundHandi(pi, r, adj);
         playerOverTotal[pi]+=tot;
@@ -1514,7 +1515,7 @@ function renderScoreBoard(){
     <td style="font-size:${fs*0.9}px;color:var(--green-dark);">합계</td>
     ${G.players.map((p,pi)=>{
       let tot=0,cnt=0;
-      for(let h=0;h<18;h++){if(G.scores[pi][h]!==null){tot+=G.scores[pi][h];cnt++;}}
+      for(let h=0;h<18;h++){const sv=scoreVal(G.scores[pi][h]);if(sv!==null){tot+=sv;cnt++;}}
       const net=cnt>0?tot-p.handi:null;  // 18홀 기본 핸디로 단순 계산
       const nc=net===null?'#999':net<0?'#0F6E56':net>0?'#CC0000':'#333';
       return`<td>

@@ -116,7 +116,7 @@ body{height:100%;background:var(--bg);font-family:-apple-system,'Noto Sans KR',s
 /* 스코어 팝업 */
 .score-popup-overlay{
   display:none;position:fixed;inset:0;
-  background:rgba(0,0,0,0.45);z-index:200;
+  background:rgba(0,0,0,0.45);z-index:400;
   align-items:flex-end;justify-content:center;
 }
 .score-popup-overlay.open{display:flex;}
@@ -1101,6 +1101,8 @@ function selectScore(val){
   syncToFirebase(); // 🔥 실시간 동기화
   document.getElementById('scorePopup').classList.remove('open');
   _popPi=null; _popH=null;
+  // 스코어보드 모달 열려있으면 갱신
+  if(document.getElementById('scoreBoardModal').style.display!=='none') renderScoreBoard();
   if(v!==null && v<=-1) showBirdieCelebration(v);
 }
 
@@ -1455,7 +1457,7 @@ function renderScoreBoard(){
           const v=G.scores[pi][seq];
           const txt=v===null?'·':overTxt(v);
           const clr=v===null?'#ddd':v<0?'#0F6E56':v===0?'#333':v===1?'#CC5500':'#CC0000';
-          return`<td style="font-size:${fsLg}px;font-weight:800;color:${clr};">${txt}</td>`;
+          return`<td style="font-size:${fsLg}px;font-weight:800;color:${clr};cursor:pointer;" onclick="openScorePopup(${pi},${seq})">${txt}</td>`;
         }).join('')}
       </tr>`;
     }

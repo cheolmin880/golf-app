@@ -742,7 +742,7 @@ function rankRoundWithHandis(rIdx, handis){
   let res=G.players.map((p,i)=>{
     const h=handis[i];
     let tot=0,cnt=0;
-    for(let hh=start;hh<start+6;hh++){if(G.scores[i][hh]!==null){tot+=G.scores[i][hh];cnt++;}}
+    for(let hh=start;hh<start+6;hh++){const sv=scoreVal(G.scores[i][hh]);if(sv!==null){tot+=sv;cnt++;}}
     return{pi:i,name:p.name,over:cnt>0?tot:null,net:cnt>0?tot-h:null,handi:h,cnt};
   }).filter(x=>x.over!==null);
 
@@ -753,8 +753,8 @@ function rankRoundWithHandis(rIdx, handis){
       // 동점 → 다음 홀(start+6부터 순환)로 타이브레이크
       for(let off=0;off<12;off++){
         const h=(start+6+off)%18;
-        const sa=G.scores[a.pi][h];
-        const sb=G.scores[b.pi][h];
+        const sa=scoreVal(G.scores[a.pi][h]);
+        const sb=scoreVal(G.scores[b.pi][h]);
         if(sa!==null&&sb!==null&&sa!==sb) return sa-sb;
       }
       return 0;
@@ -802,7 +802,7 @@ function calcBuddyFine(){
     for(let pi=0;pi<4;pi++){
       for(let h=start;h<start+6;h++){
         const v=G.scores[pi][h];
-        if(v!==null && v<=-1) buddiers.add(pi);
+        if(v!==null && v!=='mb' && v<=-1) buddiers.add(pi);
       }
     }
     if(G.buddyLimit==='unlimited'){
@@ -810,7 +810,7 @@ function calcBuddyFine(){
       for(let pi=0;pi<4;pi++){
         for(let h=start;h<start+6;h++){
           const v=G.scores[pi][h];
-          if(v!==null && v<=-1){
+          if(v!==null && v!=='mb' && v<=-1){
             for(let pi2=0;pi2<4;pi2++){
               if(pi2!==pi) fine[pi2]+=G.buddyFine;
             }
@@ -839,7 +839,7 @@ function ini(name){
 function overCls(v){
   if(v===null)return'v-empty';
   if(v<=-2)return'v-eagle';
-  if(v===-1)return'v-birdie';
+  if(v===-1||v==='mb')return'v-birdie';
   if(v===0)return'v-par';
   if(v===1)return'v-bogey';
   if(v===2)return'v-double';
@@ -1066,11 +1066,16 @@ function renderScoreTab(rIdx){
   return html;
 }
 
+
+// mb(멀리건버디)는 스코어 계산시 -1로 취급
+function scoreVal(v){ return v==='mb'?-1:(v===null?null:v); }
+
 // ── 스코어 팝업 ──
 const SCORE_OPTIONS = [
   {val:-3, label:'🦅 알바트로스', bg:'#EF9F27', color:'#412402'},
   {val:-2, label:'🦅 이글',       bg:'#FAC775', color:'#412402'},
   {val:-1, label:'🐦 버디',       bg:'#11C26E', color:'#fff', birdie:true},
+  {val:'mb',label:'🔄 멀리건버디', bg:'#7EC8A0', color:'#fff', birdie:false, mulligan:true},
   {val: 0, label:'파',            bg:'#F0F0EE', color:'#444'},
   {val: 1, label:'보기',          bg:'#F5C4B3', color:'#4A1B0C'},
   {val: 2, label:'더블보기',      bg:'#F7C1C1', color:'#501313'},
@@ -1129,7 +1134,7 @@ function selectScore(val){
   _popPi=null; _popH=null;
   // 스코어보드 모달 열려있으면 갱신
   if(document.getElementById('scoreBoardModal').style.display!=='none') renderScoreBoard();
-  if(v!==null && v<=-1) showBirdieCelebration(v);
+  if(v!==null && v!=='mb' && v<=-1) showBirdieCelebration(v);
 }
 
 function showBirdieCelebration(v){

@@ -1105,7 +1105,7 @@ function openScorePopup(pi, h){
     const extraCls=(o.birdie?'birdie-opt':'')+(isSel?' selected':'');
     return`<div class="score-opt ${extraCls}"
       style="background:${o.bg};"
-      onclick="selectScore(${o.val===null?'null':o.val})">
+      onclick="selectScore(${o.val===null?'null':typeof o.val==='string'?"'"+ o.val +"'":o.val})">
       <div class="opt-label" style="color:${o.color};opacity:0.8">${o.label}</div>
       <div class="opt-val" style="color:${o.color}">${o.val===null?'−':overTxt(o.val)}</div>
     </div>`;

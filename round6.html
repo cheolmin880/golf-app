@@ -1036,7 +1036,7 @@ function renderScoreTab(rIdx){
           <div class="score-box ${overCls(v)}"
             id="sv_${pi}_${seq}"
             onclick="openScorePopup(${pi},${seq})"
-          >${overTxt(v)}</div>
+          >${v==='mb'?'<span style="font-size:9px;font-weight:700;display:block;line-height:1.2;">멀리건</span>-1':overTxt(v)}</div>
         </td>`;
       }).join('')}
     </tr>`;
@@ -1051,7 +1051,7 @@ function renderScoreTab(rIdx){
   html+=`<tr class="sub-row"><td><div style="font-size:12px;font-weight:700;color:var(--text2)">합계<br><span style="font-size:11px;color:var(--text3)">넷</span></div></td>
     ${G.players.map((p,pi)=>{
       let tot=0,cnt=0;
-      for(let seq=start;seq<start+6;seq++){if(G.scores[pi][seq]!==null){tot+=G.scores[pi][seq];cnt++;}}
+      for(let seq=start;seq<start+6;seq++){const sv=scoreVal(G.scores[pi][seq]);if(sv!==null){tot+=sv;cnt++;}}
       const net=cnt>0?tot-handis[pi]:null;
       const nc=net===null?'var(--text3)':net<0?'#0F6E56':net>0?'#993C1D':'var(--text2)';
       const rk=rankMap[pi];
@@ -1181,7 +1181,7 @@ function updateSubRow(h){
   const RANK_COLORS=['#B8860B','#888','#8B3A00','#555'];
   G.players.forEach((_,p)=>{
     let tot=0,cnt=0;
-    for(let hh=start;hh<start+6;hh++){if(G.scores[p][hh]!==null){tot+=G.scores[p][hh];cnt++;}}
+    for(let hh=start;hh<start+6;hh++){const sv=scoreVal(G.scores[p][hh]);if(sv!==null){tot+=sv;cnt++;}}
     const net=cnt>0?tot-handis[p]:null;
     const nc=net===null?'var(--text3)':net<0?'#0F6E56':net>0?'#993C1D':'var(--text2)';
     const rk=rankMap[p];

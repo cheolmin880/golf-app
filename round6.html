@@ -85,7 +85,7 @@ body{height:100%;background:var(--bg);font-family:-apple-system,'Noto Sans KR',s
   border-radius:9px;
   border:1.5px solid var(--border);
   background:#fff;
-  display:flex;align-items:center;justify-content:center;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
   font-size:20px;font-weight:800;color:var(--text);
   cursor:pointer;margin:0 auto;
   user-select:none;-webkit-user-select:none;
@@ -847,7 +847,7 @@ function overCls(v){
 }
 function overTxt(v){
   if(v===null)return'−';
-  if(v==='mb')return'🔄';
+  if(v==='mb')return'-1';
   if(v===0)return'0';
   if(v<0)return String(v);
   return String(v);
@@ -1126,7 +1126,7 @@ function selectScore(val){
   G.scores[pi][h] = (val===null||val==='null') ? null : val;
   const el=document.getElementById('sv_'+pi+'_'+h);
   const v=G.scores[pi][h];
-  if(el){el.textContent=overTxt(v);el.className='score-box '+overCls(v);}
+  if(el){el.innerHTML=v==='mb'?'<div style="font-size:9px;font-weight:700;color:#0B8A5C;line-height:1;margin-bottom:1px;">멀리건</div><div>-1</div>':overTxt(v);el.className='score-box '+overCls(v);}
   updateSubRow(h);
   updateTopPool();
   save();
@@ -1487,7 +1487,7 @@ function renderScoreBoard(){
         <td style="font-size:${fs}px;font-weight:700;color:#666;">${hn}</td>
         ${G.players.map((p,pi)=>{
           const v=G.scores[pi][seq];
-          const txt=v===null?'·':overTxt(v);
+          const txt=v===null?'·':v==='mb'?'<div style="font-size:8px;font-weight:700;color:#0B8A5C;line-height:1;">멀리건</div><div>-1</div>':overTxt(v);
           const clr=v===null?'#ddd':v<0?'#0F6E56':v===0?'#333':v===1?'#CC5500':'#CC0000';
           return`<td style="font-size:${fsLg}px;font-weight:800;color:${clr};cursor:pointer;" onclick="openScorePopup(${pi},${seq})">${txt}</td>`;
         }).join('')}

@@ -448,7 +448,18 @@ body{height:100%;background:var(--bg);font-family:-apple-system,'Noto Sans KR',s
     <div class="modal-section">⛳ 홀별 파(Par) - 탭하여 변경</div>
     <div style="padding:8px 16px 12px;display:grid;grid-template-columns:repeat(6,1fr);gap:6px;" id="parGrid"></div>
 
-    <div class="modal-section">🐦 버디 벌금 (라운드당 1회)</div>
+    <div class="modal-section">🐦 버디 벌금</div>
+    <!-- 버디벌금 옵션 토글 -->
+    <div style="display:flex;gap:8px;padding:0 16px;margin-bottom:10px;">
+      <button id="buddyOpt1" onclick="setBuddyLimit('once')"
+        style="flex:1;padding:10px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;border:2px solid var(--green);background:var(--green);color:#fff;">
+        🔂 라운드당 1회
+      </button>
+      <button id="buddyOpt2" onclick="setBuddyLimit('unlimited')"
+        style="flex:1;padding:10px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;border:2px solid var(--border);background:#fff;color:var(--text2);">
+        ♾️ 횟수 제한 없음
+      </button>
+    </div>
     <div style="padding:8px 16px 12px;display:flex;align-items:center;gap:8px;background:var(--bg);border-radius:10px;margin:0 16px 12px;">
       <span style="font-size:13px;color:var(--text2);">버디 1회당</span>
       <span style="font-size:13px;font-weight:600;color:var(--text2);">Rp</span>
@@ -531,6 +542,7 @@ let G = {
   pars:Array(18).fill(4),
   stakes:[50000,100000,150000,200000],
   buddyFine:50000,
+  buddyLimit:'once',
   startHole:1,
   gameDate:'',
   history:[],
@@ -793,12 +805,26 @@ function calcBuddyFine(){
         if(v!==null && v<=-1) buddiers.add(pi);
       }
     }
-    // 버디한 플레이어마다 → 나머지 3명이 buddyFine 냄
-    buddiers.forEach(bpi=>{
+    if(G.buddyLimit==='unlimited'){
+      // 횟수 제한 없음: 버디/이글 개수만큼 적용
       for(let pi=0;pi<4;pi++){
-        if(pi!==bpi) fine[pi]+=G.buddyFine;
+        for(let h=start;h<start+6;h++){
+          const v=G.scores[pi][h];
+          if(v!==null && v<=-1){
+            for(let pi2=0;pi2<4;pi2++){
+              if(pi2!==pi) fine[pi2]+=G.buddyFine;
+            }
+          }
+        }
       }
-    });
+    } else {
+      // 라운드당 1회: 버디한 플레이어마다 → 나머지 3명이 buddyFine 냄
+      buddiers.forEach(bpi=>{
+        for(let pi=0;pi<4;pi++){
+          if(pi!==bpi) fine[pi]+=G.buddyFine;
+        }
+      });
+    }
     fine.forEach((v,i)=>{total[i]+=v;});
     perRound.push({buddiers:[...buddiers],fine:[...fine]});
   }
@@ -1753,6 +1779,7 @@ function openSavedResults(){
           G.stakes=s.stakes||G.stakes;
           G.startHole=s.startHole||1;
           G.buddyFine=s.buddyFine!=null?s.buddyFine:G.buddyFine;
+          if(s.buddyLimit) G.buddyLimit=s.buddyLimit;
           G.gameDate=s.gameDate||s.date||'';
           save();
           showTab('result');
@@ -1804,6 +1831,21 @@ function getStakeVal(id){
   return parseInt((el._raw||el.value.replace(/[^0-9]/g,''))||'0')||0;
 }
 
+
+function setBuddyLimit(val){
+  G.buddyLimit=val;
+  const b1=document.getElementById('buddyOpt1');
+  const b2=document.getElementById('buddyOpt2');
+  if(!b1||!b2)return;
+  if(val==='once'){
+    b1.style.background='var(--green)';b1.style.color='#fff';b1.style.borderColor='var(--green)';
+    b2.style.background='#fff';b2.style.color='var(--text2)';b2.style.borderColor='var(--border)';
+  } else {
+    b2.style.background='var(--green)';b2.style.color='#fff';b2.style.borderColor='var(--green)';
+    b1.style.background='#fff';b1.style.color='var(--text2)';b1.style.borderColor='var(--border)';
+  }
+}
+
 function openModal(){
   try{
     // 플레이어 입력 - 균형잡힌 레이아웃
@@ -1828,6 +1870,7 @@ function openModal(){
 
     const bfEl=document.getElementById('buddyFineInput');
     if(bfEl){bfEl.value=G.buddyFine.toLocaleString();bfEl._raw=String(G.buddyFine);}
+    setBuddyLimit(G.buddyLimit||'once');
 
     // 스타트홀 직접 입력
     const shInput=document.getElementById('startHoleInput');
@@ -1894,6 +1937,7 @@ function applySettings(){
   G.startHole=Math.max(1,Math.min(18,shVal));
   const bfEl=document.getElementById('buddyFineInput');
   if(bfEl){const r=bfEl._raw||bfEl.value.replace(/[^0-9]/g,'');G.buddyFine=parseInt(r)||0;}
+  // buddyLimit은 setBuddyLimit()에서 즉시 반영되므로 별도 저장 불필요
   // 파는 togglePar6에서 이미 G.pars에 저장됨
   closeModal();
   if(G._isNewGame){

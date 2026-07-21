@@ -62,7 +62,7 @@ body{height:100%;background:var(--bg);font-family:-apple-system,'Noto Sans KR',s
 .player-item{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);}
 .player-item:last-child{border-bottom:none;}
 .av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;}
-.av0{background:#EEEDFE;color:#3C3489}.av1{background:#E1F5EE;color:#085041}.av2{background:#FAECE7;color:#712B13}.av3{background:#E6F1FB;color:#0C447C}
+.av0{background:#EEEDFE;color:#3C3489}.av1{background:#E1F5EE;color:#085041}.av2{background:#FAECE7;color:#712B13}.av3{background:#E6F1FB;color:#0C447C}.av4{background:#FEF3E2;color:#8B5A00}
 .player-name{font-size:16px;font-weight:700;}
 .player-sub{font-size:13px;color:var(--text2);margin-top:3px;}
 
@@ -162,6 +162,7 @@ body{height:100%;background:var(--bg);font-family:-apple-system,'Noto Sans KR',s
 .rk2{background:#999;color:#fff;}
 .rk3{background:#CD7F32;color:#fff;}
 .rk4{background:#7B5EA7;color:#fff;}
+.rk5{background:#5D6D7E;color:#fff;}
 
 /* 가로모드 */
 @media (orientation: landscape){
@@ -189,7 +190,7 @@ body{height:100%;background:var(--bg);font-family:-apple-system,'Noto Sans KR',s
 .result-item{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border);}
 .result-item:last-child{border-bottom:none;}
 .rank-badge{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
-.rk1{background:var(--gold);color:var(--gold-dark)}.rk2{background:var(--silver);color:var(--silver-dark)}.rk3{background:var(--bronze);color:var(--bronze-dark)}.rk4{background:#E8E8E5;color:#555}
+.rk1{background:var(--gold);color:var(--gold-dark)}.rk2{background:var(--silver);color:var(--silver-dark)}.rk3{background:var(--bronze);color:var(--bronze-dark)}.rk4{background:#E8E8E5;color:#555}.rk5{background:#D5DBDB;color:#444}
 .result-right{margin-left:auto;text-align:right;}
 
 /* 스코어보드 - 한화면 18홀 */
@@ -251,12 +252,12 @@ body{height:100%;background:var(--bg);font-family:-apple-system,'Noto Sans KR',s
 .sb-table td:last-child{border-right:none;}
 .sb-table tr:last-child td{border-bottom:none;}
 .sb-hole-col{width:7%;min-width:0;}
-.sb-player-col{width:calc(93%/4);min-width:0;}
+.sb-player-col{min-width:0;}
 .sb-r-header td{background:#3B6D11;color:#fff;font-weight:700;}
 .sb-subtotal td{background:#F0F5EC;font-weight:800;}
 .sb-total td{background:#EAF3DE;font-weight:900;border-top:2px solid var(--green);}
 /* 순위카드 */
-.sb-rank{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:6px;}
+.sb-rank{display:grid;gap:6px;padding:6px;}
 .sb-rank-item{border-radius:8px;padding:8px 4px;text-align:center;border:1px solid var(--border);}
 
 .pool-banner{background:var(--green-light);border:1px solid #C0DD97;border-radius:var(--radius);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
@@ -430,6 +431,14 @@ body{height:100%;background:var(--bg);font-family:-apple-system,'Noto Sans KR',s
         border:1.5px solid var(--border);border-radius:10px;background:#FAFCFA;color:var(--text);">
     </div>
 
+    <div class="modal-section">👥 참가 인원</div>
+    <div style="display:flex;gap:8px;padding:0 16px 12px;">
+      <button id="pcBtn4" onclick="setPlayerCount(4)"
+        style="flex:1;padding:14px;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;border:2px solid var(--green);background:var(--green);color:#fff;">4명</button>
+      <button id="pcBtn5" onclick="setPlayerCount(5)"
+        style="flex:1;padding:14px;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;border:2px solid var(--border);background:#fff;color:var(--text2);">5명</button>
+    </div>
+
     <div class="modal-section">👤 플레이어 이름 · 핸디캡</div>
     <div id="modalPlayerFields"></div>
 
@@ -466,40 +475,11 @@ body{height:100%;background:var(--bg);font-family:-apple-system,'Noto Sans KR',s
       <input id="buddyFineInput" type="text" inputmode="numeric" oninput="fmtStake(this)"
         style="width:110px;height:38px;text-align:right;font-size:16px;font-weight:700;
         border:1.5px solid var(--border);border-radius:8px;background:#fff;padding:0 10px;">
-      <span style="font-size:13px;color:var(--text2);">× 나머지 3명</span>
+      <span style="font-size:13px;color:var(--text2);">× 나머지 <span id="buddyOtherCount">3</span>명</span>
     </div>
 
     <div class="modal-section">💰 등수별 납부 금액 (라운드당)</div>
-    <div class="stake-grid">
-      <div class="stake-box">
-        <div class="stake-rank-label">🥇 1등 납부</div>
-        <div style="display:flex;align-items:center;gap:4px;">
-          <span style="font-size:12px;font-weight:600;color:var(--text2);">Rp</span>
-          <input class="stake-input" type="text" id="s0" inputmode="numeric" oninput="fmtStake(this)" style="flex:1;">
-        </div>
-      </div>
-      <div class="stake-box">
-        <div class="stake-rank-label">🥈 2등 납부</div>
-        <div style="display:flex;align-items:center;gap:4px;">
-          <span style="font-size:12px;font-weight:600;color:var(--text2);">Rp</span>
-          <input class="stake-input" type="text" id="s1" inputmode="numeric" oninput="fmtStake(this)" style="flex:1;">
-        </div>
-      </div>
-      <div class="stake-box">
-        <div class="stake-rank-label">🥉 3등 납부</div>
-        <div style="display:flex;align-items:center;gap:4px;">
-          <span style="font-size:12px;font-weight:600;color:var(--text2);">Rp</span>
-          <input class="stake-input" type="text" id="s2" inputmode="numeric" oninput="fmtStake(this)" style="flex:1;">
-        </div>
-      </div>
-      <div class="stake-box">
-        <div class="stake-rank-label">4️⃣ 4등 납부</div>
-        <div style="display:flex;align-items:center;gap:4px;">
-          <span style="font-size:12px;font-weight:600;color:var(--text2);">Rp</span>
-          <input class="stake-input" type="text" id="s3" inputmode="numeric" oninput="fmtStake(this)" style="flex:1;">
-        </div>
-      </div>
-    </div>
+    <div class="stake-grid" id="stakeFields"></div>
 
     <div class="modal-btns">
       <button class="mbtn mbtn-cancel" onclick="closeModal()">취소</button>
@@ -538,9 +518,10 @@ let G = {
     {name:'플레이어3',handi:0},
     {name:'플레이어4',handi:0},
   ],
+  playerCount:4,
   scores:Array.from({length:4},()=>Array(18).fill(null)),
   pars:Array(18).fill(4),
-  stakes:[50000,100000,150000,200000],
+  stakes:[50000,100000,150000,200000,250000],
   buddyFine:50000,
   buddyLimit:'once',
   startHole:1,
@@ -549,10 +530,12 @@ let G = {
   curTab:'players'
 };
 
-const AVCLS=['av0','av1','av2','av3'];
-const RANKCLS=['rk1','rk2','rk3','rk4'];
+const AVCLS=['av0','av1','av2','av3','av4'];
+const RANKCLS=['rk1','rk2','rk3','rk4','rk5'];
 const RANK_EMOJI=['🥇','🥈','🥉','<svg width="1em" height="1.3em" viewBox="0 0 40 52" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;"><polygon points="14,0 26,0 32,12 20,10 8,12" fill="#9B59B6"/><polygon points="14,0 8,12 2,8 10,0" fill="#7D3C98"/><polygon points="26,0 32,12 38,8 30,0" fill="#7D3C98"/><circle cx="20" cy="32" r="18" fill="url(#pg)"/><defs><radialGradient id="pg" cx="40%" cy="35%"><stop offset="0%" stop-color="#C39BD3"/><stop offset="100%" stop-color="#7D3C98"/></radialGradient></defs><text x="20" y="38" text-anchor="middle" font-size="16" font-weight="900" fill="white" font-family="Arial">4</text></svg>'];
 
+function NP(){return (G.playerCount||G.players.length||4);}
+function zeros(){return Array(NP()).fill(0);}
 function save(){try{localStorage.setItem('golf_g3',JSON.stringify(G));}catch(e){}}
 
 // ── Firebase 초기화 ──
@@ -581,13 +564,8 @@ function createRoom(){
   const code=genRoomCode();currentRoom=code;
   document.getElementById('roomStatus').textContent='방 만드는 중...';
   // 새 게임 - 초기 데이터로 리셋
-  G.players=[
-    {name:'플레이어1',handi:0},
-    {name:'플레이어2',handi:0},
-    {name:'플레이어3',handi:0},
-    {name:'플레이어4',handi:0},
-  ];
-  G.scores=Array.from({length:4},()=>Array(18).fill(null));
+  G.players=Array.from({length:NP()},(_,i)=>({name:'플레이어'+(i+1),handi:0}));
+  G.scores=Array.from({length:NP()},()=>Array(18).fill(null));
   G.history=[];
   G.gameDate=new Date().toISOString().slice(0,10);
   localStorage.setItem('round6_room',code); // 방코드 저장
@@ -670,6 +648,7 @@ function load(){
         return; // 복원 완료 → 초기화 건너뜀
       }
       // 스코어 없으면 설정값만 복원
+      if(p.playerCount) G.playerCount=p.playerCount;
       if(p.stakes) G.stakes=p.stakes;
       if(p.buddyFine!=null) G.buddyFine=p.buddyFine;
       if(p.startHole) G.startHole=p.startHole;
@@ -677,13 +656,8 @@ function load(){
     }
   }catch(e){}
   // 새 게임 초기화
-  G.players=[
-    {name:'플레이어1',handi:0},
-    {name:'플레이어2',handi:0},
-    {name:'플레이어3',handi:0},
-    {name:'플레이어4',handi:0},
-  ];
-  G.scores=Array.from({length:4},()=>Array(18).fill(null));
+  G.players=Array.from({length:NP()},(_,i)=>({name:'플레이어'+(i+1),handi:0}));
+  G.scores=Array.from({length:NP()},()=>Array(18).fill(null));
   G.history=[];
 }
 
@@ -711,14 +685,14 @@ function splitHandi(base){
 // 각 라운드 핸디 = 기본 splitHandi[rIdx] + 직전라운드 조정(±1, 누적없음)
 // prevAdj: 직전 라운드 결과에 따른 조정값 배열 (1등=-1, 꼴찌=+1, 중간=0)
 function getAdj(upTo){
-  let prevAdj=[0,0,0,0];
+  let prevAdj=zeros();
   for(let r=0;r<upTo;r++){
     const handisThisRound=G.players.map((_,pi)=>{
       const sp=splitHandi(G.players[pi].handi);
       return sp[r]+(prevAdj[pi]||0);
     });
     const ranked=rankRoundWithHandis(r,handisThisRound);
-    const nextAdj=[0,0,0,0];
+    const nextAdj=zeros();
     // 공동 1등 모두 -1
     ranked.filter(p=>p.rank===1).forEach(p=>{ nextAdj[p.pi]=-1; });
     // 공동 꼴찌(최하위 rank) 모두 +1
@@ -792,14 +766,14 @@ function rankRound(rIdx,adj){
 //   - 같은 라운드에서 2개이상 버디해도 1회만 적용
 // 반환: [pi0납부, pi1납부, pi2납부, pi3납부] × 3라운드 합산
 function calcBuddyFine(){
-  const total=[0,0,0,0];
+  const total=zeros();
   const perRound=[]; // 라운드별 상세
   for(let r=0;r<3;r++){
     const start=r*6;
-    const fine=[0,0,0,0];
+    const fine=zeros();
     // 이 라운드에서 버디 이상(≤-1)을 낸 플레이어 목록 (중복제거)
     const buddiers=new Set();
-    for(let pi=0;pi<4;pi++){
+    for(let pi=0;pi<NP();pi++){
       for(let h=start;h<start+6;h++){
         const v=G.scores[pi][h];
         if(v!==null && v!=='mb' && v<=-1) buddiers.add(pi);
@@ -807,11 +781,11 @@ function calcBuddyFine(){
     }
     if(G.buddyLimit==='unlimited'){
       // 횟수 제한 없음: 버디/이글 개수만큼 적용
-      for(let pi=0;pi<4;pi++){
+      for(let pi=0;pi<NP();pi++){
         for(let h=start;h<start+6;h++){
           const v=G.scores[pi][h];
           if(v!==null && v!=='mb' && v<=-1){
-            for(let pi2=0;pi2<4;pi2++){
+            for(let pi2=0;pi2<NP();pi2++){
               if(pi2!==pi) fine[pi2]+=G.buddyFine;
             }
           }
@@ -820,7 +794,7 @@ function calcBuddyFine(){
     } else {
       // 라운드당 1회: 버디한 플레이어마다 → 나머지 3명이 buddyFine 냄
       buddiers.forEach(bpi=>{
-        for(let pi=0;pi<4;pi++){
+        for(let pi=0;pi<NP();pi++){
           if(pi!==bpi) fine[pi]+=G.buddyFine;
         }
       });
@@ -878,11 +852,11 @@ function getConfirmedPool(){
     });
     // 버디벌금 (이 라운드)
     const buddiers=new Set();
-    for(let pi=0;pi<4;pi++)
+    for(let pi=0;pi<NP();pi++)
       for(let h=start;h<start+6;h++)
         if(G.scores[pi][h]!==null&&G.scores[pi][h]!=='mb'&&G.scores[pi][h]<=-1) buddiers.add(pi);
     buddiers.forEach(bpi=>{
-      for(let pi=0;pi<4;pi++) if(pi!==bpi) total+=G.buddyFine;
+      for(let pi=0;pi<NP();pi++) if(pi!==bpi) total+=G.buddyFine;
     });
   }
   return{total, confirmedRounds};
@@ -958,11 +932,11 @@ function renderPlayers(){
   html+=`</div>`;
 
   html+=`<div class="card"><div class="card-header">등수별 납부금액 (라운드당 · Rp)</div>`;
-  ['🥇1등','🥈2등','🥉3등','④ 4등'].forEach((label,i)=>{
+  ['🥇1등','🥈2등','🥉3등','④ 4등','⑤ 5등'].slice(0,NP()).forEach((label,i)=>{
     html+=`<div class="player-item"><div style="flex:1;font-size:14px">${label}</div>
       <div style="font-size:15px;font-weight:700;color:#993C1D">Rp${G.stakes[i].toLocaleString()}</div></div>`;
   });
-  const pr=G.stakes.reduce((a,b)=>a+b,0);
+  const pr=G.stakes.slice(0,NP()).reduce((a,b)=>a+b,0);
   html+=`<div class="player-item" style="background:#FAFAF8">
     <div style="flex:1;font-size:14px;font-weight:600">라운드당 합계</div>
     <div style="font-size:16px;font-weight:700;color:var(--green)">Rp${pr.toLocaleString()}</div>
@@ -1017,8 +991,8 @@ function renderScoreTab(rIdx){
     <th>홀</th>
     ${G.players.map((p,i)=>{
       const nm=p.name.length>3?p.name.slice(0,3):p.name;
-      return`<th class="pcol">
-        <div style="font-size:13px;font-weight:700;">${nm}</div>
+      return`<th class="pcol" style="width:calc((100% - 44px) / ${NP()});">
+        <div style="font-size:${NP()>=5?11:13}px;font-weight:700;">${nm}</div>
         <div style="font-size:10px;color:var(--text3);margin-top:1px;">18H:${p.handi}</div>
         <div style="font-size:12px;font-weight:700;color:var(--green);">
           ${rIdx+1}R:${handis[i]} ${handiBadge[i]}
@@ -1034,6 +1008,7 @@ function renderScoreTab(rIdx){
         const v=G.scores[pi][seq];
         return`<td>
           <div class="score-box ${overCls(v)}"
+            style="${NP()>=5?'width:44px;height:44px;font-size:16px;':''}"
             id="sv_${pi}_${seq}"
             onclick="openScorePopup(${pi},${seq})"
           >${v==='mb'?'<span style="font-size:9px;font-weight:700;display:block;line-height:1.2;">멀리건</span>-1':overTxt(v)}</div>
@@ -1046,7 +1021,7 @@ function renderScoreTab(rIdx){
   const ranked=rankRound(rIdx, adj);
   const rankMap={};
   ranked.forEach(p=>{ rankMap[p.pi]=p.rank; });
-  const RANK_COLORS=['#B8860B','#888','#8B3A00','#555'];
+  const RANK_COLORS=['#B8860B','#888','#8B3A00','#555','#5D6D7E'];
 
   html+=`<tr class="sub-row"><td><div style="font-size:12px;font-weight:700;color:var(--text2)">합계<br><span style="font-size:11px;color:var(--text3)">넷</span></div></td>
     ${G.players.map((p,pi)=>{
@@ -1056,7 +1031,7 @@ function renderScoreTab(rIdx){
       const nc=net===null?'var(--text3)':net<0?'#0F6E56':net>0?'#993C1D':'var(--text2)';
       const rk=rankMap[pi];
       const rkTxt=rk?`${rk}등`:'-';
-      const rkColor=rk?RANK_COLORS[Math.min(rk-1,3)]:'var(--text3)';
+      const rkColor=rk?RANK_COLORS[Math.min(rk-1,4)]:'var(--text3)';
       return`<td id="sub_${pi}_${rIdx}">
         <div style="font-weight:900;font-size:19px;">${cnt>0?overTxt(tot):'-'}</div>
         <div style="font-size:15px;font-weight:800;color:${nc}">${net!==null?signTxt(net):'-'}</div>
@@ -1178,7 +1153,7 @@ function updateSubRow(h){
   const ranked=rankRound(rIdx,adj);
   const rankMap={};
   ranked.forEach(p=>{ rankMap[p.pi]=p.rank; });
-  const RANK_COLORS=['#B8860B','#888','#8B3A00','#555'];
+  const RANK_COLORS=['#B8860B','#888','#8B3A00','#555','#5D6D7E'];
   G.players.forEach((_,p)=>{
     let tot=0,cnt=0;
     for(let hh=start;hh<start+6;hh++){const sv=scoreVal(G.scores[p][hh]);if(sv!==null){tot+=sv;cnt++;}}
@@ -1186,7 +1161,7 @@ function updateSubRow(h){
     const nc=net===null?'var(--text3)':net<0?'#0F6E56':net>0?'#993C1D':'var(--text2)';
     const rk=rankMap[p];
     const rkTxt=rk?`${rk}등`:'-';
-    const rkColor=rk?RANK_COLORS[Math.min(rk-1,3)]:'var(--text3)';
+    const rkColor=rk?RANK_COLORS[Math.min(rk-1,4)]:'var(--text3)';
     const sub=document.getElementById('sub_'+p+'_'+rIdx);
     if(sub)sub.innerHTML=`<div style="font-weight:900;font-size:19px;">${cnt>0?overTxt(tot):'-'}</div><div style="font-size:15px;font-weight:800;color:${nc}">${net!==null?signTxt(net):'-'}</div><div style="font-size:11px;font-weight:700;color:${rkColor};margin-top:2px;">${rkTxt}</div>`;
   });
@@ -1195,8 +1170,8 @@ function updateSubRow(h){
 // ── 결과 화면 ──
 function renderResult(){
   // 각 라운드 데이터 수집
-  let grandTotal=0, playerTotal=[0,0,0,0];
-  let playerOverTotal=[0,0,0,0], playerNetTotal=[0,0,0,0];
+  let grandTotal=0, playerTotal=zeros();
+  let playerOverTotal=zeros(), playerNetTotal=zeros();
   let roundsDone=0, roundsData=[];
 
   for(let r=0;r<3;r++){
@@ -1205,7 +1180,7 @@ function renderResult(){
     roundsData.push({ranked, adj});
     if(ranked.length===0) continue;
     roundsDone++;
-    const nextAdj=[0,0,0,0];
+    const nextAdj=zeros();
     if(r<2){if(ranked.length>=1)nextAdj[ranked[0].pi]=-1;if(ranked.length>=4)nextAdj[ranked[3].pi]=+1;}
     ranked.forEach((p)=>{
       // rank-1 인덱스로 stakes 조회 (공동 2등이면 둘 다 stakes[1])
@@ -1254,7 +1229,7 @@ function renderResult(){
   const MEDAL=['🥇','🥈','🥉','<svg width="1em" height="1.3em" viewBox="0 0 40 52" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;"><polygon points="14,0 26,0 32,12 20,10 8,12" fill="#9B59B6"/><polygon points="14,0 8,12 2,8 10,0" fill="#7D3C98"/><polygon points="26,0 32,12 38,8 30,0" fill="#7D3C98"/><circle cx="20" cy="32" r="18" fill="url(#pg)"/><defs><radialGradient id="pg" cx="40%" cy="35%"><stop offset="0%" stop-color="#C39BD3"/><stop offset="100%" stop-color="#7D3C98"/></radialGradient></defs><text x="20" y="38" text-anchor="middle" font-size="16" font-weight="900" fill="white" font-family="Arial">4</text></svg>'];
   const PODIUM_BG=['#FFF8E8','#F5F5F3','#FFF2EE','#F5F8FF'];
   const PODIUM_BORDER=['#FAC775','#D3D1C7','#F5C4B3','#B5D4F4'];
-  const PODIUM_RANK=['rk1','rk2','rk3','rk4'];
+  const PODIUM_RANK=['rk1','rk2','rk3','rk4','rk5'];
 
   // overallRanked는 다른 곳에서도 쓰이므로 simpleRanked로 히어로만 교체
   const overallRanked = simpleRanked;
@@ -1366,7 +1341,7 @@ function renderResult(){
                     diff>0?`<span style="font-size:10px;color:#0F6E56;margin-left:3px;font-weight:700;">▲핸디+1</span>`:'';
       const nc=p.net<0?'#0F6E56':p.net>0?'#993C1D':'var(--text2)';
       const overColor=p.over<0?'#0F6E56':p.over>0?'#993C1D':'var(--text2)';
-      const rankCls=RANKCLS[Math.min(p.rank-1,3)];
+      const rankCls=RANKCLS[Math.min(p.rank-1,4)];
 
       html+=`<div style="padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;">
         <div class="rank-badge ${rankCls}" style="flex-shrink:0;">${p.rank}</div>
@@ -1382,7 +1357,7 @@ function renderResult(){
         <div style="text-align:right;flex-shrink:0;">
           <div style="font-size:13px;font-weight:800;color:#993C1D;">Rp${pay.toLocaleString()}</div>
           ${bFine>0?`<div style="font-size:11px;font-weight:700;color:#0F6E56;">🐦 Rp${bFine.toLocaleString()}</div>`:''}
-          <div style="font-size:10px;color:var(--text3);">${RANK_EMOJI[Math.min(p.rank-1,3)]} 납부</div>
+          <div style="font-size:10px;color:var(--text3);">${RANK_EMOJI[Math.min(p.rank-1,4)]} 납부</div>
         </div>
       </div>`;
     });
@@ -1440,8 +1415,8 @@ function renderScoreBoard(){
   const fsLg=Math.max(10, Math.min(15, vw/32));
   const rowH=Math.max(22, Math.min(32, window.innerHeight/28));
 
-  const PCOLORS=['#3C3489','#085041','#712B13','#0C447C'];
-  const PBGS=['#EEEDFE','#E1F5EE','#FAECE7','#E6F1FB'];
+  const PCOLORS=['#3C3489','#085041','#712B13','#0C447C','#8B5A00'];
+  const PBGS=['#EEEDFE','#E1F5EE','#FAECE7','#E6F1FB','#FEF3E2'];
 
   let html=`<div class="sb-outer">
   <div class="sb-body">
@@ -1528,7 +1503,7 @@ function renderScoreBoard(){
   html+=`</table></div>`;
 
   // 납부금액 계산 (라운드비 + 버디벌금)
-  let playerPay=[0,0,0,0];
+  let playerPay=zeros();
   for(let r=0;r<3;r++){
     const adj=getAdj(r);
     const ranked2=rankRound(r,adj);
@@ -1563,7 +1538,7 @@ function renderScoreBoard(){
     const MEDAL=['🥇','🥈','🥉','<svg width="1em" height="1.3em" viewBox="0 0 40 52" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;"><polygon points="14,0 26,0 32,12 20,10 8,12" fill="#9B59B6"/><polygon points="14,0 8,12 2,8 10,0" fill="#7D3C98"/><polygon points="26,0 32,12 38,8 30,0" fill="#7D3C98"/><circle cx="20" cy="32" r="18" fill="url(#pg)"/><defs><radialGradient id="pg" cx="40%" cy="35%"><stop offset="0%" stop-color="#C39BD3"/><stop offset="100%" stop-color="#7D3C98"/></radialGradient></defs><text x="20" y="38" text-anchor="middle" font-size="16" font-weight="900" fill="white" font-family="Arial">4</text></svg>'];
     html+=`<div style="margin-top:6px;padding:0 6px;">
       <div style="font-size:${fs}px;font-weight:700;color:#1E4D08;margin-bottom:4px;">🏆 스코어 순위 (18홀 핸디 기준)</div>
-      <div class="sb-rank">
+      <div class="sb-rank" style="grid-template-columns:repeat(${NP()},1fr);">
         ${ranked.map((p,ri)=>{
           const nc=p.net<0?'#0F6E56':p.net>0?'#CC0000':'#333';
           return`<div class="sb-rank-item" style="background:${PBGS[p.pi]};">
@@ -1580,7 +1555,7 @@ function renderScoreBoard(){
     const PAY_MEDALS=['🥇','🥈','🥉','<svg width="1em" height="1.3em" viewBox="0 0 40 52" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;"><polygon points="14,0 26,0 32,12 20,10 8,12" fill="#9B59B6"/><polygon points="14,0 8,12 2,8 10,0" fill="#7D3C98"/><polygon points="26,0 32,12 38,8 30,0" fill="#7D3C98"/><circle cx="20" cy="32" r="18" fill="url(#pg)"/><defs><radialGradient id="pg" cx="40%" cy="35%"><stop offset="0%" stop-color="#C39BD3"/><stop offset="100%" stop-color="#7D3C98"/></radialGradient></defs><text x="20" y="38" text-anchor="middle" font-size="16" font-weight="900" fill="white" font-family="Arial">4</text></svg>'];
     html+=`<div style="margin-top:6px;padding:0 6px 6px;">
       <div style="font-size:${fs}px;font-weight:700;color:#1E4D08;margin-bottom:4px;">💰 납부금액 순위 · 합계 Rp${totalPool.toLocaleString()}</div>
-      <div class="sb-rank">
+      <div class="sb-rank" style="grid-template-columns:repeat(${NP()},1fr);">
         ${payRanked.map((p,ri)=>{
           return`<div class="sb-rank-item" style="background:${PBGS[p.pi]};">
             <div style="font-size:${fsLg}px;">${PAY_MEDALS[ri]}</div>
@@ -1610,7 +1585,7 @@ function doStart(){
 
 function doReset(){
   showConfirm('스코어를 모두 초기화할까요?\n설정(이름/핸디)은 유지돼요.', ()=>{
-    G.scores=Array.from({length:G.players.length},()=>Array(18).fill(null));
+    G.scores=Array.from({length:NP()},()=>Array(18).fill(null));
     G.history=[];
     G.curRound=0;
     save();
@@ -1747,6 +1722,7 @@ function saveResult(){
       filledHoles,
       players:G.players.map(p=>({...p})),
       scores:G.scores.map(r=>[...r]),
+      playerCount:NP(),
       stakes:[...G.stakes],
       buddyFine:G.buddyFine,
       startHole:G.startHole,
@@ -1782,6 +1758,7 @@ function openSavedResults(){
         showConfirm(`"${s.title||s.playerNames}" 를 불러올까요?\n현재 게임이 덮어씌워져요.`, ()=>{
           G.players=s.players;
           G.scores=s.scores;
+          if(s.playerCount) G.playerCount=s.playerCount;
           G.stakes=s.stakes||G.stakes;
           G.startHole=s.startHole||1;
           G.buddyFine=s.buddyFine!=null?s.buddyFine:G.buddyFine;
@@ -1802,7 +1779,7 @@ function handleSavedOverlayClick(e){if(e.target===document.getElementById('saved
 
 // 저장된 데이터용 adj/rank 계산 헬퍼
 function calcAdjFor(s,upTo){
-  let adj=[0,0,0,0];
+  let adj=zeros();
   for(let r=0;r<upTo;r++){
     const ranked=rankRoundFor(s,r,adj);
     if(ranked.length>=1)adj[ranked[0].pi]--;
@@ -1838,6 +1815,63 @@ function getStakeVal(id){
 }
 
 
+function setPlayerCount(n){
+  G.playerCount=n;
+  while(G.players.length<n) G.players.push({name:'플레이어'+(G.players.length+1),handi:0});
+  if(G.players.length>n) G.players.length=n;
+  while(G.scores.length<n) G.scores.push(Array(18).fill(null));
+  if(G.scores.length>n) G.scores.length=n;
+  while(G.stakes.length<n) G.stakes.push((G.stakes.length+1)*50000);
+  const b4=document.getElementById('pcBtn4'), b5=document.getElementById('pcBtn5');
+  if(b4&&b5){
+    const on=['var(--green)','#fff','var(--green)'], off=['#fff','var(--text2)','var(--border)'];
+    const [a,b]=n===4?[on,off]:[off,on];
+    b4.style.background=a[0];b4.style.color=a[1];b4.style.borderColor=a[2];
+    b5.style.background=b[0];b5.style.color=b[1];b5.style.borderColor=b[2];
+  }
+  const oc=document.getElementById('buddyOtherCount');
+  if(oc) oc.textContent=String(n-1);
+  renderModalPlayers();
+  renderStakeFields();
+}
+
+function renderModalPlayers(){
+  const el=document.getElementById('modalPlayerFields');
+  if(!el)return;
+  el.innerHTML=G.players.slice(0,NP()).map((p,i)=>`
+      <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);">
+        <div class="av ${AVCLS[i]}" style="width:38px;height:38px;font-size:13px;font-weight:700;flex-shrink:0;">${ini(p.name)}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">${i+1}번 플레이어</div>
+          <input class="field-input" style="width:100%;font-size:16px;font-weight:600;height:42px;"
+            type="text" id="pn_${i}" value="${p.name}" placeholder="이름">
+        </div>
+        <div style="flex-shrink:0;text-align:center;">
+          <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">핸디캡</div>
+          <input class="field-input" style="width:58px;text-align:center;font-size:18px;font-weight:800;height:42px;color:var(--green);"
+            type="number" inputmode="numeric" id="ph_${i}" value="${p.handi}" min="0" max="54">
+        </div>
+      </div>`).join('');
+}
+
+function renderStakeFields(){
+  const el=document.getElementById('stakeFields');
+  if(!el)return;
+  const labels=['🥇 1등 납부','🥈 2등 납부','🥉 3등 납부','4️⃣ 4등 납부','5️⃣ 5등 납부'];
+  el.innerHTML=Array.from({length:NP()},(_,i)=>`
+      <div class="stake-box">
+        <div class="stake-rank-label">${labels[i]}</div>
+        <div style="display:flex;align-items:center;gap:4px;">
+          <span style="font-size:12px;font-weight:600;color:var(--text2);">Rp</span>
+          <input class="stake-input" type="text" id="s${i}" inputmode="numeric" oninput="fmtStake(this)" style="flex:1;">
+        </div>
+      </div>`).join('');
+  for(let i=0;i<NP();i++){
+    const inp=document.getElementById('s'+i);
+    if(inp){const v=G.stakes[i]||0;inp.value=v.toLocaleString();inp._raw=String(v);}
+  }
+}
+
 function setBuddyLimit(val){
   G.buddyLimit=val;
   const b1=document.getElementById('buddyOpt1');
@@ -1854,21 +1888,7 @@ function setBuddyLimit(val){
 
 function openModal(){
   try{
-    // 플레이어 입력 - 균형잡힌 레이아웃
-    document.getElementById('modalPlayerFields').innerHTML=G.players.map((p,i)=>`
-      <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);">
-        <div class="av ${AVCLS[i]}" style="width:38px;height:38px;font-size:13px;font-weight:700;flex-shrink:0;">${ini(p.name)}</div>
-        <div style="flex:1;min-width:0;">
-          <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">${i+1}번 플레이어</div>
-          <input class="field-input" style="width:100%;font-size:16px;font-weight:600;height:42px;"
-            type="text" id="pn_${i}" value="${p.name}" placeholder="이름">
-        </div>
-        <div style="flex-shrink:0;text-align:center;">
-          <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">핸디캡</div>
-          <input class="field-input" style="width:58px;text-align:center;font-size:18px;font-weight:800;height:42px;color:var(--green);"
-            type="number" inputmode="numeric" id="ph_${i}" value="${p.handi}" min="0" max="54">
-        </div>
-      </div>`).join('');
+    setPlayerCount(G.playerCount||G.players.length||4);
 
     // 날짜 입력
     const dateEl=document.getElementById('gameDateInput');
@@ -1881,15 +1901,6 @@ function openModal(){
     // 스타트홀 직접 입력
     const shInput=document.getElementById('startHoleInput');
     if(shInput) shInput.value=G.startHole;
-
-    // 납부금액 콤마 포맷
-    [0,1,2,3].forEach(i=>{
-      const el=document.getElementById('s'+i);
-      if(el){
-        el.value=G.stakes[i].toLocaleString();
-        el._raw=String(G.stakes[i]);
-      }
-    });
 
     // 파 그리드 렌더링
     const parGrid=document.getElementById('parGrid');
@@ -1930,9 +1941,15 @@ function togglePar6(i){
 }
 
 function applySettings(){
-  for(let i=0;i<4;i++){
-    G.players[i].name=document.getElementById('pn_'+i).value.trim()||('플레이어'+(i+1));
-    G.players[i].handi=parseInt(document.getElementById('ph_'+i).value)||0;
+  const n=NP();
+  while(G.players.length<n) G.players.push({name:'플레이어'+(G.players.length+1),handi:0});
+  if(G.players.length>n) G.players.length=n;
+  while(G.scores.length<n) G.scores.push(Array(18).fill(null));
+  if(G.scores.length>n) G.scores.length=n;
+  for(let i=0;i<n;i++){
+    const nEl=document.getElementById('pn_'+i), hEl=document.getElementById('ph_'+i);
+    if(nEl) G.players[i].name=nEl.value.trim()||('플레이어'+(i+1));
+    if(hEl) G.players[i].handi=parseInt(hEl.value)||0;
     G.stakes[i]=getStakeVal('s'+i);
   }
   // 날짜
@@ -1948,7 +1965,7 @@ function applySettings(){
   closeModal();
   if(G._isNewGame){
     G._isNewGame=false;
-    G.scores=Array.from({length:4},()=>Array(18).fill(null));
+    G.scores=Array.from({length:NP()},()=>Array(18).fill(null));
     save();syncToFirebase();
     showTab('r0');
     showToast('🏌️ 게임 시작! 즐거운 라운드 되세요');

@@ -535,6 +535,13 @@ const RANKCLS=['rk1','rk2','rk3','rk4','rk5'];
 const RANK_EMOJI=['🥇','🥈','🥉','<svg width="1em" height="1.3em" viewBox="0 0 40 52" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;"><polygon points="14,0 26,0 32,12 20,10 8,12" fill="#9B59B6"/><polygon points="14,0 8,12 2,8 10,0" fill="#7D3C98"/><polygon points="26,0 32,12 38,8 30,0" fill="#7D3C98"/><circle cx="20" cy="32" r="18" fill="url(#pg)"/><defs><radialGradient id="pg" cx="40%" cy="35%"><stop offset="0%" stop-color="#C39BD3"/><stop offset="100%" stop-color="#7D3C98"/></radialGradient></defs><text x="20" y="38" text-anchor="middle" font-size="16" font-weight="900" fill="white" font-family="Arial">4</text></svg>'];
 
 function NP(){return (G.playerCount||G.players.length||4);}
+// 라운드 완료 판정: 모든 플레이어가 해당 6홀 전부 입력
+function isRoundComplete(r){
+  const start=r*6;
+  return G.players.slice(0,NP()).every((_,pi)=>
+    G.scores[pi]&&G.scores[pi].slice(start,start+6).every(v=>v!==null)
+  );
+}
 function zeros(){return Array(NP()).fill(0);}
 function save(){try{localStorage.setItem('golf_g3',JSON.stringify(G));}catch(e){}}
 
@@ -771,6 +778,7 @@ function calcBuddyFine(){
   for(let r=0;r<3;r++){
     const start=r*6;
     const fine=zeros();
+    if(!isRoundComplete(r)){perRound.push({buddiers:[],fine:zeros()});continue;} // 완료 라운드만
     // 이 라운드에서 버디 이상(≤-1)을 낸 플레이어 목록 (중복제거)
     const buddiers=new Set();
     for(let pi=0;pi<NP();pi++){
@@ -1177,8 +1185,9 @@ function renderResult(){
   for(let r=0;r<3;r++){
     const adj=getAdj(r);
     const ranked=rankRound(r,adj);
-    roundsData.push({ranked, adj});
-    if(ranked.length===0) continue;
+    const complete=isRoundComplete(r);
+    roundsData.push({ranked, adj, complete});
+    if(!complete) continue; // 완료된 라운드만 정산에 합산
     roundsDone++;
     const nextAdj=zeros();
     if(r<2){if(ranked.length>=1)nextAdj[ranked[0].pi]=-1;if(ranked.length>=4)nextAdj[ranked[3].pi]=+1;}
@@ -1304,9 +1313,27 @@ function renderResult(){
 
   for(let r=0;r<3;r++){
     const {ranked} = roundsData[r];
+    const rComplete=roundsData[r].complete;
     if(ranked.length===0){
       html+=`<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:8px;text-align:center;color:var(--text3);font-size:13px;">
         ${r+1}라운드 (${holeNum(r*6)}~${holeNum(r*6+5)}홀) — 미입력
+      </div>`;
+      continue;
+    }
+    if(!rComplete){
+      // 진행 중 라운드: 입력된 홀 수만 표시, 정산 제외 안내
+      const start2=r*6;
+      let doneHoles=0;
+      for(let hh=start2;hh<start2+6;hh++) if(G.players.slice(0,NP()).every((_,pi)=>G.scores[pi][hh]!==null)) doneHoles++;
+      html+=`<div style="background:#FFF8E8;border:1.5px dashed #FAC775;border-radius:12px;padding:14px;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <span style="font-size:13px;font-weight:700;">${r+1}라운드</span>
+            <span style="font-size:11px;color:var(--text2);margin-left:5px;">${holeNum(r*6)}~${holeNum(r*6+5)}홀</span>
+          </div>
+          <span style="font-size:12px;font-weight:700;color:#B8860B;">⏳ 진행 중 (${doneHoles}/6홀)</span>
+        </div>
+        <div style="font-size:11px;color:#8A6D00;margin-top:6px;">라운드가 끝나면 자동으로 정산에 합산돼요</div>
       </div>`;
       continue;
     }
@@ -1598,6 +1625,7 @@ function doReset(){
 function doEnd(){
   showConfirm('게임을 종료하고 최종 결과를 볼까요?', ()=>{
     showTab('result');
+    showToast('📊 결과 화면이에요. 💾저장을 눌러 보관하세요');
   });
 }
 
@@ -1623,20 +1651,31 @@ function doSave(){
 
 function goHome(){
   const hasData=G&&G.players&&G.players.length>0&&G.scores&&G.scores.some(r=>r&&r.some(v=>v!==null&&v!==undefined));
-  if(hasData){
-    const choice=confirm('저장하고 나가시겠어요?\n\n확인 = 저장 후 나가기\n취소 = 그냥 나가기');
-    if(choice===true){doSave();setTimeout(()=>{location.href='index.html';},400);}
-    else if(choice===false){location.href='index.html';}
-  } else {
-    location.href='index.html';
-  }
+  if(!hasData){location.href='index.html';return;}
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:600;display:flex;align-items:center;justify-content:center;padding:24px;';
+  ov.innerHTML=`
+    <div style="background:#fff;border-radius:20px;padding:24px 20px 16px;max-width:320px;width:100%;text-align:center;animation:sup 0.2s;">
+      <div style="font-size:32px;margin-bottom:8px;">🏠</div>
+      <div style="font-size:16px;font-weight:800;color:#1A1A1A;">홈으로 나갈까요?</div>
+      <div style="font-size:12px;color:#888;margin-top:4px;">진행 중인 스코어가 있어요</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:18px;">
+        <button id="_gh_save" style="padding:14px;border-radius:12px;border:none;background:var(--green);color:#fff;font-size:14px;font-weight:700;cursor:pointer;">💾 저장하고 나가기</button>
+        <button id="_gh_just" style="padding:13px;border-radius:12px;border:none;background:#F0F0EE;font-size:14px;font-weight:600;cursor:pointer;color:#555;">저장 없이 나가기</button>
+        <button id="_gh_cancel" style="padding:10px;border-radius:12px;border:none;background:none;font-size:13px;font-weight:600;cursor:pointer;color:#999;">취소</button>
+      </div>
+    </div>`;
+  document.body.appendChild(ov);
+  ov.querySelector('#_gh_save').onclick=()=>{saveResult({silent:true});setTimeout(()=>{location.href='index.html';},300);};
+  ov.querySelector('#_gh_just').onclick=()=>{location.href='index.html';};
+  ov.querySelector('#_gh_cancel').onclick=()=>ov.remove();
 }
 
-// ── 화면 벗어날 때 자동저장 (뒤로가기 포함) ──
+// ── 화면 벗어날 때 자동저장 (현재 상태만, 다운로드 없음) ──
 document.addEventListener('visibilitychange',function(){
-  if(document.visibilityState==='hidden') doSave();
+  if(document.visibilityState==='hidden') save();
 });
-window.addEventListener('pagehide',function(){ doSave(); });
+window.addEventListener('pagehide',function(){ save(); });
 
 
 // ── 사진 기능 (결과) ──
@@ -1702,51 +1741,142 @@ function viewR6Photo(src){
 }
 
 // ── 결과 저장/불러오기 ──
-function saveResult(){
+// ── 아카이브 (localStorage 기반 저장) ──
+const ARCHIVE_KEY='mg_archive_r6';
+function getArchive(){try{return JSON.parse(localStorage.getItem(ARCHIVE_KEY)||'[]');}catch(e){return[];}}
+function setArchive(list){try{localStorage.setItem(ARCHIVE_KEY,JSON.stringify(list));return true;}catch(e){showToast('⚠️ 저장공간 부족');return false;}}
+
+function makeSnapshot(){
+  const now=new Date();
+  const mm=String(now.getMonth()+1).padStart(2,'0');
+  const dd=String(now.getDate()).padStart(2,'0');
+  const dateStr=G.gameDate||`${now.getFullYear()}-${mm}-${dd}`;
+  const playerNames=G.players.slice(0,NP()).map(p=>p.name).join('·');
+  let filledHoles=0;
+  for(let hh=0;hh<18;hh++) if(G.scores.some(s=>s[hh]!==null)) filledHoles++;
+  return{
+    id:dateStr+'_'+playerNames,
+    title:`${dateStr} · ${playerNames}`,
+    date:dateStr, playerNames, filledHoles,
+    savedAt:Date.now(),
+    players:G.players.map(p=>({...p})),
+    scores:G.scores.map(r=>[...r]),
+    playerCount:NP(),
+    stakes:[...G.stakes],
+    buddyFine:G.buddyFine,
+    buddyLimit:G.buddyLimit||'once',
+    startHole:G.startHole,
+    gameDate:G.gameDate||''
+  };
+}
+
+function saveResult(opts){
+  opts=opts||{};
   try{
-    const now=new Date();
-    const mm=String(now.getMonth()+1).padStart(2,'0');
-    const dd=String(now.getDate()).padStart(2,'0');
-    const hh=String(now.getHours()).padStart(2,'0');
-    const mi=String(now.getMinutes()).padStart(2,'0');
-    const dateStr=G.gameDate||`${now.getFullYear()}.${mm}.${dd}`;
-    const playerNames=G.players.map(p=>p.name).join('·');
-
-    let filledHoles=0;
-    for(let h=0;h<18;h++) if(G.scores.some(s=>s[h]!==null)) filledHoles++;
-
-    const snapshot={
-      title:`${dateStr} (${playerNames})`,
-      date:dateStr,
-      playerNames,
-      filledHoles,
-      players:G.players.map(p=>({...p})),
-      scores:G.scores.map(r=>[...r]),
-      playerCount:NP(),
-      stakes:[...G.stakes],
-      buddyFine:G.buddyFine,
-      startHole:G.startHole,
-      gameDate:G.gameDate||''
-    };
-
-    // JSON 파일로 다운로드
-    const json=JSON.stringify(snapshot,null,2);
-    const blob=new Blob([json],{type:'application/json'});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');
-    a.href=url;
-    a.download=`명랑골프_${dateStr}_${playerNames}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    showToast(`💾 저장됐어요! "${playerNames}"`);
+    const snap=makeSnapshot();
+    const list=getArchive();
+    const idx=list.findIndex(x=>x.id===snap.id);
+    if(idx>=0) list[idx]=snap; else list.unshift(snap);
+    if(list.length>30) list.length=30; // 최대 30개 보관
+    if(!setArchive(list)) return;
+    save();
+    if(opts.silent){showToast('💾 저장됐어요');return;}
+    showSaveDone(snap);
   }catch(e){alert('저장 실패: '+e.message);}
 }
 
+// 저장 완료 모달: 나가기 / 계속하기
+function showSaveDone(snap){
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:600;display:flex;align-items:center;justify-content:center;padding:24px;';
+  ov.innerHTML=`
+    <div style="background:#fff;border-radius:20px;padding:28px 24px 20px;max-width:320px;width:100%;text-align:center;animation:sup 0.2s;">
+      <div style="width:64px;height:64px;border-radius:50%;background:#EAF3DE;display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 14px;">✅</div>
+      <div style="font-size:18px;font-weight:800;color:#1A1A1A;">저장 완료!</div>
+      <div style="font-size:13px;color:#888;margin-top:6px;line-height:1.5;">${snap.title}<br>불러오기에서 언제든 다시 볼 수 있어요</div>
+      <div style="display:flex;gap:10px;margin-top:20px;">
+        <button id="_sd_home" style="flex:1;padding:14px;border-radius:12px;border:none;background:#F0F0EE;font-size:14px;font-weight:700;cursor:pointer;color:#555;">🏠 나가기</button>
+        <button id="_sd_stay" style="flex:1;padding:14px;border-radius:12px;border:none;background:var(--green);color:#fff;font-size:14px;font-weight:700;cursor:pointer;">계속하기</button>
+      </div>
+    </div>`;
+  document.body.appendChild(ov);
+  ov.querySelector('#_sd_home').onclick=()=>{location.href='index.html';};
+  ov.querySelector('#_sd_stay').onclick=()=>ov.remove();
+}
+
+function applySnapshot(s){
+  G.players=s.players;
+  G.scores=s.scores;
+  if(s.playerCount) G.playerCount=s.playerCount;
+  G.stakes=s.stakes||G.stakes;
+  G.startHole=s.startHole||1;
+  G.buddyFine=s.buddyFine!=null?s.buddyFine:G.buddyFine;
+  if(s.buddyLimit) G.buddyLimit=s.buddyLimit;
+  G.gameDate=s.gameDate||s.date||'';
+  save();
+  showTab('result');
+  showToast('📂 불러왔어요!');
+}
+
 function openSavedResults(){
-  // 파일 선택창 열기
+  const list=getArchive();
+  const body=document.getElementById('savedResultsContent');
+  if(!body) return;
+  let html='';
+  if(list.length===0){
+    html+=`<div style="text-align:center;padding:30px 10px;color:var(--text3);">
+      <div style="font-size:40px;margin-bottom:10px;">📭</div>
+      <div style="font-size:14px;">저장된 게임이 없어요</div>
+      <div style="font-size:12px;margin-top:4px;">게임 중 💾저장을 누르면 여기에 보관돼요</div>
+    </div>`;
+  } else {
+    html+=list.map((s,i)=>`
+      <div style="display:flex;align-items:center;gap:10px;padding:12px 4px;border-bottom:1px solid var(--border);">
+        <div style="width:40px;height:40px;border-radius:10px;background:#EAF3DE;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">⛳</div>
+        <div style="flex:1;min-width:0;cursor:pointer;" onclick="loadFromArchive(${i})">
+          <div style="font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${s.title}</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px;">${s.filledHoles}/18홀 입력</div>
+        </div>
+        <button onclick="exportArchive(${i})" style="background:none;border:none;font-size:16px;cursor:pointer;padding:6px;color:#1A5C99;" title="파일로 내보내기">📤</button>
+        <button onclick="deleteArchive(${i})" style="background:none;border:none;font-size:16px;cursor:pointer;padding:6px;color:#C0392B;">🗑️</button>
+      </div>`).join('');
+  }
+  html+=`<button onclick="importArchiveFile()" style="width:100%;margin-top:12px;padding:12px;border-radius:10px;border:1.5px dashed var(--border);background:#FAFAF8;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;">📄 파일에서 가져오기 (.json)</button>`;
+  body.innerHTML=html;
+  document.getElementById('savedModal').classList.add('open');
+}
+
+function loadFromArchive(i){
+  const s=getArchive()[i];
+  if(!s) return;
+  showConfirm(`"${s.title}" 를 불러올까요?\n현재 게임이 덮어씌워져요.`, ()=>{
+    closeSavedResults();
+    applySnapshot(s);
+  });
+}
+function deleteArchive(i){
+  const list=getArchive();
+  const s=list[i];
+  if(!s) return;
+  showConfirm(`"${s.title}" 를 삭제할까요?`, ()=>{
+    list.splice(i,1);
+    setArchive(list);
+    openSavedResults(); // 목록 갱신
+  });
+}
+function exportArchive(i){
+  const s=getArchive()[i];
+  if(!s) return;
+  const blob=new Blob([JSON.stringify(s,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=`명랑골프_${s.date}_${s.playerNames}.json`;a.click();
+  URL.revokeObjectURL(url);
+  showToast('📤 파일로 내보냈어요');
+}
+function importArchiveFile(){
   const input=document.createElement('input');
-  input.type='file';
-  input.accept='.json';
+  input.type='file';input.accept='.json';
   input.onchange=e=>{
     const file=e.target.files[0];
     if(!file) return;
@@ -1755,19 +1885,14 @@ function openSavedResults(){
       try{
         const s=JSON.parse(ev.target.result);
         if(!s.players||!s.scores){showToast('❌ 올바른 파일이 아니에요');return;}
-        showConfirm(`"${s.title||s.playerNames}" 를 불러올까요?\n현재 게임이 덮어씌워져요.`, ()=>{
-          G.players=s.players;
-          G.scores=s.scores;
-          if(s.playerCount) G.playerCount=s.playerCount;
-          G.stakes=s.stakes||G.stakes;
-          G.startHole=s.startHole||1;
-          G.buddyFine=s.buddyFine!=null?s.buddyFine:G.buddyFine;
-          if(s.buddyLimit) G.buddyLimit=s.buddyLimit;
-          G.gameDate=s.gameDate||s.date||'';
-          save();
-          showTab('result');
-          showToast('📂 불러왔어요!');
-        });
+        // 아카이브에 추가
+        if(!s.id) s.id=(s.date||'파일')+'_'+(s.playerNames||'');
+        const list=getArchive();
+        const idx=list.findIndex(x=>x.id===s.id);
+        if(idx>=0) list[idx]=s; else list.unshift(s);
+        setArchive(list);
+        openSavedResults();
+        showToast('📥 가져왔어요');
       }catch(err){alert('파일 읽기 실패: '+err.message);}
     };
     reader.readAsText(file);

@@ -141,6 +141,7 @@ if('serviceWorker' in navigator){
       </div>
       <div style="display:flex;gap:5px;flex-shrink:0;align-items:center;">
         <span style="font-size:11px;font-weight:800;color:rgba(255,255,255,0.5);letter-spacing:1px;">KCM</span>
+        <button class="tbtn" id="soundBtn" onclick="toggleSound()" style="height:30px;padding:0 8px;font-size:13px;">🔊</button>
         <button class="tbtn" onclick="doLoad()" style="height:30px;padding:0 8px;font-size:13px;">📂</button>
         <button class="tbtn" onclick="resetAll()" style="height:30px;padding:0 8px;font-size:13px;">🔄</button>
         <button class="tbtn" onclick="doSave()" style="height:30px;padding:0 8px;font-size:13px;">💾</button>
@@ -535,10 +536,83 @@ function setScore(val){
   ST(curTab);
 }
 
+
+// ── 🎺 팡파레 사운드 (Web Audio 합성) ──
+var _actx=null, _soundOn=(function(){try{return localStorage.getItem('mg_sound')!=='off';}catch(e){return true;}})();
+
+function toggleSound(){
+  _soundOn=!_soundOn;
+  try{localStorage.setItem('mg_sound',_soundOn?'on':'off');}catch(e){}
+  const b=document.getElementById('soundBtn');
+  if(b) b.textContent=_soundOn?'🔊':'🔇';
+  if(_soundOn){ ensureAudio(); beep(880,0.08,'sine',0.18); }
+  toast(_soundOn?'🔊 소리 켜짐':'🔇 소리 꺼짐');
+}
+function ensureAudio(){
+  try{
+    if(!_actx){
+      const AC=window.AudioContext||window.webkitAudioContext;
+      if(!AC) return null;
+      _actx=new AC();
+    }
+    if(_actx.state==='suspended') _actx.resume();
+    return _actx;
+  }catch(e){ return null; }
+}
+document.addEventListener('pointerdown', function unlock(){
+  ensureAudio();
+  document.removeEventListener('pointerdown', unlock);
+}, {once:true});
+function beep(freq, dur, type, vol, delay){
+  const ac=ensureAudio(); if(!ac||!_soundOn) return;
+  const t0=ac.currentTime+(delay||0);
+  const osc=ac.createOscillator(), g=ac.createGain();
+  osc.type=type||'triangle';
+  osc.frequency.setValueAtTime(freq,t0);
+  g.gain.setValueAtTime(0,t0);
+  g.gain.linearRampToValueAtTime(vol||0.22, t0+0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+  osc.connect(g); g.connect(ac.destination);
+  osc.start(t0); osc.stop(t0+dur+0.02);
+}
+function chord(freqs, dur, vol, delay){
+  freqs.forEach(f=>beep(f, dur, 'triangle', (vol||0.16), delay));
+}
+function sparkle(startDelay){
+  const notes=[1046.5,1318.5,1568.0,2093.0];
+  notes.forEach((f,i)=>beep(f,0.16,'sine',0.10,(startDelay||0)+i*0.055));
+}
+function playFanfare(v){
+  if(!_soundOn) return;
+  const ac=ensureAudio(); if(!ac) return;
+  const C=523.25,E=659.25,G=784.0,C2=1046.5,G2=1568.0,E2=1318.5;
+  if(v<=-3){
+    beep(C,0.16,'triangle',0.24,0);
+    beep(E,0.16,'triangle',0.24,0.13);
+    beep(G,0.16,'triangle',0.24,0.26);
+    beep(C2,0.20,'triangle',0.26,0.39);
+    chord([C,E,G,C2],0.85,0.15,0.58);
+    chord([G,C2,E2,G2],1.0,0.13,0.80);
+    sparkle(0.95);
+  } else if(v===-2){
+    beep(G,0.14,'triangle',0.24,0);
+    beep(C2,0.14,'triangle',0.24,0.12);
+    beep(E2,0.30,'triangle',0.26,0.24);
+    chord([C2,E2,G2],0.7,0.15,0.42);
+    sparkle(0.55);
+  } else {
+    beep(C2,0.11,'triangle',0.22,0);
+    beep(E2,0.11,'triangle',0.22,0.10);
+    beep(G2,0.28,'triangle',0.24,0.20);
+    chord([C2,E2,G2],0.45,0.11,0.32);
+  }
+}
+
 function showBirdie(v){
   const o=document.getElementById('birdieOv');
   document.getElementById('birdieTxt').textContent=v<=-3?'ALBATROSS!':v===-2?'EAGLE!':'BIRDIE!';
   if(navigator.vibrate) navigator.vibrate([80,40,80,40,150]);
+  playFanfare(v);
   o.className='birdie-ov show';
   const colors=['#FFD700','#FF6B35','#FF1493','#9B59B6','#3498DB','#2ECC71'];
   for(let i=0;i<28;i++){
@@ -754,6 +828,7 @@ setInterval(checkRotation,500);
 
 // ── 초기화 ──
 LD();updTop();ST(0);startSync();
+(function(){const b=document.getElementById('soundBtn'); if(b) b.textContent=_soundOn?'🔊':'🔇';})();
 
 // ── 사진 기능 ──
 function getPhotoKey(){

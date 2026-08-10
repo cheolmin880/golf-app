@@ -457,7 +457,7 @@ body{height:100%;background:var(--bg);font-family:-apple-system,'Noto Sans KR',s
     <div class="modal-section">⛳ 홀별 파(Par) - 탭하여 변경</div>
     <div style="padding:8px 16px 12px;display:grid;grid-template-columns:repeat(6,1fr);gap:6px;" id="parGrid"></div>
 
-    <div class="modal-section">🐦 버디 벌금</div>
+    <div class="modal-section">🐦 버디 · 🦅 이글 벌금</div>
     <!-- 버디벌금 옵션 토글 -->
     <div style="display:flex;gap:8px;padding:0 16px;margin-bottom:10px;">
       <button id="buddyOpt1" onclick="setBuddyLimit('once')"
@@ -469,13 +469,21 @@ body{height:100%;background:var(--bg);font-family:-apple-system,'Noto Sans KR',s
         ♾️ 횟수 제한 없음
       </button>
     </div>
-    <div style="padding:8px 16px 12px;display:flex;align-items:center;gap:8px;background:var(--bg);border-radius:10px;margin:0 16px 12px;">
-      <span style="font-size:13px;color:var(--text2);">버디 1회당</span>
+    <div style="padding:8px 16px 6px;display:flex;align-items:center;gap:8px;background:var(--bg);border-radius:10px;margin:0 16px 8px;">
+      <span style="font-size:13px;color:var(--text2);width:74px;">🐦 버디 1회당</span>
       <span style="font-size:13px;font-weight:600;color:var(--text2);">Rp</span>
       <input id="buddyFineInput" type="text" inputmode="numeric" oninput="fmtStake(this)"
-        style="width:110px;height:38px;text-align:right;font-size:16px;font-weight:700;
+        style="flex:1;min-width:0;height:38px;text-align:right;font-size:16px;font-weight:700;
         border:1.5px solid var(--border);border-radius:8px;background:#fff;padding:0 10px;">
-      <span style="font-size:13px;color:var(--text2);">× 나머지 <span id="buddyOtherCount">3</span>명</span>
+      <span style="font-size:12px;color:var(--text2);white-space:nowrap;">× <span id="buddyOtherCount">3</span>명</span>
+    </div>
+    <div style="padding:8px 16px 12px;display:flex;align-items:center;gap:8px;background:#FFF8E8;border:1px solid #FAC775;border-radius:10px;margin:0 16px 12px;">
+      <span style="font-size:13px;color:#7A4F00;font-weight:600;width:74px;">🦅 이글 1회당</span>
+      <span style="font-size:13px;font-weight:600;color:#7A4F00;">Rp</span>
+      <input id="eagleFineInput" type="text" inputmode="numeric" oninput="fmtStake(this)"
+        style="flex:1;min-width:0;height:38px;text-align:right;font-size:16px;font-weight:700;
+        border:1.5px solid #FAC775;border-radius:8px;background:#fff;padding:0 10px;color:#7A4F00;">
+      <span style="font-size:12px;color:#7A4F00;white-space:nowrap;">× <span id="eagleOtherCount">3</span>명</span>
     </div>
 
     <div class="modal-section">💰 등수별 납부 금액 (라운드당)</div>
@@ -523,6 +531,7 @@ let G = {
   pars:Array(18).fill(4),
   stakes:[50000,100000,150000,200000,250000],
   buddyFine:50000,
+  eagleFine:100000,
   buddyLimit:'once',
   startHole:1,
   gameDate:'',
@@ -658,6 +667,7 @@ function load(){
       if(p.playerCount) G.playerCount=p.playerCount;
       if(p.stakes) G.stakes=p.stakes;
       if(p.buddyFine!=null) G.buddyFine=p.buddyFine;
+      if(p.eagleFine!=null) G.eagleFine=p.eagleFine;
       if(p.startHole) G.startHole=p.startHole;
       if(p.pars) G.pars=p.pars;
     }
@@ -767,48 +777,57 @@ function rankRound(rIdx,adj){
   return rankRoundWithHandis(rIdx,handis);
 }
 
-// 버디 벌금 계산
-// 각 라운드에서 버디(-1이하) 한 플레이어 기준:
-//   - 버디한 플레이어별로 해당 라운드에 버디가 1개이상 있으면 나머지 3명이 Rp buddyFine씩 냄
-//   - 같은 라운드에서 2개이상 버디해도 1회만 적용
-// 반환: [pi0납부, pi1납부, pi2납부, pi3납부] × 3라운드 합산
+// 버디/이글 벌금 계산
+// 버디(-1) = buddyFine, 이글 이상(-2 이하) = eagleFine 별도 적용
+// 멀리건버디('mb')는 벌금 제외
+// 라운드당 1회 모드: 플레이어별로 그 라운드 최고 등급 1건만 적용
+// 반환: {total, perRound} — perRound에 buddiers/eaglers 구분 포함
+function eagleFineVal(){ return (G.eagleFine!=null?G.eagleFine:(G.buddyFine||0)); }
+
 function calcBuddyFine(){
   const total=zeros();
   const perRound=[]; // 라운드별 상세
   for(let r=0;r<3;r++){
     const start=r*6;
     const fine=zeros();
-    if(!isRoundComplete(r)){perRound.push({buddiers:[],fine:zeros()});continue;} // 완료 라운드만
-    // 이 라운드에서 버디 이상(≤-1)을 낸 플레이어 목록 (중복제거)
-    const buddiers=new Set();
+    if(!isRoundComplete(r)){perRound.push({buddiers:[],eaglers:[],fine:zeros()});continue;} // 완료 라운드만
+    const buddiers=new Set(); // 버디(-1)만 낸 사람
+    const eaglers=new Set();  // 이글 이상(-2↓) 낸 사람
     for(let pi=0;pi<NP();pi++){
       for(let h=start;h<start+6;h++){
         const v=G.scores[pi][h];
-        if(v!==null && v!=='mb' && v<=-1) buddiers.add(pi);
+        if(v===null||v==='mb') continue;
+        if(v<=-2) eaglers.add(pi);
+        else if(v===-1) buddiers.add(pi);
       }
     }
     if(G.buddyLimit==='unlimited'){
-      // 횟수 제한 없음: 버디/이글 개수만큼 적용
+      // 횟수 제한 없음: 홀마다 개별 적용
       for(let pi=0;pi<NP();pi++){
         for(let h=start;h<start+6;h++){
           const v=G.scores[pi][h];
-          if(v!==null && v!=='mb' && v<=-1){
-            for(let pi2=0;pi2<NP();pi2++){
-              if(pi2!==pi) fine[pi2]+=G.buddyFine;
-            }
+          if(v===null||v==='mb'||v>-1) continue;
+          const amt = v<=-2 ? eagleFineVal() : G.buddyFine;
+          for(let pi2=0;pi2<NP();pi2++){
+            if(pi2!==pi) fine[pi2]+=amt;
           }
         }
       }
     } else {
-      // 라운드당 1회: 버디한 플레이어마다 → 나머지 3명이 buddyFine 냄
-      buddiers.forEach(bpi=>{
-        for(let pi=0;pi<NP();pi++){
-          if(pi!==bpi) fine[pi]+=G.buddyFine;
+      // 라운드당 1회: 이글 있으면 이글로, 없고 버디만 있으면 버디로 1건
+      for(let pi=0;pi<NP();pi++){
+        let amt=0;
+        if(eaglers.has(pi)) amt=eagleFineVal();
+        else if(buddiers.has(pi)) amt=G.buddyFine;
+        if(amt>0){
+          for(let pi2=0;pi2<NP();pi2++){
+            if(pi2!==pi) fine[pi2]+=amt;
+          }
         }
-      });
+      }
     }
     fine.forEach((v,i)=>{total[i]+=v;});
-    perRound.push({buddiers:[...buddiers],fine:[...fine]});
+    perRound.push({buddiers:[...buddiers],eaglers:[...eaglers],fine:[...fine]});
   }
   return{total,perRound};
 }
@@ -844,13 +863,10 @@ function signTxt(v){
 function getConfirmedPool(){
   let total=0;
   let confirmedRounds=0;
+  const bf=calcBuddyFine();
   for(let r=0;r<3;r++){
     const start=r*6;
-    // 해당 라운드 6홀 모두 입력됐는지 확인
-    const allFilled=G.players.every((_,pi)=>
-      G.scores[pi].slice(start,start+6).every(v=>v!==null)
-    );
-    if(!allFilled) break; // 미완성 라운드부터는 중단
+    if(!isRoundComplete(r)) break; // 미완성 라운드부터는 중단
     confirmedRounds++;
     // 라운드 납부
     const adj=getAdj(r);
@@ -858,14 +874,10 @@ function getConfirmedPool(){
     ranked.forEach(p=>{
       total+=G.stakes[Math.min(p.rank-1,G.stakes.length-1)];
     });
-    // 버디벌금 (이 라운드)
-    const buddiers=new Set();
-    for(let pi=0;pi<NP();pi++)
-      for(let h=start;h<start+6;h++)
-        if(G.scores[pi][h]!==null&&G.scores[pi][h]!=='mb'&&G.scores[pi][h]<=-1) buddiers.add(pi);
-    buddiers.forEach(bpi=>{
-      for(let pi=0;pi<NP();pi++) if(pi!==bpi) total+=G.buddyFine;
-    });
+    // 버디/이글 벌금 (이 라운드)
+    if(bf.perRound[r]){
+      total += bf.perRound[r].fine.reduce((a,b)=>a+b,0);
+    }
   }
   return{total, confirmedRounds};
 }
@@ -1273,7 +1285,7 @@ function renderResult(){
       </div>
       <div style="font-size:18px;color:rgba(255,255,255,0.5);font-weight:300;">+</div>
       <div style="flex:1;background:rgba(255,255,255,0.1);border-radius:10px;padding:10px 12px;">
-        <div style="font-size:11px;color:rgba(255,255,255,0.6);margin-bottom:3px;">🐦 버디 벌금</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.6);margin-bottom:3px;">🐦🦅 버디·이글 벌금</div>
         <div style="font-size:18px;font-weight:800;color:#9FE1CB;">Rp${totalBuddy.toLocaleString()}</div>
       </div>
     </div>
@@ -1299,7 +1311,7 @@ function renderResult(){
         </div>
         <div style="font-size:11px;color:var(--text2);margin-bottom:3px;">
           🏌️ Rp${p.roundPay.toLocaleString()}
-          ${p.buddyPay>0?`<span style="color:#0F6E56;"> + 🐦 Rp${p.buddyPay.toLocaleString()}</span>`:''}
+          ${p.buddyPay>0?`<span style="color:#0F6E56;"> + 🐦🦅 Rp${p.buddyPay.toLocaleString()}</span>`:''}
         </div>
         <div style="border-top:1px solid rgba(0,0,0,0.07);padding-top:6px;margin-top:4px;">
           <div style="font-size:11px;color:var(--text2);margin-bottom:1px;">합계</div>
@@ -1383,7 +1395,7 @@ function renderResult(){
         </div>
         <div style="text-align:right;flex-shrink:0;">
           <div style="font-size:13px;font-weight:800;color:#993C1D;">Rp${pay.toLocaleString()}</div>
-          ${bFine>0?`<div style="font-size:11px;font-weight:700;color:#0F6E56;">🐦 Rp${bFine.toLocaleString()}</div>`:''}
+          ${bFine>0?`<div style="font-size:11px;font-weight:700;color:#0F6E56;">${(buddyPerRound[r]&&buddyPerRound[r].eaglers&&buddyPerRound[r].eaglers.length)?'🐦🦅':'🐦'} Rp${bFine.toLocaleString()}</div>`:''}
           <div style="font-size:10px;color:var(--text3);">${RANK_EMOJI[Math.min(p.rank-1,4)]} 납부</div>
         </div>
       </div>`;
@@ -1764,6 +1776,7 @@ function makeSnapshot(){
     playerCount:NP(),
     stakes:[...G.stakes],
     buddyFine:G.buddyFine,
+    eagleFine:eagleFineVal(),
     buddyLimit:G.buddyLimit||'once',
     startHole:G.startHole,
     gameDate:G.gameDate||''
@@ -1811,6 +1824,7 @@ function applySnapshot(s){
   G.stakes=s.stakes||G.stakes;
   G.startHole=s.startHole||1;
   G.buddyFine=s.buddyFine!=null?s.buddyFine:G.buddyFine;
+  if(s.eagleFine!=null) G.eagleFine=s.eagleFine;
   if(s.buddyLimit) G.buddyLimit=s.buddyLimit;
   G.gameDate=s.gameDate||s.date||'';
   save();
@@ -1956,6 +1970,8 @@ function setPlayerCount(n){
   }
   const oc=document.getElementById('buddyOtherCount');
   if(oc) oc.textContent=String(n-1);
+  const oc2=document.getElementById('eagleOtherCount');
+  if(oc2) oc2.textContent=String(n-1);
   renderModalPlayers();
   renderStakeFields();
 }
@@ -2021,6 +2037,8 @@ function openModal(){
 
     const bfEl=document.getElementById('buddyFineInput');
     if(bfEl){bfEl.value=G.buddyFine.toLocaleString();bfEl._raw=String(G.buddyFine);}
+    const efEl=document.getElementById('eagleFineInput');
+    if(efEl){const ev=eagleFineVal();efEl.value=ev.toLocaleString();efEl._raw=String(ev);}
     setBuddyLimit(G.buddyLimit||'once');
 
     // 스타트홀 직접 입력
@@ -2085,6 +2103,8 @@ function applySettings(){
   G.startHole=Math.max(1,Math.min(18,shVal));
   const bfEl=document.getElementById('buddyFineInput');
   if(bfEl){const r=bfEl._raw||bfEl.value.replace(/[^0-9]/g,'');G.buddyFine=parseInt(r)||0;}
+  const efEl=document.getElementById('eagleFineInput');
+  if(efEl){const r2=efEl._raw||efEl.value.replace(/[^0-9]/g,'');G.eagleFine=parseInt(r2)||0;}
   // buddyLimit은 setBuddyLimit()에서 즉시 반영되므로 별도 저장 불필요
   // 파는 togglePar6에서 이미 G.pars에 저장됨
   closeModal();

@@ -423,6 +423,54 @@ body{
 .vhcp td{background:#EFF4F1 !important;font-size:16px;font-weight:900;padding:9px 2px;border-top:1px solid var(--line);}
 .vhcp .vc-hole{font-size:10px;line-height:1.2;}
 
+
+/* 성적 입력 테이블 */
+.sctb{width:100%;border-collapse:collapse;table-layout:fixed;}
+.sctb th{
+  background:#FBFAF6;padding:8px 2px;font-size:10.5px;font-weight:800;
+  color:var(--t2);border-bottom:1px solid var(--line);text-align:center;
+  letter-spacing:-0.2px;
+}
+.sctb th.sc-nm{text-align:left;padding-left:11px;}
+.sctb th.ovc{background:#EFF5F1;color:var(--ink);}
+.sctb td{padding:6px 2px;text-align:center;border-bottom:1px solid var(--line);vertical-align:middle;}
+.sctb tr:last-child td{border-bottom:none;}
+.sc-nm{width:auto;text-align:left;padding-left:9px !important;}
+.sc-h{width:44px;}
+.sc-c{width:44px;}
+.sc-x{width:26px;}
+.sctb td.ovc{background:#F4F9F6;}
+
+.scn{display:flex;align-items:center;gap:6px;}
+.av.sm{width:24px;height:24px;font-size:10px;flex-shrink:0;}
+.scn-in{
+  flex:1;min-width:0;border:1px solid transparent;background:transparent;
+  font-size:15px;font-weight:700;color:var(--t1);padding:5px 4px;border-radius:6px;
+  font-family:inherit;
+}
+.scn-in:focus{outline:none;border-color:var(--accent);background:#fff;}
+.scn-tx{font-size:15px;font-weight:700;padding:5px 4px;}
+
+.scin{
+  width:40px;height:36px;text-align:center;border:1.5px solid var(--line);
+  border-radius:8px;font-size:17px;font-weight:800;background:#FCFCFA;
+  color:var(--t1);font-family:inherit;
+}
+.scin:focus{outline:none;border-color:var(--accent);background:#fff;}
+.scin.tot{background:#F7FBF8;border-color:#C5DCCD;}
+
+.scv{display:inline-block;font-size:17px;font-weight:800;color:var(--t1);line-height:36px;}
+.scv.sub{font-size:15px;font-weight:700;color:var(--t2);}
+.scv.tot{font-size:18px;font-weight:900;color:var(--ink);}
+.scv.tot.auto{color:var(--ok);}
+.scv.net{font-size:17px;font-weight:800;color:var(--t1);}
+.scv.ov{font-size:19px;font-weight:900;}
+.scv.ov.hc-good{color:#1B7A4B;}
+.scv.ov.hc-bad{color:#B3452B;}
+.scv.ov.hc-even{color:var(--t1);}
+
+.scdel{background:none;border:none;color:var(--t3);font-size:14px;cursor:pointer;padding:4px;}
+
 .role-b{
   width:100%;display:flex;align-items:center;gap:12px;
   background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.13);
@@ -953,12 +1001,18 @@ function updateNet(gi,pi){
   const p=G.groups[gi].players[pi];
   const el=document.getElementById('net_'+gi+'_'+pi);
   if(!el) return;
-  if(p.gross===null){ el.textContent='—'; el.className='netval none'; el.parentElement.className='netbox'; }
-  else{
-    const d=(p.gross-coursePar())-(p.handi||0);
-    el.textContent=String(d); el.className='netval';
-    el.parentElement.className='netbox '+(d<0?'hc-good':(d>0?'hc-bad':'hc-even'));
+  const tot=holeSum(p);
+  const gross=(tot!==null)?tot:p.gross;
+  if(gross===null||gross===undefined){
+    el.textContent='—'; el.className='scv ov';
+  }else{
+    const d=(gross-coursePar())-(p.handi||0);
+    el.textContent=String(d);
+    el.className='scv ov '+(d<0?'hc-good':(d>0?'hc-bad':'hc-even'));
   }
+  // 넷·합계 칸도 함께 갱신되도록 행 전체 다시 그림
+  clearTimeout(updateNet._t);
+  updateNet._t=setTimeout(()=>{ if(curTab==='score') render(); },400);
 }
 
 /* ══════════ 집계 ══════════ */
@@ -1382,40 +1436,66 @@ function viewScore(){
       h+='<div class="ldr-row"><span class="ldr-l">조장</span><span class="ldr-n">'+esc(g.leader)+'</span></div>';
     }
 
-    h+='<div style="display:flex;gap:9px;padding:7px 12px 3px;background:#FBFAF6;border-bottom:1px solid var(--line);">'
-      +'<div style="width:34px;"></div><div style="flex:1;"></div>'
-      +'<div class="numlbl" style="width:56px;">핸디</div>'
-      +'<div class="numlbl" style="width:56px;">타수</div>'
-      +'<div class="numlbl" style="width:54px;">핸디대비</div>'
-      +'<div style="width:22px;"></div></div>';
+    // 헤더: 이름 / 전반 / 후반 / 합계 / 넷 / 오버타
+    h+='<table class="sctb"><tr>'
+      +'<th class="sc-nm">이름</th>'
+      +'<th class="sc-h">핸디</th>'
+      +'<th class="sc-c">전반</th>'
+      +'<th class="sc-c">후반</th>'
+      +'<th class="sc-c">합계</th>'
+      +'<th class="sc-c">넷</th>'
+      +'<th class="sc-c ovc">오버타</th>'
+      +(ed?'<th class="sc-x"></th>':'')
+      +'</tr>';
 
     g.players.forEach((p,pi)=>{
       const c=AVC[(gi*4+pi)%AVC.length];
       const _cp=coursePar();
-      const _hd=(p.gross===null)?null:(p.gross-_cp)-(p.handi||0);
-      const net=(_hd===null)?'—':String(_hd);
-      const netCol=(_hd===null)?'':(_hd<0?'hc-good':(_hd>0?'hc-bad':'hc-even'));
+      const out=halfSum(p,0), inn=halfSum(p,1);
+      const tot=holeSum(p);
+      const gross=(tot!==null)?tot:p.gross;
+      const netv=(gross===null||gross===undefined)?null:gross-(p.handi||0);
+      const ov=(gross===null||gross===undefined)?null:(gross-_cp)-(p.handi||0);
+      const ovCol=(ov===null)?'':(ov<0?'hc-good':(ov>0?'hc-bad':'hc-even'));
       const isLdr=(g.leader&&g.leader===String(p.name||'').trim());
-      h+='<div class="prow">'
-        +'<div class="av" style="background:'+c.b+';color:'+c.t+';">'+(p.name?esc(ini(p.name)):(pi+1))+'</div>'
-        +'<div class="pname">'
+      const hasHoles=holeCount(p)>0;
+
+      h+='<tr class="scrow">'
+        // 이름
+        +'<td class="sc-nm">'
+          +'<div class="scn">'
+            +'<span class="av sm" style="background:'+c.b+';color:'+c.t+';">'+(p.name?esc(ini(p.name)):(pi+1))+'</span>'
+            +(ed
+              ? '<input class="scn-in" type="text" value="'+esc(p.name)+'" placeholder="이름" onchange="setField('+gi+','+pi+',\'name\',this.value)">'
+              : '<span class="scn-tx">'+(p.name?esc(p.name):'<span style="color:var(--t3);">—</span>')+'</span>')
+          +'</div>'
+          +(isLdr?'<span class="ldr-badge" style="margin-left:30px;">조장</span>':'')
+        +'</td>'
+        // 핸디
+        +'<td class="sc-h">'
           +(ed
-            ? '<input type="text" value="'+esc(p.name)+'" placeholder="이름" onchange="setField('+gi+','+pi+',\'name\',this.value)">'
-            : '<span style="font-size:15px;font-weight:700;padding:5px 6px;display:block;">'+(p.name?esc(p.name):'<span style="color:var(--t3);font-weight:500;">—</span>')+'</span>')
-          +(isLdr?'<span class="ldr-badge">조장</span>':'')
-        +'</div>'
-        +(ed
-          ? '<input class="numin" type="number" inputmode="numeric" value="'+(p.handi||0)+'" onchange="setField('+gi+','+pi+',\'handi\',this.value)">'
-          : '<div class="numin ro">'+(p.handi||0)+'</div>')
-        +(holeCount(p)>0
-            ? '<div class="numin gross auto">'+(p.gross===null?'—':p.gross)+'</div>'
+            ? '<input class="scin" type="number" inputmode="numeric" value="'+(p.handi||0)+'" onchange="setField('+gi+','+pi+',\'handi\',this.value)">'
+            : '<span class="scv">'+(p.handi||0)+'</span>')
+        +'</td>'
+        // 전반 / 후반
+        +'<td class="sc-c"><span class="scv sub">'+(out===null?'—':out)+'</span></td>'
+        +'<td class="sc-c"><span class="scv sub">'+(inn===null?'—':inn)+'</span></td>'
+        // 합계
+        +'<td class="sc-c">'
+          +(hasHoles
+            ? '<span class="scv tot auto">'+(gross===null?'—':gross)+'</span>'
             : (ed
-                ? '<input class="numin gross" type="number" inputmode="numeric" value="'+(p.gross===null?'':p.gross)+'" placeholder="—" onchange="setField('+gi+','+pi+',\'gross\',this.value)">'
-                : '<div class="numin gross ro">'+(p.gross===null?'—':p.gross)+'</div>'))
-        +'<div class="netbox '+netCol+'"><span class="netval'+(p.gross===null?' none':'')+'" id="net_'+gi+'_'+pi+'">'+net+'</span></div>'
-        +(ed?'<button onclick="delPlayer('+gi+','+pi+')" style="background:none;border:none;color:var(--t3);font-size:15px;cursor:pointer;width:22px;">✕</button>':'<div style="width:22px;"></div>')
-      +'</div>';
+                ? '<input class="scin tot" type="number" inputmode="numeric" value="'+(p.gross===null?'':p.gross)+'" placeholder="—" onchange="setField('+gi+','+pi+',\'gross\',this.value)">'
+                : '<span class="scv tot">'+(gross===null?'—':gross)+'</span>'))
+        +'</td>'
+        // 넷
+        +'<td class="sc-c"><span class="scv net">'+(netv===null?'—':netv)+'</span></td>'
+        // 오버타
+        +'<td class="sc-c ovc"><span class="scv ov '+ovCol+'" id="net_'+gi+'_'+pi+'">'+(ov===null?'—':ov)+'</span></td>'
+        +(ed?'<td class="sc-x"><button onclick="delPlayer('+gi+','+pi+')" class="scdel">✕</button></td>':'')
+      +'</tr>';
     });
+    h+='</table>';
     h+='</div>';
   });
 
@@ -1469,7 +1549,7 @@ function viewLive(){
     h+='<div class="card"><div class="card-h">실시간 순위<span style="font-size:11px;color:var(--t3);font-weight:600;">넷스코어</span></div>';
     const cpL=coursePar();
     h+='<table class="rk-tbl"><tr><th style="width:34px;">순위</th><th style="text-align:left;padding-left:8px;">이름</th>'
-      +'<th style="width:34px;">홀</th><th style="width:38px;">핸디</th><th style="width:40px;">타수</th><th style="width:52px;">핸디대비</th></tr>';
+      +'<th style="width:34px;">홀</th><th style="width:38px;">핸디</th><th style="width:40px;">타수</th><th style="width:52px;">오버타</th></tr>';
     scored.forEach((p,i)=>{
       const cls=i===0?'g1':i===1?'g2':i===2?'g3':'';
       const thru=(p.thru===null)?'—':(p.thru===18?'F':p.thru);
@@ -1485,7 +1565,7 @@ function viewLive(){
         +'<td style="font-weight:900;font-size:17px;color:'+dc+';">'+d+'</td></tr>';
     });
     h+='</table>'
-      +'<div style="padding:8px 12px;font-size:11px;color:var(--t3);border-top:1px solid var(--line);">핸디대비 = (타수 − 코스파 '+cpL+') − 핸디 · 숫자가 작을수록 잘 친 것</div></div>';
+      +'<div style="padding:8px 12px;font-size:11px;color:var(--t3);border-top:1px solid var(--line);">오버타 = (타수 − 코스파 '+cpL+') − 핸디 · 숫자가 작을수록 잘 친 것</div></div>';
   }
 
   if(waiting.length>0){
@@ -1610,7 +1690,7 @@ function viewResult(){
   const cpR=coursePar();
   h+='<div class="card"><div class="card-h">종합 순위<span style="font-size:11px;color:var(--t3);font-weight:600;">'+net.length+'명</span></div>'
     +'<table class="rk-tbl"><tr><th style="width:34px;">순위</th><th style="text-align:left;padding-left:9px;">이름</th>'
-    +'<th style="width:38px;">핸디</th><th style="width:40px;">타수</th><th style="width:52px;">핸디대비</th></tr>';
+    +'<th style="width:38px;">핸디</th><th style="width:40px;">타수</th><th style="width:52px;">오버타</th></tr>';
   net.forEach((p,i)=>{
     const cls=i===0?'g1':i===1?'g2':i===2?'g3':'';
     const d=(p.gross-cpR)-p.handi;
@@ -1623,7 +1703,7 @@ function viewResult(){
       +'<td style="font-weight:900;font-size:17px;color:'+dc+';">'+d+'</td></tr>';
   });
   h+='</table>'
-    +'<div style="padding:8px 12px;font-size:11px;color:var(--t3);border-top:1px solid var(--line);">핸디대비 = (타수 − 코스파 '+cpR+') − 핸디 · 음수일수록 핸디보다 잘 친 것</div></div>';
+    +'<div style="padding:8px 12px;font-size:11px;color:var(--t3);border-top:1px solid var(--line);">오버타 = (타수 − 코스파 '+cpR+') − 핸디 · 음수일수록 핸디보다 잘 친 것</div></div>';
 
   // 그로스 순위
   const gr=byGross();
@@ -1793,7 +1873,7 @@ function shareResult(){
       if(w){
         nm=w.name;
         if(a.id==='medal') sc=w.gross+'타';
-        else { const dd=(w.gross-coursePar())-w.handi; sc='핸디대비 '+dd; }
+        else { const dd=(w.gross-coursePar())-w.handi; sc='오버타 '+dd; }
       }
     }
     if(!nm) return;
@@ -1801,7 +1881,7 @@ function shareResult(){
   });
 
   const cpS=coursePar();
-  txt+='━━━━━━━━━━━━━━\n[종합 순위 · 핸디대비]\n';
+  txt+='━━━━━━━━━━━━━━\n[종합 순위 · 오버타]\n';
   byNet().forEach((p,i)=>{
     const dd=(p.gross-cpS)-p.handi;
     txt+=(i+1)+'. '+p.name+' '+dd+' ('+p.gross+'타 H'+p.handi+')\n';

@@ -10,6 +10,19 @@
 <meta name="apple-mobile-web-app-title" content="골프 시상">
 <link rel="manifest" href="manifest.json">
 <title>골프 대회 시상</title>
+<script>
+window.addEventListener('error',function(e){
+  var d=document.getElementById('_err');
+  if(!d){
+    d=document.createElement('div');
+    d.id='_err';
+    d.style.cssText='position:fixed;left:8px;right:8px;bottom:8px;z-index:99999;background:#B3261E;color:#fff;padding:12px 14px;border-radius:10px;font:12px/1.5 -apple-system,sans-serif;white-space:pre-wrap;word-break:break-all;max-height:45vh;overflow:auto;';
+    (document.body||document.documentElement).appendChild(d);
+  }
+  d.textContent='오류: '+(e.message||'')+'\n'+(e.filename||'').split('/').pop()+' : '+(e.lineno||'')+'행';
+});
+</script>
+
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script>
@@ -300,14 +313,14 @@ body{
 
   <div class="en-box" id="hostBox">
     <div class="en-lb">대회 열기</div>
-    <button class="btn btn-a btn-full" onclick="createEvent()">새 대회 만들기</button>
+    <button class="btn btn-a btn-full" id="btnCreate">새 대회 만들기</button>
   </div>
 
   <div class="en-box">
     <div class="en-lb">대회 참여</div>
     <input class="en-in" id="codeInput" type="number" inputmode="numeric" placeholder="대회 코드 4자리"
       oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)">
-    <button class="btn btn-p btn-full" onclick="joinEvent()">참여하기</button>
+    <button class="btn btn-p btn-full" id="btnJoin">참여하기</button>
   </div>
 
   <div class="en-st" id="enterStatus"></div>
@@ -428,6 +441,7 @@ let evtCode=null, dbRef=null, _db=null, _syncing=false;
 /* ══════════ Firebase ══════════ */
 (function(){
   try{
+    if(typeof firebase==='undefined'){ _db=null; return; }
     const cfg={databaseURL:"https://myeongnang-golf-adcb8-default-rtdb.asia-southeast1.firebasedatabase.app"};
     let app;
     try{ app=firebase.app('award'); }
@@ -1115,6 +1129,12 @@ load();
     const hb=document.getElementById('hostBox');
     if(hb) hb.style.display='none';
   }
+  // 버튼 직접 연결 (인라인 onclick 미동작 대비)
+  var bc=document.getElementById('btnCreate');
+  if(bc) bc.addEventListener('click',function(){ createEvent(); });
+  var bj=document.getElementById('btnJoin');
+  if(bj) bj.addEventListener('click',function(){ joinEvent(); });
+
   const saved=(function(){ try{ return localStorage.getItem('award_code'); }catch(e){ return null; } })();
   if(saved && _db){
     const inp=document.getElementById('codeInput');

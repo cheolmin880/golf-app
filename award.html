@@ -200,6 +200,14 @@ body{
   border-bottom:1px solid rgba(255,255,255,0.08);
 }
 .wrow:last-child{border-bottom:none;}
+.wrow-pz{font-size:12px;font-weight:800;color:var(--gold);margin-top:2px;}
+.prize-total{
+  margin-top:13px;padding-top:12px;border-top:1px dashed rgba(255,255,255,0.2);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.prize-total span{font-size:12px;color:rgba(255,255,255,0.55);font-weight:700;}
+.prize-total b{font-size:18px;color:var(--gold);font-weight:900;}
+
 .wrow-no{
   width:20px;flex-shrink:0;text-align:center;
   font-size:12px;font-weight:900;color:rgba(255,255,255,0.35);
@@ -483,6 +491,17 @@ body{
   padding:11px 13px;font-size:12.5px;color:var(--ink);font-weight:700;line-height:1.6;
 }
 .par-sum b{font-size:15px;font-weight:900;}
+.prize-row{display:flex;align-items:center;gap:8px;margin-bottom:9px;}
+.prize-l{font-size:11px;font-weight:800;color:var(--t2);width:26px;flex-shrink:0;}
+.prize-cur{font-size:12px;font-weight:700;color:var(--t2);flex-shrink:0;}
+.prize-in{
+  flex:1;min-width:0;height:40px;border:1.5px solid var(--line);border-radius:9px;
+  font-size:16px;font-weight:800;padding:0 11px;background:#FCFCFA;
+  color:var(--t1);font-family:inherit;text-align:right;
+}
+.prize-in:focus{outline:none;border-color:var(--accent);background:#fff;}
+.prize-in::placeholder{color:var(--t3);font-weight:600;}
+
 .hsel-row{display:flex;align-items:center;gap:9px;}
 .hsel-l{font-size:11px;font-weight:800;color:var(--t2);width:20px;flex-shrink:0;}
 .hsel{
@@ -725,6 +744,26 @@ const AWARDS=[
 /* 시상식 진행 순서 (결과 화면 · 공유 문구에 적용)
    부비상 → 니어리스트 → 니어투더롱 → 롱기스트 → 3rd → 2nd → 1st → 우승 → 메달리스트 */
 const CEREMONY_ORDER=['booby','nearest','ntl','longest','r3','r2','r1','winner','medal'];
+
+/* 상금 우선순위 비교
+   1순위: 상금 많은 순  2순위: 상금 같으면 시상순서(CEREMONY_ORDER) 뒤쪽이 우선
+   → 뒤쪽(우승·메달리스트)이 더 무거운 상이므로 먼저 배정 */
+function prizeOf(id){
+  const v=(G.prize&&G.prize[id]!=null)?G.prize[id]:0;
+  return isNaN(v)?0:v;
+}
+function ceremonyIdx(id){
+  const i=CEREMONY_ORDER.indexOf(id);
+  return i<0?999:i;
+}
+// 배정 우선순위가 높은 순으로 정렬
+function byPriority(ids){
+  return ids.slice().sort((a,b)=>{
+    const pa=prizeOf(a), pb=prizeOf(b);
+    if(pa!==pb) return pb-pa;                  // 상금 많은 쪽 먼저
+    return ceremonyIdx(b)-ceremonyIdx(a);      // 같으면 시상순서 뒤쪽 먼저
+  });
+}
 function ceremonyAwards(){
   const byId={};
   AWARDS.forEach(a=>{ byId[a.id]=a; });
@@ -749,6 +788,7 @@ let G={
   awardOn:{},          // {awardId: true/false}
   manual:{},           // {awardId: "이름"}
   awardHole:{},        // {awardId: 홀번호}
+  prize:{},            // {awardId: 상금액}
   curTab:'score'
 };
 AWARDS.forEach(a=>{G.awardOn[a.id]=a.on;});
@@ -1099,33 +1139,52 @@ function byNet(){ return allPlayers().sort((a,b)=>a.net-b.net||a.gross-b.gross);
 function byGross(){ return allPlayers().sort((a,b)=>a.gross-b.gross||a.net-b.net); }
 
 // 자동 시상 계산 — 중복 수상 방지 (상위 순위 우선)
+/* 자동 시상 선정
+   상금이 큰 상부터 배정하고, 이미 받은 사람이면 다음 후보로 넘어간다.
+   상금이 같으면 시상 순서상 뒤쪽(더 무거운 상)이 먼저 가져간다.
+   수동 지정 상(니어리스트 등)의 수상자도 중복 대상에 포함된다. */
 function computeAuto(){
   const net=byNet(), gross=byGross();
   const res={};
   const taken=new Set();
 
-  // 1) 메달리스트 먼저 (핸디 무관 최저타 — 별도 상이므로 중복 허용)
-  if(G.awardOn.medal && gross.length){
-    res.medal=gross[0];
-  }
-  // 2) 순위상 (1위→4위 순으로, 중복 방지)
-  const rankAwards=[
-    {id:'winner',r:1},{id:'r1',r:2},{id:'r2',r:3},{id:'r3',r:4}
-  ];
-  rankAwards.forEach(ra=>{
-    if(!G.awardOn[ra.id]) return;
-    const p=net[ra.r-1];
-    if(p){ res[ra.id]=p; taken.add(p.name); }
+  // 수동 지정 수상자를 먼저 점유 처리
+  AWARDS.forEach(a=>{
+    if(a.type!=='manual') return;
+    if(!G.awardOn[a.id]) return;
+    const nm=G.manual[a.id];
+    if(nm) taken.add(nm);
   });
-  // 3) 부비상 — 꼴찌 바로 앞 순위. 이미 순위상을 받았으면 뒤쪽으로 이동
-  if(G.awardOn.booby && net.length>=2){
-    let cand=net[net.length-2];              // 기본: 뒤에서 두 번째
-    if(cand && taken.has(cand.name)){
-      cand=net[net.length-1];                // 겹치면 꼴찌에게
-      if(cand && taken.has(cand.name)) cand=null;
+
+  // 자동 상별 후보 목록 (앞에서부터 우선)
+  function candidates(id){
+    if(id==='medal') return gross;                       // 그로스 최저부터
+    if(id==='winner') return net;                        // 넷 1위부터
+    if(id==='r1')     return net.slice(1);               // 2위부터
+    if(id==='r2')     return net.slice(2);               // 3위부터
+    if(id==='r3')     return net.slice(3);               // 4위부터
+    if(id==='booby'){                                    // 꼴찌 앞 → 꼴찌 → 위로
+      const rev=net.slice().reverse();                   // 꼴찌부터
+      if(rev.length>=2){ const t=rev[0]; rev[0]=rev[1]; rev[1]=t; } // 꼴찌앞을 맨 앞으로
+      return rev;
     }
-    if(cand) res.booby=cand;
+    return [];
   }
+
+  const autoIds=AWARDS.filter(a=>a.type==='auto'&&G.awardOn[a.id]).map(a=>a.id);
+
+  byPriority(autoIds).forEach(id=>{
+    const list=candidates(id);
+    for(let i=0;i<list.length;i++){
+      const p=list[i];
+      if(!p) continue;
+      if(taken.has(p.name)) continue;   // 이미 수상 → 다음 후보
+      res[id]=p;
+      taken.add(p.name);
+      break;
+    }
+  });
+
   return res;
 }
 
@@ -1695,7 +1754,9 @@ function viewAward(){
   const names=namedPlayers();
   let h='<div class="card"><div class="card-b" style="font-size:12.5px;color:var(--t2);line-height:1.7;">'
     +'시상할 항목만 켜두세요. <b style="color:var(--t1);">니어리스트·롱기스트·니어투더롱</b>은 홀과 수상자를 직접 지정하고, '
-    +'나머지는 오버타 순위로 자동 선정됩니다.</div></div>';
+    +'나머지는 오버타 순위로 자동 선정됩니다.<br>'
+    +'<span style="color:var(--t3);">중복 수상이 생기면 <b style="color:var(--t1);">상금이 큰 상</b>이 먼저 배정되고, 나머지는 다음 순위로 넘어갑니다.</span>'
+    +'</div></div>';
 
   AWARDS.forEach(a=>{
     const on=!!G.awardOn[a.id];
@@ -1706,8 +1767,17 @@ function viewAward(){
         +'<div class="sw'+(on?' on':'')+'" onclick="toggleAward(\''+a.id+'\')"></div>'
       +'</div>';
 
-    if(on && a.type==='manual'){
+    if(on){
       h+='<div class="awd-body">';
+      // 상금 입력
+      h+='<div class="prize-row"><span class="prize-l">상금</span>'
+        +'<span class="prize-cur">Rp</span>'
+        +'<input class="prize-in" type="text" inputmode="numeric" value="'+(prizeOf(a.id)?prizeOf(a.id).toLocaleString():'')+'" '
+        +'placeholder="0" oninput="fmtPrize(this)" onchange="setPrize(\''+a.id+'\',this)">'
+        +'</div>';
+    }
+
+    if(on && a.type==='manual'){
       // 홀 번호 선택
       h+='<div class="hsel-row"><span class="hsel-l">홀</span>'
         +'<select class="hsel" onchange="setAwardHole(\''+a.id+'\',this.value)">'
@@ -1730,8 +1800,9 @@ function viewAward(){
         });
         h+='</select>';
       }
-      h+='</div>';
     }
+
+    if(on) h+='</div>';   // awd-body 닫기
     h+='</div>';
   });
   return h;
@@ -1754,7 +1825,7 @@ function viewResult(){
     +'<div class="sheet-sub">'+[G.date?G.date.replace(/-/g,'.'):'', G.place?esc(G.place):''].filter(Boolean).join(' · ')+'</div>'
     +'</div>';
 
-  let cnt=0;
+  let cnt=0, totalPrize=0;
   ceremonyAwards().forEach(a=>{
     if(!G.awardOn[a.id]) return;
     let nm='', sc='', sub='';
@@ -1777,11 +1848,14 @@ function viewResult(){
     }
     if(!nm) return;
     cnt++;
+    const pz=prizeOf(a.id);
+    if(pz) totalPrize+=pz;
     h+='<div class="wrow">'
       +'<div class="wrow-no">'+cnt+'</div>'
       +'<div class="wrow-ico">'+a.ico+'</div>'
       +'<div class="wrow-tx"><div class="wrow-aw">'+a.name.toUpperCase()+'</div>'
-        +'<div class="wrow-nm">'+esc(nm)+'</div></div>'
+        +'<div class="wrow-nm">'+esc(nm)+'</div>'
+        +(pz?'<div class="wrow-pz">Rp '+pz.toLocaleString()+'</div>':'')+'</div>'
       +'<div class="wrow-sc">'+(sc?'<div class="a">'+sc+'</div>':'')
         +(sub?'<div class="b">'+esc(sub)+'</div>':'')+'</div>'
     +'</div>';
@@ -1790,6 +1864,9 @@ function viewResult(){
   if(cnt===0){
     h+='<div style="text-align:center;padding:24px 8px;color:rgba(255,255,255,0.45);font-size:12.5px;line-height:1.7;">'
       +'시상 설정 탭에서 항목을 켜면<br>수상자가 여기에 표시됩니다</div>';
+  }
+  if(totalPrize>0){
+    h+='<div class="prize-total"><span>총 시상금</span><b>Rp '+totalPrize.toLocaleString()+'</b></div>';
   }
   h+='</div>';
 
@@ -1834,6 +1911,22 @@ function toggleAward(id){
   G.awardOn[id]=!G.awardOn[id];
   push(); render();
 }
+// 입력 중 천단위 콤마
+function fmtPrize(el){
+  const raw=String(el.value).replace(/[^0-9]/g,'');
+  el.value=raw?Number(raw).toLocaleString():'';
+  el._raw=raw;
+}
+function setPrize(id,el){
+  const raw=(el._raw!=null?el._raw:String(el.value).replace(/[^0-9]/g,''));
+  const n=parseInt(raw);
+  if(!G.prize) G.prize={};
+  if(!raw||isNaN(n)||n===0) delete G.prize[id];
+  else G.prize[id]=n;
+  push();
+  if(curTab==='result') render();
+}
+
 function setAwardHole(id,v){
   if(!G.awardHole) G.awardHole={};
   if(v) G.awardHole[id]=parseInt(v); else delete G.awardHole[id];
@@ -2020,7 +2113,7 @@ function shareResult(){
   if(meta) txt+=meta+'\n';
   txt+='━━━━━━━━━━━━━━\n';
 
-  let no=0;
+  let no=0, sumPrize=0;
   ceremonyAwards().forEach(a=>{
     if(!G.awardOn[a.id]) return;
     let nm='',sc='';
@@ -2039,8 +2132,12 @@ function shareResult(){
     }
     if(!nm) return;
     no++;
-    txt+=no+'. '+a.ico+' '+a.name+' : '+nm+(sc?' ('+sc+')':'')+'\n';
+    const pz=prizeOf(a.id);
+    if(pz) sumPrize+=pz;
+    txt+=no+'. '+a.ico+' '+a.name+' : '+nm+(sc?' ('+sc+')':'')
+      +(pz?' — Rp '+pz.toLocaleString():'')+'\n';
   });
+  if(sumPrize>0) txt+='총 시상금 : Rp '+sumPrize.toLocaleString()+'\n';
 
   const cpS=coursePar();
   txt+='━━━━━━━━━━━━━━\n[종합 순위 · 오버타]\n';

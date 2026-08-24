@@ -433,28 +433,77 @@ let evtCode=null, dbRef=null, _db=null, _syncing=false;
     try{ app=firebase.app('award'); }
     catch(e){ app=firebase.initializeApp(cfg,'award'); }
     _db=app.database();
-  }catch(e){ console.warn('Firebase 초기화 실패',e); }
+  }catch(e){ console.warn('Firebase 초기화 실패',e); _db=null; }
 })();
 
 function genCode(){ return String(Math.floor(Math.random()*9000)+1000); }
 
-function createEvent(){
-  if(!_db){ toast('연결 오류 — 새로고침 해주세요'); return; }
-  const code=genCode();
-  st('대회를 만드는 중...');
+function resetNewEvent(){
   const today=new Date();
   G.title=''; G.place=''; G.par=72;
   G.date=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
   G.groups=[ newGroup(1) ];
   G.manual={};
   AWARDS.forEach(a=>{G.awardOn[a.id]=a.on;});
-  dbRef=_db.ref('awards/'+code);
-  dbRef.set({created:Date.now(), data:JSON.stringify(G)}).then(()=>{
-    evtCode=code;
-    try{localStorage.setItem('award_code',code);}catch(e){}
-    enterApp(code); startSync();
-    setTimeout(openSetting,400);
-  }).catch(e=>st('오류: '+e.message));
+}
+
+function createEvent(){
+  const code=genCode();
+  resetNewEvent();
+
+  // Firebase를 못 쓰는 상황이면 혼자 쓰는 모드로 바로 시작
+  if(!_db){
+    evtCode=null;
+    startOffline();
+    return;
+  }
+
+  st('대회를 만드는 중...');
+  let done=false;
+  const fallback=setTimeout(()=>{
+    if(done) return;
+    done=true;
+    st('');
+    evtCode=null;
+    startOffline('연결이 느려 혼자 쓰기로 시작합니다');
+  },6000);
+
+  try{
+    dbRef=_db.ref('rooms/A'+code);
+    dbRef.set({created:Date.now(), data:JSON.stringify(G)}).then(()=>{
+      if(done) return;
+      done=true; clearTimeout(fallback);
+      evtCode=code;
+      try{localStorage.setItem('award_code',code);}catch(e){}
+      enterApp(code); startSync();
+      setTimeout(openSetting,400);
+    }).catch(e=>{
+      if(done) return;
+      done=true; clearTimeout(fallback);
+      st('');
+      dbRef=null; evtCode=null;
+      startOffline('공유 연결에 실패해 혼자 쓰기로 시작합니다');
+    });
+  }catch(e){
+    done=true; clearTimeout(fallback);
+    st('');
+    dbRef=null; evtCode=null;
+    startOffline('공유 연결에 실패해 혼자 쓰기로 시작합니다');
+  }
+}
+
+// 공유 없이 이 기기에서만 쓰는 모드
+function startOffline(msg){
+  document.getElementById('enterScreen').style.display='none';
+  const b=document.getElementById('codeBadge');
+  b.style.display='flex';
+  document.getElementById('codeDisp').textContent='혼자 쓰기';
+  const s=document.getElementById('syncDisp');
+  if(s){ s.textContent='● 이 기기'; s.style.color='#B9A46A'; }
+  document.querySelector('.top').style.paddingTop='calc(env(safe-area-inset-top,0px) + 30px)';
+  render();
+  setTimeout(openSetting,400);
+  if(msg) setTimeout(()=>toast(msg),900);
 }
 
 function joinEvent(){
@@ -466,7 +515,7 @@ function joinEvent(){
 function connectTo(code){
   if(!_db){ toast('연결 오류 — 새로고침 해주세요'); return; }
   st('접속 중...');
-  dbRef=_db.ref('awards/'+code);
+  dbRef=_db.ref('rooms/A'+code);
   dbRef.once('value').then(snap=>{
     if(!snap.exists()){
       st('대회를 찾을 수 없어요');
@@ -478,7 +527,11 @@ function connectTo(code){
     const d=snap.val();
     if(d.data){ _syncing=true; try{ Object.assign(G,JSON.parse(d.data)); }catch(e){} _syncing=false; }
     enterApp(code); startSync();
-  }).catch(e=>st('오류: '+e.message));
+  }).catch(e=>{
+    st('접속에 실패했습니다. 코드를 다시 확인해주세요');
+    dbRef=null;
+    try{localStorage.removeItem('award_code');}catch(e2){}
+  });
 }
 
 function enterApp(code){
@@ -1063,7 +1116,7 @@ load();
     if(hb) hb.style.display='none';
   }
   const saved=(function(){ try{ return localStorage.getItem('award_code'); }catch(e){ return null; } })();
-  if(saved){
+  if(saved && _db){
     const inp=document.getElementById('codeInput');
     if(inp) inp.value=saved;
     st('이전 대회에 다시 접속합니다...');

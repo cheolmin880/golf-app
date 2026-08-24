@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v20260525';
+const CACHE_VERSION = 'v20260817';
 const CACHE_NAME = 'golf-app-' + CACHE_VERSION;
 
 self.addEventListener('install', e => {

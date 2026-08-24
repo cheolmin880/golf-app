@@ -100,7 +100,7 @@ body{
 .grp-name{font-size:14px;font-weight:800;}
 .grp-meta{font-size:11px;color:rgba(255,255,255,0.6);}
 .prow{
-  display:flex;align-items:center;gap:9px;padding:9px 12px;
+  display:flex;align-items:center;gap:7px;padding:11px 11px;
   border-bottom:1px solid var(--line);
 }
 .prow:last-child{border-bottom:none;}
@@ -112,23 +112,28 @@ body{
 .pname{flex:1;min-width:0;}
 .pname input{
   width:100%;border:1px solid transparent;background:transparent;
-  font-size:15px;font-weight:700;color:var(--t1);padding:5px 6px;border-radius:7px;
+  font-size:16px;font-weight:700;color:var(--t1);padding:6px 6px;border-radius:7px;
   font-family:inherit;
 }
 .pname input:focus{outline:none;border-color:var(--accent);background:#fff;}
 .numin{
-  width:52px;height:38px;text-align:center;border:1.5px solid var(--line);
-  border-radius:8px;font-size:16px;font-weight:800;background:#FCFCFA;
-  color:var(--t1);font-family:inherit;
+  width:56px;height:44px;text-align:center;border:1.5px solid var(--line);
+  border-radius:9px;font-size:20px;font-weight:800;background:#FCFCFA;
+  color:var(--t1);font-family:inherit;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
 }
+.numin.ro{background:#F4F2EC;color:var(--t1);}
+.numin.auto{background:#E9F3EC;border-color:#A8CDB6;color:var(--ink);}
 .numin:focus{outline:none;border-color:var(--accent);background:#fff;}
 .numin.gross{color:var(--ink);}
-.numlbl{font-size:9px;color:var(--t3);text-align:center;margin-bottom:2px;font-weight:700;letter-spacing:0.3px;}
+.numlbl{font-size:11px;color:var(--t2);text-align:center;margin-bottom:3px;font-weight:800;letter-spacing:0.2px;}
 .netbox{
-  width:50px;text-align:center;flex-shrink:0;
+  width:54px;height:44px;text-align:center;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  background:#F0F6F2;border:1.5px solid #CFE0D5;border-radius:9px;
 }
-.netval{font-size:17px;font-weight:900;color:var(--ok);}
-.netval.none{color:var(--t3);font-weight:600;}
+.netval{font-size:21px;font-weight:900;color:var(--ok);letter-spacing:-0.5px;}
+.netval.none{color:var(--t3);font-weight:700;font-size:18px;}
 
 /* ── 버튼 ── */
 .btn{
@@ -320,7 +325,7 @@ body{
 .vc-s{padding:2px 1px;}
 .vbox{
   width:100%;max-width:46px;height:34px;border:1.5px solid var(--line);
-  border-radius:7px;background:#fff;font-size:15px;font-weight:800;
+  border-radius:7px;background:#fff;font-size:16px;font-weight:900;
   color:var(--t1);cursor:pointer;font-family:inherit;
   display:inline-flex;align-items:center;justify-content:center;
 }
@@ -331,9 +336,11 @@ body{
 .vbox.cpar0{background:#fff;border-color:#CFCBBF;}
 .vbox.cbog{background:#FDF0E8;border-color:#E0A878;color:#8A4A18;}
 .vbox.cdbl{background:#FBE9E9;border-color:#D98080;color:#8A2020;}
-.vsub td{background:#F2F6F3 !important;font-size:13px;font-weight:900;color:var(--ink);padding:7px 2px;}
-.vtot td{background:#EAF3EE !important;font-size:15px;font-weight:900;color:var(--ink);padding:9px 2px;border-top:2px solid var(--ink2);}
-.vnet td{background:#F7F5EF !important;font-size:14px;font-weight:900;color:var(--ok);padding:8px 2px;}
+.vsub td{background:#F2F6F3 !important;font-size:14px;font-weight:900;color:var(--ink);padding:8px 2px;}
+.vc-s b{display:block;line-height:1.15;}
+.vc-s i{display:block;font-style:normal;font-size:10px;font-weight:800;color:var(--t2);margin-top:1px;}
+.vtot td{background:#EAF3EE !important;font-size:17px;font-weight:900;color:var(--ink);padding:10px 2px;border-top:2px solid var(--ink2);}
+.vnet td{background:#F7F5EF !important;font-size:16px;font-weight:900;color:var(--ok);padding:9px 2px;}
 .vlg{display:flex;gap:11px;flex-wrap:wrap;justify-content:center;padding:11px 6px 4px;}
 .vlg span{display:flex;align-items:center;gap:4px;font-size:10.5px;color:var(--t2);font-weight:700;}
 .vlg i{width:12px;height:12px;border-radius:3px;border:1.5px solid;display:block;}
@@ -358,8 +365,9 @@ body{
 }
 .pad-b:active{transform:scale(0.95);}
 .pad-b.sel{box-shadow:0 0 0 2.5px var(--accent);}
-.pad-b .pv{font-size:21px;font-weight:900;}
-.pad-b .pl{font-size:10px;font-weight:700;color:var(--t2);}
+.pad-b .pv{font-size:23px;font-weight:900;letter-spacing:-0.5px;}
+.pad-b .pl{font-size:10.5px;font-weight:800;color:var(--t2);}
+.pad-b .pg{font-size:9.5px;font-weight:700;color:var(--t3);}
 .pad-b.ceag{background:#FBF3D8;border-color:var(--gold);}
 .pad-b.ceag .pv{color:#7A6110;}
 .pad-b.cbir{background:#E4F5EC;border-color:#3FA877;}
@@ -1126,7 +1134,7 @@ function renderCard(){
       const hs=ensureHoles(p);
       const v=hs[hi];
       const cls=scoreCls(v,par);
-      const txt=(v===null||v===undefined)?'':v;
+      const txt=ovTxt(v,par);
       html+='<td class="vc-s">'
         + (editable
             ? '<button class="vbox '+cls+'" onclick="openHolePad('+cardGi+','+pi+','+hi+')">'+(txt===''?'·':txt)+'</button>'
@@ -1138,18 +1146,28 @@ function renderCard(){
     // OUT 소계
     if(hi===8){
       html+='<tr class="vsub"><td class="vc-hole">OUT</td><td class="vc-par">'+parHalf(0)+'</td>';
-      players.forEach(p=>{ const s=halfSum(p,0); html+='<td class="vc-s"><b>'+(s===null?'—':s)+'</b></td>'; });
+      players.forEach(p=>{
+        const s=halfSum(p,0);
+        html+='<td class="vc-s">'+(s===null?'<b>—</b>':'<b>'+s+'</b><i>'+ovSign(s-parHalf(0))+'</i>')+'</td>';
+      });
       html+='</tr>';
     }
   }
   // IN 소계
   html+='<tr class="vsub"><td class="vc-hole">IN</td><td class="vc-par">'+parHalf(1)+'</td>';
-  players.forEach(p=>{ const s=halfSum(p,1); html+='<td class="vc-s"><b>'+(s===null?'—':s)+'</b></td>'; });
+  players.forEach(p=>{
+    const s=halfSum(p,1);
+    html+='<td class="vc-s">'+(s===null?'<b>—</b>':'<b>'+s+'</b><i>'+ovSign(s-parHalf(1))+'</i>')+'</td>';
+  });
   html+='</tr>';
 
   // 총합
-  html+='<tr class="vtot"><td class="vc-hole">합계</td><td class="vc-par">'+(parHalf(0)+parHalf(1))+'</td>';
-  players.forEach(p=>{ const s=holeSum(p); html+='<td class="vc-s"><b>'+(s===null?'—':s)+'</b></td>'; });
+  const totPar=parHalf(0)+parHalf(1);
+  html+='<tr class="vtot"><td class="vc-hole">합계</td><td class="vc-par">'+totPar+'</td>';
+  players.forEach(p=>{
+    const s=holeSum(p);
+    html+='<td class="vc-s">'+(s===null?'<b>—</b>':'<b>'+s+'</b><i>'+ovSign(s-totPar)+'</i>')+'</td>';
+  });
   html+='</tr>';
 
   // 넷
@@ -1165,12 +1183,13 @@ function renderCard(){
 
   // 범례
   html+='<div class="vlg">'
-    +'<span><i class="ceag"></i>이글↓</span>'
-    +'<span><i class="cbir"></i>버디</span>'
-    +'<span><i class="cpar0"></i>파</span>'
-    +'<span><i class="cbog"></i>보기</span>'
-    +'<span><i class="cdbl"></i>더블↑</span>'
-    +'</div>';
+    +'<span><i class="ceag"></i>-2↓ 이글</span>'
+    +'<span><i class="cbir"></i>-1 버디</span>'
+    +'<span><i class="cpar0"></i>E 파</span>'
+    +'<span><i class="cbog"></i>+1 보기</span>'
+    +'<span><i class="cdbl"></i>+2↑</span>'
+    +'</div>'
+    +'<div style="text-align:center;font-size:11px;color:var(--t3);padding:2px 8px 6px;">숫자는 파 대비 오버타수 · 합계는 실타수</div>';
 
   document.getElementById('cardBody').innerHTML=html;
 }
@@ -1179,6 +1198,18 @@ function parHalf(half){
   let s=0;
   for(let i=half*9;i<half*9+9;i++) s+=(G.pars[i]||4);
   return s;
+}
+
+/* 오버타수 표기: 실타수 v, 파 par → "-1" "E" "+2" 형태 */
+function ovSign(d){
+  if(d===0) return 'E';
+  return (d>0?'+':'')+d;
+}
+function ovTxt(v,par){
+  if(v===null||v===undefined) return '';
+  const d=v-par;
+  if(d===0) return 'E';
+  return (d>0?'+':'')+d;
 }
 function scoreCls(v,par){
   if(v===null||v===undefined) return '';
@@ -1215,9 +1246,11 @@ function openHolePad(gi,pi,hi){
     const v=par+o.d;
     const cls=scoreCls(v,par);
     const sel=(cur===v)?' sel':'';
+    const ov=(o.d===0)?'E':((o.d>0?'+':'')+o.d);
     html+='<button class="pad-b '+cls+sel+'" onclick="pickHole('+v+')">'
-      +'<span class="pv">'+v+'</span>'
+      +'<span class="pv">'+ov+'</span>'
       +'<span class="pl">'+(o.ico?o.ico+' ':'')+o.label+'</span>'
+      +'<span class="pg">'+v+'타</span>'
       +'</button>';
   });
   document.getElementById('padGrid').innerHTML=html;
@@ -1303,9 +1336,9 @@ function viewScore(){
 
     h+='<div style="display:flex;gap:9px;padding:7px 12px 3px;background:#FBFAF6;border-bottom:1px solid var(--line);">'
       +'<div style="width:34px;"></div><div style="flex:1;"></div>'
-      +'<div class="numlbl" style="width:52px;">타수</div>'
-      +'<div class="numlbl" style="width:52px;">핸디</div>'
-      +'<div class="numlbl" style="width:50px;">넷</div>'
+      +'<div class="numlbl" style="width:56px;">핸디</div>'
+      +'<div class="numlbl" style="width:56px;">타수</div>'
+      +'<div class="numlbl" style="width:54px;">넷</div>'
       +'<div style="width:22px;"></div></div>';
 
     g.players.forEach((p,pi)=>{
@@ -1320,14 +1353,14 @@ function viewScore(){
             : '<span style="font-size:15px;font-weight:700;padding:5px 6px;display:block;">'+(p.name?esc(p.name):'<span style="color:var(--t3);font-weight:500;">—</span>')+'</span>')
           +(isLdr?'<span class="ldr-badge">조장</span>':'')
         +'</div>'
-        +(holeCount(p)>0
-            ? '<div class="numin gross" style="display:flex;align-items:center;justify-content:center;background:#F2F6F3;border-color:#CFE0D5;">'+(p.gross===null?'—':p.gross)+'</div>'
-            : (ed
-                ? '<input class="numin gross" type="number" inputmode="numeric" value="'+(p.gross===null?'':p.gross)+'" placeholder="—" onchange="setField('+gi+','+pi+',\'gross\',this.value)">'
-                : '<div class="numin gross" style="display:flex;align-items:center;justify-content:center;background:#FAFAF7;">'+(p.gross===null?'—':p.gross)+'</div>'))
         +(ed
           ? '<input class="numin" type="number" inputmode="numeric" value="'+(p.handi||0)+'" onchange="setField('+gi+','+pi+',\'handi\',this.value)">'
-          : '<div class="numin" style="display:flex;align-items:center;justify-content:center;background:#FAFAF7;">'+(p.handi||0)+'</div>')
+          : '<div class="numin ro">'+(p.handi||0)+'</div>')
+        +(holeCount(p)>0
+            ? '<div class="numin gross auto">'+(p.gross===null?'—':p.gross)+'</div>'
+            : (ed
+                ? '<input class="numin gross" type="number" inputmode="numeric" value="'+(p.gross===null?'':p.gross)+'" placeholder="—" onchange="setField('+gi+','+pi+',\'gross\',this.value)">'
+                : '<div class="numin gross ro">'+(p.gross===null?'—':p.gross)+'</div>'))
         +'<div class="netbox"><span class="netval'+(p.gross===null?' none':'')+'" id="net_'+gi+'_'+pi+'">'+net+'</span></div>'
         +(ed?'<button onclick="delPlayer('+gi+','+pi+')" style="background:none;border:none;color:var(--t3);font-size:15px;cursor:pointer;width:22px;">✕</button>':'<div style="width:22px;"></div>')
       +'</div>';

@@ -301,6 +301,50 @@ body{
   padding:9px 11px calc(var(--sb) + 9px);display:flex;gap:7px;
 }
 .foot .btn{flex:1;font-size:12px;padding:12px 2px;}
+
+/* 18홀 스코어카드 */
+.card-mo{display:none;position:fixed;inset:0;background:var(--paper);z-index:300;flex-direction:column;}
+.card-mo.on{display:flex;}
+.cm-top{background:var(--ink);color:#fff;flex-shrink:0;padding:calc(var(--st) + 11px) 14px 11px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.cm-t{font-size:15px;font-weight:800;}
+.cm-s{font-size:11px;color:rgba(255,255,255,0.55);margin-top:2px;}
+.cm-x{background:rgba(255,255,255,0.16);border:none;border-radius:18px;padding:7px 15px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
+.halfbar{display:flex;background:var(--card);border-bottom:1px solid var(--line);flex-shrink:0;}
+.half-btn{flex:1;padding:11px 4px;border:none;background:none;font-size:13px;font-weight:700;color:var(--t2);cursor:pointer;border-bottom:2.5px solid transparent;font-family:inherit;}
+.half-btn.on{color:var(--ink);border-bottom-color:var(--accent);font-weight:800;}
+.cm-body{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:10px;}
+
+.cw{overflow-x:auto;-webkit-overflow-scrolling:touch;background:var(--card);border:1px solid var(--line);border-radius:12px;}
+.ctb{border-collapse:collapse;width:100%;min-width:520px;}
+.ctb th{background:var(--ink2);color:#fff;font-size:11px;font-weight:800;padding:8px 2px;text-align:center;border-right:1px solid rgba(255,255,255,0.1);}
+.ctb th:last-child{border-right:none;}
+.ctb td{padding:3px 2px;text-align:center;border-bottom:1px solid var(--line);border-right:1px solid var(--line);}
+.ctb td:last-child{border-right:none;}
+.ctb tr:last-child td{border-bottom:none;}
+.cnm{width:56px;min-width:56px;font-size:11px;font-weight:800;background:#FBFAF6;position:sticky;left:0;z-index:2;}
+th.cnm{background:var(--ink2);}
+.csum{width:46px;min-width:46px;background:#F2F6F3;font-size:14px;font-weight:900;color:var(--ink);}
+th.csum{background:#0A2117;}
+.cpar td{background:#FBFAF6;}
+.cpin{width:34px;height:26px;text-align:center;border:1px solid transparent;background:transparent;font-size:12px;font-weight:700;color:var(--t2);border-radius:5px;font-family:inherit;}
+.cpin:focus{outline:none;border-color:var(--accent);background:#fff;}
+.chin{width:36px;height:34px;text-align:center;border:1.5px solid var(--line);border-radius:7px;font-size:15px;font-weight:800;background:#fff;color:var(--t1);font-family:inherit;}
+.chin:focus{outline:none;border-color:var(--accent);}
+.chin.ceag{background:#FBF3D8;border-color:var(--gold);color:#7A6110;}
+.chin.cbir{background:#E4F5EC;border-color:#3FA877;color:#14663F;}
+.chin.cpar0{background:#fff;border-color:var(--line);}
+.chin.cbog{background:#FDF0E8;border-color:#E0A878;color:#8A4A18;}
+.chin.cdbl{background:#FBE9E9;border-color:#D98080;color:#8A2020;}
+
+.ctot{margin-top:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+.ctot-h{padding:10px 13px;background:#FBFAF6;border-bottom:1px solid var(--line);font-size:12px;font-weight:800;color:var(--t2);}
+.ctot-r{display:flex;align-items:center;gap:6px;padding:10px 12px;border-bottom:1px solid var(--line);}
+.ctot-r:last-child{border-bottom:none;}
+.ctot-n{flex:1;min-width:0;font-size:13px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ctot-c{width:44px;text-align:center;font-size:13px;font-weight:700;flex-shrink:0;}
+.ctot-c .l{display:block;font-size:9px;color:var(--t3);font-weight:700;margin-bottom:1px;}
+.ctot-p{width:38px;text-align:right;font-size:10px;color:var(--t3);font-weight:700;flex-shrink:0;}
+
 </style>
 </head>
 <body>
@@ -310,6 +354,19 @@ body{
   <div class="en-mark">🏆</div>
   <div class="en-t">골프 대회 시상</div>
   <div class="en-s">조별 성적을 모아 시상자를 정합니다<br>진행자가 대회를 열고 조장이 코드로 참여해요</div>
+
+  <div class="en-box" id="resumeBox" style="display:none;background:rgba(201,162,39,0.14);border-color:rgba(201,162,39,0.4);">
+    <div class="en-lb" style="color:rgba(255,255,255,0.7);">진행 중이던 대회</div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:11px;">
+      <div style="width:38px;height:38px;border-radius:10px;background:rgba(201,162,39,0.3);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🏆</div>
+      <div style="flex:1;min-width:0;">
+        <div id="resumeName" style="font-size:14px;font-weight:800;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
+        <div id="resumeCode" style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;"></div>
+      </div>
+    </div>
+    <button class="btn btn-a btn-full" id="btnResume">이어서 열기</button>
+    <button class="btn btn-full" id="btnForget" style="background:none;color:rgba(255,255,255,0.4);font-size:12px;padding:8px;margin-top:4px;">목록에서 지우기</button>
+  </div>
 
   <div class="en-box" id="hostBox">
     <div class="en-lb">대회 열기</div>
@@ -397,6 +454,22 @@ body{
   </div>
 </div>
 
+
+<div class="card-mo" id="cardMo">
+  <div class="cm-top">
+    <div>
+      <div class="cm-t" id="cardTitle">스코어카드</div>
+      <div class="cm-s" id="cardSub">전반 1~9홀</div>
+    </div>
+    <button class="cm-x" onclick="closeCard()">완료</button>
+  </div>
+  <div class="halfbar">
+    <button class="half-btn on" onclick="switchHalf(0)">전반 1~9홀</button>
+    <button class="half-btn" onclick="switchHalf(1)">후반 10~18홀</button>
+  </div>
+  <div class="cm-body" id="cardBody"></div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -428,6 +501,7 @@ const AVC=[
 /* ══════════ 상태 ══════════ */
 let G={
   title:'', date:'', place:'', par:72,
+  pars:[4,4,4,3,5,4,4,3,5, 4,4,3,5,4,4,3,4,5],
   groups:[],           // [{name, players:[{name,gross,handi}]}]
   awardOn:{},          // {awardId: true/false}
   manual:{},           // {awardId: "이름"}
@@ -507,6 +581,8 @@ function createEvent(){
 }
 
 // 공유 없이 이 기기에서만 쓰는 모드
+function resetKeepLocal(){ /* 저장된 로컬 데이터 그대로 사용 */ }
+
 function startOffline(msg){
   document.getElementById('enterScreen').style.display='none';
   const b=document.getElementById('codeBadge');
@@ -595,12 +671,12 @@ function getArc(){ try{ return JSON.parse(localStorage.getItem(ARC_KEY)||'[]'); 
 function setArc(l){ try{ localStorage.setItem(ARC_KEY,JSON.stringify(l)); return true; }catch(e){ toast('저장 공간이 부족합니다'); return false; } }
 
 /* ══════════ 조/선수 ══════════ */
+function newPlayer(){ return {name:'',gross:null,handi:0,holes:Array(18).fill(null)}; }
 function newGroup(n){
-  return {
-    name:n+'조',
-    players:Array.from({length:4},()=>({name:'',gross:null,handi:0}))
-  };
+  return { name:n+'조', players:Array.from({length:4},()=>newPlayer()) };
 }
+// 이전 버전 데이터 호환 — holes 없으면 만들어줌
+function ensureHoles(p){ if(!Array.isArray(p.holes)||p.holes.length!==18) p.holes=Array(18).fill(null); return p.holes; }
 function addGroup(){
   G.groups.push(newGroup(G.groups.length+1));
   push(); render();
@@ -615,7 +691,7 @@ function delGroup(gi){
 }
 function addPlayer(gi){
   if(G.groups[gi].players.length>=6){ toast('한 조는 최대 6명입니다'); return; }
-  G.groups[gi].players.push({name:'',gross:null,handi:0});
+  G.groups[gi].players.push(newPlayer());
   push(); render();
 }
 function delPlayer(gi,pi){
@@ -735,6 +811,152 @@ function updHead(){
   if(c) c.textContent='참가 '+namedPlayers().length+'명 · '+G.groups.length+'개조';
 }
 
+/* ══════════ 18홀 스코어카드 ══════════ */
+let cardGi=null, cardHalf=0;   // half: 0=전반(1~9), 1=후반(10~18)
+
+function holeCount(p){
+  const hs=ensureHoles(p);
+  return hs.filter(v=>v!==null&&v!==undefined).length;
+}
+function holeSum(p){
+  const hs=ensureHoles(p);
+  let s=0,c=0;
+  hs.forEach(v=>{ if(v!==null&&v!==undefined){ s+=v; c++; } });
+  return c>0?s:null;
+}
+function halfSum(p,half){
+  const hs=ensureHoles(p);
+  let s=0,c=0;
+  for(let i=half*9;i<half*9+9;i++){ const v=hs[i]; if(v!==null&&v!==undefined){ s+=v; c++; } }
+  return c>0?s:null;
+}
+// 홀 입력 → gross 자동 반영
+function syncGross(gi,pi){
+  const p=G.groups[gi].players[pi];
+  const s=holeSum(p);
+  if(s!==null) p.gross=s;
+}
+
+function openCard(gi){
+  cardGi=gi; cardHalf=0;
+  document.getElementById('cardMo').classList.add('on');
+  renderCard();
+}
+function closeCard(){
+  document.getElementById('cardMo').classList.remove('on');
+  cardGi=null;
+  push(); render();
+}
+function switchHalf(hf){ cardHalf=hf; renderCard(); }
+
+function setHole(gi,pi,hi,val){
+  const p=G.groups[gi].players[pi];
+  const hs=ensureHoles(p);
+  const n=parseInt(val);
+  hs[hi]=(val===''||isNaN(n))?null:n;
+  syncGross(gi,pi);
+  save();
+  renderCardTotals();
+  clearTimeout(setHole._t);
+  setHole._t=setTimeout(push,600);
+}
+function setPar(hi,val){
+  const n=parseInt(val);
+  if(!isNaN(n)&&n>=3&&n<=5){ G.pars[hi]=n; save(); renderCard(); clearTimeout(setPar._t); setPar._t=setTimeout(push,600); }
+}
+
+function renderCard(){
+  if(cardGi===null) return;
+  const g=G.groups[cardGi];
+  const players=g.players;
+  const start=cardHalf*9;
+
+  document.getElementById('cardTitle').textContent=g.name+' 스코어카드';
+  document.getElementById('cardSub').textContent=(cardHalf===0?'전반 1~9홀':'후반 10~18홀');
+
+  document.querySelectorAll('.half-btn').forEach((b,i)=>b.classList.toggle('on',i===cardHalf));
+
+  let html='<div class="cw"><table class="ctb">';
+  // 헤더: 홀 번호
+  html+='<tr><th class="cnm">홀</th>';
+  for(let i=start;i<start+9;i++) html+='<th>'+(i+1)+'</th>';
+  html+='<th class="csum">'+(cardHalf===0?'OUT':'IN')+'</th></tr>';
+
+  // 파 행
+  html+='<tr class="cpar"><td class="cnm">PAR</td>';
+  for(let i=start;i<start+9;i++){
+    html+='<td><input class="cpin" type="number" inputmode="numeric" min="3" max="5" value="'+(G.pars[i]||4)+'" onchange="setPar('+i+',this.value)"></td>';
+  }
+  let parSum=0; for(let i=start;i<start+9;i++) parSum+=(G.pars[i]||4);
+  html+='<td class="csum">'+parSum+'</td></tr>';
+
+  // 선수별 행
+  players.forEach((p,pi)=>{
+    if(!p.name||!p.name.trim()) return;
+    const c=AVC[(cardGi*4+pi)%AVC.length];
+    html+='<tr><td class="cnm" style="background:'+c.b+';color:'+c.t+';">'+esc(shortName(p.name))+'</td>';
+    const hs=ensureHoles(p);
+    for(let i=start;i<start+9;i++){
+      const v=hs[i];
+      const par=G.pars[i]||4;
+      let cls='';
+      if(v!==null&&v!==undefined){
+        const d=v-par;
+        cls = d<=-2?'ceag':d===-1?'cbir':d===0?'cpar0':d===1?'cbog':'cdbl';
+      }
+      html+='<td><input class="chin '+cls+'" type="number" inputmode="numeric" value="'+(v===null||v===undefined?'':v)+'" '
+        +'onchange="setHole('+cardGi+','+pi+','+i+',this.value)"></td>';
+    }
+    const hsum=halfSum(p,cardHalf);
+    html+='<td class="csum" id="hs_'+pi+'">'+(hsum===null?'—':hsum)+'</td></tr>';
+  });
+  html+='</table></div>';
+
+  // 합계 요약
+  html+='<div class="ctot"><div class="ctot-h">18홀 합계</div>';
+  players.forEach((p,pi)=>{
+    if(!p.name||!p.name.trim()) return;
+    const out=halfSum(p,0), inn=halfSum(p,1), tot=holeSum(p);
+    const cnt=holeCount(p);
+    const net=tot!==null?tot-(p.handi||0):null;
+    html+='<div class="ctot-r">'
+      +'<div class="ctot-n">'+esc(p.name)+'</div>'
+      +'<div class="ctot-c"><span class="l">OUT</span>'+(out===null?'—':out)+'</div>'
+      +'<div class="ctot-c"><span class="l">IN</span>'+(inn===null?'—':inn)+'</div>'
+      +'<div class="ctot-c"><span class="l">합계</span><b>'+(tot===null?'—':tot)+'</b></div>'
+      +'<div class="ctot-c"><span class="l">넷</span><b style="color:var(--ok)">'+(net===null?'—':net)+'</b></div>'
+      +'<div class="ctot-p">'+cnt+'/18</div>'
+      +'</div>';
+  });
+  html+='</div>';
+
+  const named=players.filter(p=>p.name&&p.name.trim()).length;
+  if(named===0){
+    html='<div class="empty" style="padding:34px 16px;"><div class="e">👤</div>'
+      +'<div class="t">선수 이름을 먼저 입력해주세요</div>'
+      +'<div class="d">성적 입력 화면에서 이름을 넣으면<br>여기에 스코어카드가 만들어집니다</div></div>';
+  }
+
+  document.getElementById('cardBody').innerHTML=html;
+}
+
+function renderCardTotals(){
+  if(cardGi===null) return;
+  const players=G.groups[cardGi].players;
+  players.forEach((p,pi)=>{
+    if(!p.name||!p.name.trim()) return;
+    const el=document.getElementById('hs_'+pi);
+    if(el){ const s=halfSum(p,cardHalf); el.textContent=(s===null?'—':s); }
+  });
+  // 하단 합계는 통째로 다시 그림
+  renderCard();
+}
+
+function shortName(n){
+  n=(n||'').trim();
+  return n.length>3?n.slice(-3):n;
+}
+
 function viewScore(){
   let h='';
   if(!G.title){
@@ -754,6 +976,7 @@ function viewScore(){
         +'style="background:rgba(255,255,255,0.12);border:none;border-radius:7px;color:#fff;font-size:14px;font-weight:800;padding:5px 9px;width:88px;font-family:inherit;">'
         +'<div style="display:flex;align-items:center;gap:8px;">'
           +'<span class="grp-meta">'+done+'/'+named+' 입력</span>'
+          +'<button onclick="openCard('+gi+')" style="background:rgba(201,162,39,0.5);border:none;border-radius:6px;color:#fff;height:26px;padding:0 9px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;">18홀</button>'
           +'<button onclick="addPlayer('+gi+')" style="background:rgba(255,255,255,0.16);border:none;border-radius:6px;color:#fff;width:26px;height:26px;font-size:15px;cursor:pointer;">＋</button>'
           +'<button onclick="delGroup('+gi+')" style="background:rgba(255,255,255,0.1);border:none;border-radius:6px;color:rgba(255,255,255,0.7);width:26px;height:26px;font-size:13px;cursor:pointer;">✕</button>'
         +'</div>'
@@ -773,8 +996,9 @@ function viewScore(){
         +'<div class="av" style="background:'+c.b+';color:'+c.t+';">'+(p.name?esc(ini(p.name)):(pi+1))+'</div>'
         +'<div class="pname"><input type="text" value="'+esc(p.name)+'" placeholder="이름" '
           +'onchange="setField('+gi+','+pi+',\'name\',this.value)"></div>'
-        +'<input class="numin gross" type="number" inputmode="numeric" value="'+(p.gross===null?'':p.gross)+'" '
-          +'placeholder="—" onchange="setField('+gi+','+pi+',\'gross\',this.value)">'
+        +(holeCount(p)>0
+            ? '<div class="numin gross" style="display:flex;align-items:center;justify-content:center;background:#F2F6F3;border-color:#CFE0D5;">'+(p.gross===null?'—':p.gross)+'</div>'
+            : '<input class="numin gross" type="number" inputmode="numeric" value="'+(p.gross===null?'':p.gross)+'" placeholder="—" onchange="setField('+gi+','+pi+',\'gross\',this.value)">')
         +'<input class="numin" type="number" inputmode="numeric" value="'+(p.handi||0)+'" '
           +'onchange="setField('+gi+','+pi+',\'handi\',this.value)">'
         +'<div class="netbox"><span class="netval'+(p.gross===null?' none':'')+'" id="net_'+gi+'_'+pi+'">'+net+'</span></div>'
@@ -929,6 +1153,7 @@ function applySetting(){
   G.place=document.getElementById('f_place').value.trim();
   const p=parseInt(document.getElementById('f_par').value);
   G.par=isNaN(p)?72:p;
+  try{ if(G.title) localStorage.setItem('award_title',G.title); }catch(e){}
   closeSetting(); push(); render();
   toast('설정을 저장했습니다');
 }
@@ -1135,12 +1360,23 @@ load();
   var bj=document.getElementById('btnJoin');
   if(bj) bj.addEventListener('click',function(){ joinEvent(); });
 
+  // 이전 대회가 있으면 '이어서 열기' 안내만 표시 (자동 접속하지 않음)
   const saved=(function(){ try{ return localStorage.getItem('award_code'); }catch(e){ return null; } })();
-  if(saved && _db){
-    const inp=document.getElementById('codeInput');
-    if(inp) inp.value=saved;
-    st('이전 대회에 다시 접속합니다...');
-    setTimeout(()=>connectTo(saved),700);
+  const box=document.getElementById('resumeBox');
+  if(saved && box){
+    const t=(function(){ try{ return localStorage.getItem('award_title')||''; }catch(e){ return ''; } })();
+    document.getElementById('resumeName').textContent=t||('대회 '+saved);
+    document.getElementById('resumeCode').textContent='코드 '+saved;
+    box.style.display='block';
+    document.getElementById('btnResume').addEventListener('click',function(){
+      if(_db) connectTo(saved);
+      else { resetKeepLocal(); startOffline(); }
+    });
+    document.getElementById('btnForget').addEventListener('click',function(){
+      try{localStorage.removeItem('award_code');localStorage.removeItem('award_title');}catch(e){}
+      box.style.display='none';
+      toast('이전 대회를 목록에서 지웠습니다');
+    });
   }
 })();
 </script>

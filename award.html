@@ -302,6 +302,115 @@ body{
 }
 .foot .btn{flex:1;font-size:12px;padding:12px 2px;}
 
+
+/* 세로 스코어카드 */
+.vcard{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+.vtb{border-collapse:collapse;width:100%;table-layout:fixed;}
+.vtb th{background:var(--ink2);color:#fff;font-size:11px;font-weight:800;padding:8px 2px;text-align:center;}
+.vh-hole{width:34px;}
+.vh-par{width:38px;}
+.vh-p{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.vtb td{padding:2px;text-align:center;border-bottom:1px solid var(--line);}
+.vrow:nth-child(even) td{background:#FCFBF7;}
+.vturn td{border-top:2px solid var(--ink2);}
+.vc-hole{font-size:12px;font-weight:800;color:var(--t2);}
+.vc-par{font-size:11px;color:var(--t3);font-weight:700;}
+.vpin{width:30px;height:24px;text-align:center;border:1px solid transparent;background:transparent;font-size:11px;font-weight:700;color:var(--t3);border-radius:4px;font-family:inherit;}
+.vpin:focus{outline:none;border-color:var(--accent);background:#fff;}
+.vc-s{padding:2px 1px;}
+.vbox{
+  width:100%;max-width:46px;height:34px;border:1.5px solid var(--line);
+  border-radius:7px;background:#fff;font-size:15px;font-weight:800;
+  color:var(--t1);cursor:pointer;font-family:inherit;
+  display:inline-flex;align-items:center;justify-content:center;
+}
+.vbox:active{transform:scale(0.93);}
+.vbox.ro{cursor:default;background:#FAFAF7;}
+.vbox.ceag{background:#FBF3D8;border-color:var(--gold);color:#7A6110;}
+.vbox.cbir{background:#E4F5EC;border-color:#3FA877;color:#14663F;}
+.vbox.cpar0{background:#fff;border-color:#CFCBBF;}
+.vbox.cbog{background:#FDF0E8;border-color:#E0A878;color:#8A4A18;}
+.vbox.cdbl{background:#FBE9E9;border-color:#D98080;color:#8A2020;}
+.vsub td{background:#F2F6F3 !important;font-size:13px;font-weight:900;color:var(--ink);padding:7px 2px;}
+.vtot td{background:#EAF3EE !important;font-size:15px;font-weight:900;color:var(--ink);padding:9px 2px;border-top:2px solid var(--ink2);}
+.vnet td{background:#F7F5EF !important;font-size:14px;font-weight:900;color:var(--ok);padding:8px 2px;}
+.vlg{display:flex;gap:11px;flex-wrap:wrap;justify-content:center;padding:11px 6px 4px;}
+.vlg span{display:flex;align-items:center;gap:4px;font-size:10.5px;color:var(--t2);font-weight:700;}
+.vlg i{width:12px;height:12px;border-radius:3px;border:1.5px solid;display:block;}
+.vlg i.ceag{background:#FBF3D8;border-color:var(--gold);}
+.vlg i.cbir{background:#E4F5EC;border-color:#3FA877;}
+.vlg i.cpar0{background:#fff;border-color:#CFCBBF;}
+.vlg i.cbog{background:#FDF0E8;border-color:#E0A878;}
+.vlg i.cdbl{background:#FBE9E9;border-color:#D98080;}
+
+/* 홀 입력 패드 */
+.pad-mo{display:none;position:fixed;inset:0;background:rgba(14,42,30,0.55);z-index:400;align-items:flex-end;}
+.pad-mo.on{display:flex;}
+.pad-in{background:var(--card);border-radius:20px 20px 0 0;width:100%;padding-bottom:calc(var(--sb) + 14px);animation:up 0.2s ease;}
+.pad-h{padding:15px 17px 12px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;}
+.pad-t{font-size:16px;font-weight:800;}
+.pad-n{font-size:12px;color:var(--t2);margin-top:2px;}
+.pad-g{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:14px 16px;}
+.pad-b{
+  border:1.5px solid var(--line);border-radius:12px;background:#fff;
+  padding:11px 3px;cursor:pointer;font-family:inherit;
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+}
+.pad-b:active{transform:scale(0.95);}
+.pad-b.sel{box-shadow:0 0 0 2.5px var(--accent);}
+.pad-b .pv{font-size:21px;font-weight:900;}
+.pad-b .pl{font-size:10px;font-weight:700;color:var(--t2);}
+.pad-b.ceag{background:#FBF3D8;border-color:var(--gold);}
+.pad-b.ceag .pv{color:#7A6110;}
+.pad-b.cbir{background:#E4F5EC;border-color:#3FA877;}
+.pad-b.cbir .pv{color:#14663F;}
+.pad-b.cbog{background:#FDF0E8;border-color:#E0A878;}
+.pad-b.cdbl{background:#FBE9E9;border-color:#D98080;}
+
+
+/* 전체 현황 */
+.live-top{display:flex;align-items:center;gap:12px;background:var(--ink);border-radius:14px;padding:15px 16px;margin-bottom:11px;}
+.lt-l{text-align:center;flex-shrink:0;}
+.lt-n{font-size:21px;font-weight:900;color:#fff;}
+.lt-c{font-size:10px;color:rgba(255,255,255,0.5);font-weight:700;margin-top:1px;}
+.lt-bar{flex:1;height:34px;background:rgba(255,255,255,0.12);border-radius:8px;position:relative;overflow:hidden;}
+.lt-fill{height:100%;background:linear-gradient(90deg,#2E7D52,var(--gold));transition:width 0.4s;}
+.lt-pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,0.4);}
+.gl-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);}
+.gl-row:last-child{border-bottom:none;}
+.gl-n{width:96px;flex-shrink:0;font-size:13px;font-weight:700;}
+.gl-ld{display:block;font-size:10px;color:var(--t3);font-weight:600;margin-top:1px;}
+.gl-bar{flex:1;height:7px;background:#EFEDE6;border-radius:4px;overflow:hidden;}
+.gl-fill{height:100%;background:var(--ok);border-radius:4px;transition:width 0.4s;}
+.gl-p{width:34px;text-align:right;font-size:11px;font-weight:800;color:var(--t2);flex-shrink:0;}
+
+/* 조장 표시 */
+.grp-mine{border-color:var(--gold);box-shadow:0 0 0 2px rgba(201,162,39,0.18);}
+.gh-mine{background:linear-gradient(90deg,#8C6F12,var(--ink2));}
+.mine-tag{background:var(--gold);color:#3A2E05;font-size:10px;font-weight:900;padding:3px 8px;border-radius:10px;margin-left:7px;}
+.ldr-badge{background:var(--gold-l);color:#7A6110;font-size:9.5px;font-weight:800;padding:2px 6px;border-radius:8px;border:1px solid #E8D9A5;}
+.ldr-row{display:flex;align-items:center;gap:9px;padding:8px 12px;background:#FBFAF6;border-bottom:1px solid var(--line);}
+.ldr-l{font-size:11px;font-weight:800;color:var(--t2);width:32px;flex-shrink:0;}
+.ldr-s{flex:1;height:34px;border:1.5px solid var(--line);border-radius:8px;font-size:13px;font-weight:600;padding:0 9px;background:#fff;color:var(--t1);font-family:inherit;}
+.ldr-s:focus{outline:none;border-color:var(--accent);}
+.ldr-n{font-size:13px;font-weight:700;color:var(--t1);}
+
+/* 역할 배지 */
+.role-tag{background:rgba(255,255,255,0.18);color:#fff;font-size:10px;font-weight:800;padding:3px 9px;border-radius:10px;cursor:pointer;}
+
+.role-b{
+  width:100%;display:flex;align-items:center;gap:12px;
+  background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.13);
+  border-radius:13px;padding:14px 15px;margin-bottom:9px;cursor:pointer;
+  text-align:left;font-family:inherit;
+}
+.role-b:active{transform:scale(0.98);background:rgba(255,255,255,0.14);}
+.role-i{font-size:21px;flex-shrink:0;}
+.role-x{flex:1;min-width:0;}
+.role-x b{display:block;font-size:15px;font-weight:800;color:#fff;}
+.role-x i{display:block;font-size:11.5px;color:rgba(255,255,255,0.5);font-style:normal;margin-top:2px;}
+
+
 /* 18홀 스코어카드 */
 .card-mo{display:none;position:fixed;inset:0;background:var(--paper);z-index:300;flex-direction:column;}
 .card-mo.on{display:flex;}
@@ -399,17 +508,21 @@ th.csum{background:#0A2117;}
       </div>
       <div class="top-btns">
         <button class="tb" onclick="openArchive()">📂</button>
-        <button class="tb" onclick="openSetting()">⚙️</button>
+        <button class="tb" id="setBtn" onclick="openSetting()">⚙️</button>
       </div>
     </div>
     <div class="top-r2">
       <span id="evtDate">—</span>
-      <span id="evtCount">참가 0명 · 0개조</span>
+      <span style="display:flex;align-items:center;gap:7px;">
+        <span id="evtCount">참가 0명 · 0개조</span>
+        <span class="role-tag" id="roleTag" onclick="changeRole()">보기</span>
+      </span>
     </div>
   </div>
 
   <div class="tabs">
     <button class="tab on" onclick="showTab('score')">성적 입력</button>
+    <button class="tab" onclick="showTab('live')">전체 현황</button>
     <button class="tab" onclick="showTab('award')">시상 설정</button>
     <button class="tab" onclick="showTab('result')">시상 결과</button>
   </div>
@@ -463,11 +576,21 @@ th.csum{background:#0A2117;}
     </div>
     <button class="cm-x" onclick="closeCard()">완료</button>
   </div>
-  <div class="halfbar">
-    <button class="half-btn on" onclick="switchHalf(0)">전반 1~9홀</button>
-    <button class="half-btn" onclick="switchHalf(1)">후반 10~18홀</button>
-  </div>
   <div class="cm-body" id="cardBody"></div>
+</div>
+
+
+<div class="pad-mo" id="padMo" onclick="if(event.target===this)closePad()">
+  <div class="pad-in">
+    <div class="pad-h">
+      <div>
+        <div class="pad-t" id="padTitle">홀</div>
+        <div class="pad-n" id="padName"></div>
+      </div>
+      <button onclick="clearHole()" style="background:#F1EFE8;border:none;border-radius:9px;padding:8px 14px;font-size:12px;font-weight:700;color:var(--t2);cursor:pointer;font-family:inherit;">지우기</button>
+    </div>
+    <div class="pad-g" id="padGrid"></div>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -511,6 +634,35 @@ AWARDS.forEach(a=>{G.awardOn[a.id]=a.on;});
 
 let curTab='score';
 let evtCode=null, dbRef=null, _db=null, _syncing=false;
+
+/* 역할: 'host'=진행자(전체 수정) | 'leader'=조장(자기 조만) | 'view'=관전
+   myRole/myGroup은 이 기기 전용이라 Firebase에 올리지 않음 */
+let myRole='view', myGroup=null;
+function loadRole(){
+  try{
+    myRole=localStorage.getItem('award_role')||'view';
+    const g=localStorage.getItem('award_mygroup');
+    myGroup=(g===null||g==='')?null:parseInt(g);
+  }catch(e){ myRole='view'; myGroup=null; }
+}
+function saveRole(){
+  try{
+    localStorage.setItem('award_role',myRole);
+    localStorage.setItem('award_mygroup', myGroup===null?'':String(myGroup));
+  }catch(e){}
+}
+// 이 조를 수정할 수 있나
+function canEdit(gi){
+  if(myRole==='host') return true;
+  if(myRole==='leader') return myGroup===gi;
+  return false;
+}
+function canEditAny(){ return myRole==='host'||myRole==='leader'; }
+function roleLabel(){
+  if(myRole==='host') return '진행자';
+  if(myRole==='leader') return (G.groups[myGroup]?G.groups[myGroup].name:'')+' 조장';
+  return '보기 전용';
+}
 
 /* ══════════ Firebase ══════════ */
 (function(){
@@ -562,6 +714,7 @@ function createEvent(){
       if(done) return;
       done=true; clearTimeout(fallback);
       evtCode=code;
+      myRole='host'; myGroup=null; saveRole();
       try{localStorage.setItem('award_code',code);}catch(e){}
       enterApp(code); startSync();
       setTimeout(openSetting,400);
@@ -584,6 +737,7 @@ function createEvent(){
 function resetKeepLocal(){ /* 저장된 로컬 데이터 그대로 사용 */ }
 
 function startOffline(msg){
+  myRole='host'; myGroup=null; saveRole();
   document.getElementById('enterScreen').style.display='none';
   const b=document.getElementById('codeBadge');
   b.style.display='flex';
@@ -616,12 +770,61 @@ function connectTo(code){
     try{localStorage.setItem('award_code',code);}catch(e){}
     const d=snap.val();
     if(d.data){ _syncing=true; try{ Object.assign(G,JSON.parse(d.data)); }catch(e){} _syncing=false; }
-    enterApp(code); startSync();
+    st('');
+    askRole(code);
   }).catch(e=>{
     st('접속에 실패했습니다. 코드를 다시 확인해주세요');
     dbRef=null;
     try{localStorage.removeItem('award_code');}catch(e2){}
   });
+}
+
+/* ══════════ 역할 선택 ══════════ */
+function askRole(code){
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;background:rgba(11,33,23,0.9);z-index:950;display:flex;align-items:center;justify-content:center;padding:22px;overflow-y:auto;';
+  let opts='';
+  G.groups.forEach((g,gi)=>{
+    const nm=g.leader?(' · '+esc(g.leader)):'';
+    opts+='<button class="role-b" data-gi="'+gi+'">'
+      +'<span class="role-i">🏌️</span>'
+      +'<span class="role-x"><b>'+esc(g.name)+' 조장</b><i>이 조의 성적을 입력합니다'+nm+'</i></span>'
+      +'</button>';
+  });
+  ov.innerHTML='<div style="width:100%;max-width:340px;">'
+    +'<div style="text-align:center;margin-bottom:18px;">'
+      +'<div style="font-size:11px;letter-spacing:2px;color:rgba(255,255,255,0.45);font-weight:800;">'+esc(G.title||'대회')+'</div>'
+      +'<div style="font-size:19px;font-weight:900;color:#fff;margin-top:5px;">어떤 역할로 참여하세요?</div>'
+      +'<div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:5px;">성적 입력은 진행자와 조장만 가능합니다</div>'
+    +'</div>'
+    +'<button class="role-b" data-role="host"><span class="role-i">🎬</span>'
+      +'<span class="role-x"><b>진행자</b><i>모든 조의 성적을 관리합니다</i></span></button>'
+    + opts
+    +'<button class="role-b" data-role="view"><span class="role-i">👀</span>'
+      +'<span class="role-x"><b>참가자 (보기 전용)</b><i>전체 성적을 실시간으로 봅니다</i></span></button>'
+    +'</div>';
+  document.body.appendChild(ov);
+
+  ov.querySelectorAll('.role-b').forEach(b=>{
+    b.addEventListener('click',function(){
+      const r=b.getAttribute('data-role');
+      const gi=b.getAttribute('data-gi');
+      if(r==='host'){ myRole='host'; myGroup=null; }
+      else if(r==='view'){ myRole='view'; myGroup=null; }
+      else { myRole='leader'; myGroup=parseInt(gi); }
+      saveRole();
+      ov.remove();
+      evtCode=code;
+      try{localStorage.setItem('award_code',code);}catch(e){}
+      enterApp(code); startSync();
+    });
+  });
+}
+
+// 진행 중 역할 바꾸기
+function changeRole(){
+  if(!evtCode){ toast('공유 대회에서만 바꿀 수 있습니다'); return; }
+  askRole(evtCode);
 }
 
 function enterApp(code){
@@ -673,7 +876,7 @@ function setArc(l){ try{ localStorage.setItem(ARC_KEY,JSON.stringify(l)); return
 /* ══════════ 조/선수 ══════════ */
 function newPlayer(){ return {name:'',gross:null,handi:0,holes:Array(18).fill(null)}; }
 function newGroup(n){
-  return { name:n+'조', players:Array.from({length:4},()=>newPlayer()) };
+  return { name:n+'조', leader:'', players:Array.from({length:4},()=>newPlayer()) };
 }
 // 이전 버전 데이터 호환 — holes 없으면 만들어줌
 function ensureHoles(p){ if(!Array.isArray(p.holes)||p.holes.length!==18) p.holes=Array(18).fill(null); return p.holes; }
@@ -708,6 +911,11 @@ function setField(gi,pi,f,v){
   if(f!=='name') updateNet(gi,pi);
   clearTimeout(setField._t);
   setField._t=setTimeout(()=>{ push(); updHead(); },500);
+}
+function setLeader(gi,v){
+  G.groups[gi].leader=v||'';
+  push(); render();
+  if(v) toast(v+' 님을 '+G.groups[gi].name+' 조장으로 지정했습니다');
 }
 function setGroupName(gi,v){
   G.groups[gi].name=v;
@@ -783,16 +991,17 @@ function render(){
   const b=document.getElementById('body');
   const f=document.getElementById('foot');
   if(curTab==='score'){ b.innerHTML=viewScore(); }
+  else if(curTab==='live'){ b.innerHTML=viewLive(); }
   else if(curTab==='award'){ b.innerHTML=viewAward(); }
   else{ b.innerHTML=viewResult(); }
 
   f.innerHTML=
-     '<button class="btn btn-o" onclick="addGroup()">＋ 조 추가</button>'
-    +'<button class="btn btn-p" onclick="saveEvent()">저장</button>'
+     (myRole==='host'?'<button class="btn btn-o" onclick="addGroup()">＋ 조 추가</button>':'')
+    +(canEditAny()?'<button class="btn btn-p" onclick="saveEvent()">저장</button>':'')
     +'<button class="btn btn-a" onclick="shareResult()">결과 공유</button>';
 
   document.querySelectorAll('.tab').forEach((t,i)=>{
-    t.classList.toggle('on', ['score','award','result'][i]===curTab);
+    t.classList.toggle('on', ['score','live','award','result'][i]===curTab);
   });
 }
 function showTab(t){ curTab=t; G.curTab=t; render(); }
@@ -809,6 +1018,15 @@ function updHead(){
   }
   const c=document.getElementById('evtCount');
   if(c) c.textContent='참가 '+namedPlayers().length+'명 · '+G.groups.length+'개조';
+  const sb=document.getElementById('setBtn');
+  if(sb) sb.style.display=(myRole==='host')?'flex':'none';
+  const rt=document.getElementById('roleTag');
+  if(rt){
+    rt.textContent=roleLabel();
+    rt.style.background = myRole==='host' ? 'rgba(201,162,39,0.45)'
+                        : myRole==='leader' ? 'rgba(46,125,82,0.5)'
+                        : 'rgba(255,255,255,0.16)';
+  }
 }
 
 /* ══════════ 18홀 스코어카드 ══════════ */
@@ -868,88 +1086,166 @@ function setPar(hi,val){
 function renderCard(){
   if(cardGi===null) return;
   const g=G.groups[cardGi];
-  const players=g.players;
-  const start=cardHalf*9;
+  const players=g.players.filter(p=>p.name&&p.name.trim());
+  const editable=canEdit(cardGi);
 
   document.getElementById('cardTitle').textContent=g.name+' 스코어카드';
-  document.getElementById('cardSub').textContent=(cardHalf===0?'전반 1~9홀':'후반 10~18홀');
+  document.getElementById('cardSub').textContent=
+    editable ? '홀을 눌러 타수를 입력하세요' : '보기 전용 — 진행자·조장만 입력할 수 있어요';
 
-  document.querySelectorAll('.half-btn').forEach((b,i)=>b.classList.toggle('on',i===cardHalf));
-
-  let html='<div class="cw"><table class="ctb">';
-  // 헤더: 홀 번호
-  html+='<tr><th class="cnm">홀</th>';
-  for(let i=start;i<start+9;i++) html+='<th>'+(i+1)+'</th>';
-  html+='<th class="csum">'+(cardHalf===0?'OUT':'IN')+'</th></tr>';
-
-  // 파 행
-  html+='<tr class="cpar"><td class="cnm">PAR</td>';
-  for(let i=start;i<start+9;i++){
-    html+='<td><input class="cpin" type="number" inputmode="numeric" min="3" max="5" value="'+(G.pars[i]||4)+'" onchange="setPar('+i+',this.value)"></td>';
-  }
-  let parSum=0; for(let i=start;i<start+9;i++) parSum+=(G.pars[i]||4);
-  html+='<td class="csum">'+parSum+'</td></tr>';
-
-  // 선수별 행
-  players.forEach((p,pi)=>{
-    if(!p.name||!p.name.trim()) return;
-    const c=AVC[(cardGi*4+pi)%AVC.length];
-    html+='<tr><td class="cnm" style="background:'+c.b+';color:'+c.t+';">'+esc(shortName(p.name))+'</td>';
-    const hs=ensureHoles(p);
-    for(let i=start;i<start+9;i++){
-      const v=hs[i];
-      const par=G.pars[i]||4;
-      let cls='';
-      if(v!==null&&v!==undefined){
-        const d=v-par;
-        cls = d<=-2?'ceag':d===-1?'cbir':d===0?'cpar0':d===1?'cbog':'cdbl';
-      }
-      html+='<td><input class="chin '+cls+'" type="number" inputmode="numeric" value="'+(v===null||v===undefined?'':v)+'" '
-        +'onchange="setHole('+cardGi+','+pi+','+i+',this.value)"></td>';
-    }
-    const hsum=halfSum(p,cardHalf);
-    html+='<td class="csum" id="hs_'+pi+'">'+(hsum===null?'—':hsum)+'</td></tr>';
-  });
-  html+='</table></div>';
-
-  // 합계 요약
-  html+='<div class="ctot"><div class="ctot-h">18홀 합계</div>';
-  players.forEach((p,pi)=>{
-    if(!p.name||!p.name.trim()) return;
-    const out=halfSum(p,0), inn=halfSum(p,1), tot=holeSum(p);
-    const cnt=holeCount(p);
-    const net=tot!==null?tot-(p.handi||0):null;
-    html+='<div class="ctot-r">'
-      +'<div class="ctot-n">'+esc(p.name)+'</div>'
-      +'<div class="ctot-c"><span class="l">OUT</span>'+(out===null?'—':out)+'</div>'
-      +'<div class="ctot-c"><span class="l">IN</span>'+(inn===null?'—':inn)+'</div>'
-      +'<div class="ctot-c"><span class="l">합계</span><b>'+(tot===null?'—':tot)+'</b></div>'
-      +'<div class="ctot-c"><span class="l">넷</span><b style="color:var(--ok)">'+(net===null?'—':net)+'</b></div>'
-      +'<div class="ctot-p">'+cnt+'/18</div>'
-      +'</div>';
-  });
-  html+='</div>';
-
-  const named=players.filter(p=>p.name&&p.name.trim()).length;
-  if(named===0){
-    html='<div class="empty" style="padding:34px 16px;"><div class="e">👤</div>'
+  if(players.length===0){
+    document.getElementById('cardBody').innerHTML=
+      '<div class="empty" style="padding:34px 16px;"><div class="e">👤</div>'
       +'<div class="t">선수 이름을 먼저 입력해주세요</div>'
       +'<div class="d">성적 입력 화면에서 이름을 넣으면<br>여기에 스코어카드가 만들어집니다</div></div>';
+    return;
   }
+
+  // 세로 배치: 18홀이 행, 선수가 열
+  let html='<div class="vcard"><table class="vtb">';
+
+  // 헤더
+  html+='<tr><th class="vh-hole">홀</th><th class="vh-par">PAR</th>';
+  players.forEach((p,i)=>{
+    const c=AVC[(cardGi*4+i)%AVC.length];
+    html+='<th class="vh-p" style="background:'+c.b+';color:'+c.t+';">'+esc(shortName(p.name))+'</th>';
+  });
+  html+='</tr>';
+
+  // 18홀
+  for(let hi=0;hi<18;hi++){
+    const par=G.pars[hi]||4;
+    const isTurn=(hi===9);
+    html+='<tr class="vrow'+(isTurn?' vturn':'')+'">';
+    html+='<td class="vc-hole">'+(hi+1)+'</td>';
+    html+='<td class="vc-par">'+(editable
+      ? '<input class="vpin" type="number" inputmode="numeric" min="3" max="5" value="'+par+'" onchange="setPar('+hi+',this.value)">'
+      : par)+'</td>';
+    players.forEach((p,i)=>{
+      const pi=g.players.indexOf(p);
+      const hs=ensureHoles(p);
+      const v=hs[hi];
+      const cls=scoreCls(v,par);
+      const txt=(v===null||v===undefined)?'':v;
+      html+='<td class="vc-s">'
+        + (editable
+            ? '<button class="vbox '+cls+'" onclick="openHolePad('+cardGi+','+pi+','+hi+')">'+(txt===''?'·':txt)+'</button>'
+            : '<span class="vbox ro '+cls+'">'+(txt===''?'·':txt)+'</span>')
+        +'</td>';
+    });
+    html+='</tr>';
+
+    // OUT 소계
+    if(hi===8){
+      html+='<tr class="vsub"><td class="vc-hole">OUT</td><td class="vc-par">'+parHalf(0)+'</td>';
+      players.forEach(p=>{ const s=halfSum(p,0); html+='<td class="vc-s"><b>'+(s===null?'—':s)+'</b></td>'; });
+      html+='</tr>';
+    }
+  }
+  // IN 소계
+  html+='<tr class="vsub"><td class="vc-hole">IN</td><td class="vc-par">'+parHalf(1)+'</td>';
+  players.forEach(p=>{ const s=halfSum(p,1); html+='<td class="vc-s"><b>'+(s===null?'—':s)+'</b></td>'; });
+  html+='</tr>';
+
+  // 총합
+  html+='<tr class="vtot"><td class="vc-hole">합계</td><td class="vc-par">'+(parHalf(0)+parHalf(1))+'</td>';
+  players.forEach(p=>{ const s=holeSum(p); html+='<td class="vc-s"><b>'+(s===null?'—':s)+'</b></td>'; });
+  html+='</tr>';
+
+  // 넷
+  html+='<tr class="vnet"><td class="vc-hole">넷</td><td class="vc-par">—</td>';
+  players.forEach(p=>{
+    const s=holeSum(p);
+    const n=(s===null)?null:s-(p.handi||0);
+    html+='<td class="vc-s"><b>'+(n===null?'—':n)+'</b></td>';
+  });
+  html+='</tr>';
+
+  html+='</table></div>';
+
+  // 범례
+  html+='<div class="vlg">'
+    +'<span><i class="ceag"></i>이글↓</span>'
+    +'<span><i class="cbir"></i>버디</span>'
+    +'<span><i class="cpar0"></i>파</span>'
+    +'<span><i class="cbog"></i>보기</span>'
+    +'<span><i class="cdbl"></i>더블↑</span>'
+    +'</div>';
 
   document.getElementById('cardBody').innerHTML=html;
 }
 
-function renderCardTotals(){
-  if(cardGi===null) return;
-  const players=G.groups[cardGi].players;
-  players.forEach((p,pi)=>{
-    if(!p.name||!p.name.trim()) return;
-    const el=document.getElementById('hs_'+pi);
-    if(el){ const s=halfSum(p,cardHalf); el.textContent=(s===null?'—':s); }
+function parHalf(half){
+  let s=0;
+  for(let i=half*9;i<half*9+9;i++) s+=(G.pars[i]||4);
+  return s;
+}
+function scoreCls(v,par){
+  if(v===null||v===undefined) return '';
+  const d=v-par;
+  return d<=-2?'ceag':d===-1?'cbir':d===0?'cpar0':d===1?'cbog':'cdbl';
+}
+
+/* ── 홀 입력 패드 (버디·이글 바로 선택) ── */
+let padGi=null,padPi=null,padHi=null;
+function openHolePad(gi,pi,hi){
+  if(!canEdit(gi)){ toast('진행자와 조장만 입력할 수 있습니다'); return; }
+  padGi=gi; padPi=pi; padHi=hi;
+  const p=G.groups[gi].players[pi];
+  const par=G.pars[hi]||4;
+  const cur=ensureHoles(p)[hi];
+
+  document.getElementById('padTitle').textContent=(hi+1)+'홀 · Par'+par;
+  document.getElementById('padName').textContent=p.name;
+
+  // 파 기준 상대 스코어 버튼
+  const opts=[
+    {d:-3,label:'알바트로스',ico:'🦅'},
+    {d:-2,label:'이글',ico:'🦅'},
+    {d:-1,label:'버디',ico:'🐦'},
+    {d:0, label:'파',ico:''},
+    {d:1, label:'보기',ico:''},
+    {d:2, label:'더블보기',ico:''},
+    {d:3, label:'트리플',ico:''},
+    {d:4, label:'+4',ico:''}
+  ].filter(o=>par+o.d>=1);
+
+  let html='';
+  opts.forEach(o=>{
+    const v=par+o.d;
+    const cls=scoreCls(v,par);
+    const sel=(cur===v)?' sel':'';
+    html+='<button class="pad-b '+cls+sel+'" onclick="pickHole('+v+')">'
+      +'<span class="pv">'+v+'</span>'
+      +'<span class="pl">'+(o.ico?o.ico+' ':'')+o.label+'</span>'
+      +'</button>';
   });
-  // 하단 합계는 통째로 다시 그림
+  document.getElementById('padGrid').innerHTML=html;
+  document.getElementById('padMo').classList.add('on');
+}
+function pickHole(v){
+  if(padGi===null) return;
+  const p=G.groups[padGi].players[padPi];
+  ensureHoles(p)[padHi]=v;
+  syncGross(padGi,padPi);
+  save();
+  closePad();
   renderCard();
+  clearTimeout(pickHole._t);
+  pickHole._t=setTimeout(push,400);
+}
+function clearHole(){
+  if(padGi===null) return;
+  const p=G.groups[padGi].players[padPi];
+  ensureHoles(p)[padHi]=null;
+  syncGross(padGi,padPi);
+  save(); closePad(); renderCard();
+  clearTimeout(pickHole._t);
+  pickHole._t=setTimeout(push,400);
+}
+function closePad(){
+  document.getElementById('padMo').classList.remove('on');
+  padGi=null;padPi=null;padHi=null;
 }
 
 function shortName(n){
@@ -959,6 +1255,13 @@ function shortName(n){
 
 function viewScore(){
   let h='';
+  if(myRole==='view'){
+    h+='<div class="card" style="background:#F4F2EC;border-color:#DFDBD0;"><div class="card-b" style="display:flex;align-items:center;gap:10px;">'
+      +'<div style="font-size:19px;">👀</div>'
+      +'<div style="flex:1;font-size:12.5px;color:var(--t2);line-height:1.6;">보기 전용입니다. 진행자·조장만 입력할 수 있어요.</div>'
+      +'<button class="btn btn-o btn-sm" onclick="changeRole()">역할 변경</button>'
+      +'</div></div>';
+  }
   if(!G.title){
     h+='<div class="card"><div class="card-b" style="display:flex;align-items:center;gap:10px;">'
       +'<div style="font-size:20px;">📋</div>'
@@ -970,17 +1273,33 @@ function viewScore(){
   G.groups.forEach((g,gi)=>{
     const done=g.players.filter(p=>p.name&&p.name.trim()&&p.gross!==null).length;
     const named=g.players.filter(p=>p.name&&p.name.trim()).length;
-    h+='<div class="grp">'
-      +'<div class="grp-h">'
-        +'<input value="'+esc(g.name)+'" onchange="setGroupName('+gi+',this.value)" '
-        +'style="background:rgba(255,255,255,0.12);border:none;border-radius:7px;color:#fff;font-size:14px;font-weight:800;padding:5px 9px;width:88px;font-family:inherit;">'
-        +'<div style="display:flex;align-items:center;gap:8px;">'
-          +'<span class="grp-meta">'+done+'/'+named+' 입력</span>'
+    const ed=canEdit(gi);
+    const mine=(myRole==='leader'&&myGroup===gi);
+    h+='<div class="grp'+(mine?' grp-mine':'')+'">'
+      +'<div class="grp-h'+(mine?' gh-mine':'')+'">'
+        +(ed
+          ? '<input value="'+esc(g.name)+'" onchange="setGroupName('+gi+',this.value)" style="background:rgba(255,255,255,0.12);border:none;border-radius:7px;color:#fff;font-size:14px;font-weight:800;padding:5px 9px;width:82px;font-family:inherit;">'
+          : '<span style="font-size:14px;font-weight:800;color:#fff;">'+esc(g.name)+'</span>')
+        +(mine?'<span class="mine-tag">내 조</span>':'')
+        +'<div style="display:flex;align-items:center;gap:7px;margin-left:auto;">'
+          +'<span class="grp-meta">'+done+'/'+named+'</span>'
           +'<button onclick="openCard('+gi+')" style="background:rgba(201,162,39,0.5);border:none;border-radius:6px;color:#fff;height:26px;padding:0 9px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;">18홀</button>'
-          +'<button onclick="addPlayer('+gi+')" style="background:rgba(255,255,255,0.16);border:none;border-radius:6px;color:#fff;width:26px;height:26px;font-size:15px;cursor:pointer;">＋</button>'
-          +'<button onclick="delGroup('+gi+')" style="background:rgba(255,255,255,0.1);border:none;border-radius:6px;color:rgba(255,255,255,0.7);width:26px;height:26px;font-size:13px;cursor:pointer;">✕</button>'
+          +(ed?'<button onclick="addPlayer('+gi+')" style="background:rgba(255,255,255,0.16);border:none;border-radius:6px;color:#fff;width:26px;height:26px;font-size:15px;cursor:pointer;">＋</button>':'')
+          +(myRole==='host'?'<button onclick="delGroup('+gi+')" style="background:rgba(255,255,255,0.1);border:none;border-radius:6px;color:rgba(255,255,255,0.7);width:26px;height:26px;font-size:13px;cursor:pointer;">✕</button>':'')
         +'</div>'
       +'</div>';
+
+    // 조장 지정 (진행자만)
+    if(myRole==='host'){
+      const names=g.players.filter(p=>p.name&&p.name.trim()).map(p=>p.name.trim());
+      h+='<div class="ldr-row"><span class="ldr-l">조장</span>'
+        +'<select class="ldr-s" onchange="setLeader('+gi+',this.value)">'
+        +'<option value="">— 미지정 —</option>'
+        + names.map(n=>'<option value="'+esc(n)+'"'+(g.leader===n?' selected':'')+'>'+esc(n)+'</option>').join('')
+        +'</select></div>';
+    } else if(g.leader){
+      h+='<div class="ldr-row"><span class="ldr-l">조장</span><span class="ldr-n">'+esc(g.leader)+'</span></div>';
+    }
 
     h+='<div style="display:flex;gap:9px;padding:7px 12px 3px;background:#FBFAF6;border-bottom:1px solid var(--line);">'
       +'<div style="width:34px;"></div><div style="flex:1;"></div>'
@@ -992,23 +1311,120 @@ function viewScore(){
     g.players.forEach((p,pi)=>{
       const c=AVC[(gi*4+pi)%AVC.length];
       const net=p.gross===null?'—':String(p.gross-(p.handi||0));
+      const isLdr=(g.leader&&g.leader===String(p.name||'').trim());
       h+='<div class="prow">'
         +'<div class="av" style="background:'+c.b+';color:'+c.t+';">'+(p.name?esc(ini(p.name)):(pi+1))+'</div>'
-        +'<div class="pname"><input type="text" value="'+esc(p.name)+'" placeholder="이름" '
-          +'onchange="setField('+gi+','+pi+',\'name\',this.value)"></div>'
+        +'<div class="pname">'
+          +(ed
+            ? '<input type="text" value="'+esc(p.name)+'" placeholder="이름" onchange="setField('+gi+','+pi+',\'name\',this.value)">'
+            : '<span style="font-size:15px;font-weight:700;padding:5px 6px;display:block;">'+(p.name?esc(p.name):'<span style="color:var(--t3);font-weight:500;">—</span>')+'</span>')
+          +(isLdr?'<span class="ldr-badge">조장</span>':'')
+        +'</div>'
         +(holeCount(p)>0
             ? '<div class="numin gross" style="display:flex;align-items:center;justify-content:center;background:#F2F6F3;border-color:#CFE0D5;">'+(p.gross===null?'—':p.gross)+'</div>'
-            : '<input class="numin gross" type="number" inputmode="numeric" value="'+(p.gross===null?'':p.gross)+'" placeholder="—" onchange="setField('+gi+','+pi+',\'gross\',this.value)">')
-        +'<input class="numin" type="number" inputmode="numeric" value="'+(p.handi||0)+'" '
-          +'onchange="setField('+gi+','+pi+',\'handi\',this.value)">'
+            : (ed
+                ? '<input class="numin gross" type="number" inputmode="numeric" value="'+(p.gross===null?'':p.gross)+'" placeholder="—" onchange="setField('+gi+','+pi+',\'gross\',this.value)">'
+                : '<div class="numin gross" style="display:flex;align-items:center;justify-content:center;background:#FAFAF7;">'+(p.gross===null?'—':p.gross)+'</div>'))
+        +(ed
+          ? '<input class="numin" type="number" inputmode="numeric" value="'+(p.handi||0)+'" onchange="setField('+gi+','+pi+',\'handi\',this.value)">'
+          : '<div class="numin" style="display:flex;align-items:center;justify-content:center;background:#FAFAF7;">'+(p.handi||0)+'</div>')
         +'<div class="netbox"><span class="netval'+(p.gross===null?' none':'')+'" id="net_'+gi+'_'+pi+'">'+net+'</span></div>'
-        +'<button onclick="delPlayer('+gi+','+pi+')" style="background:none;border:none;color:var(--t3);font-size:15px;cursor:pointer;width:22px;">✕</button>'
+        +(ed?'<button onclick="delPlayer('+gi+','+pi+')" style="background:none;border:none;color:var(--t3);font-size:15px;cursor:pointer;width:22px;">✕</button>':'<div style="width:22px;"></div>')
       +'</div>';
     });
     h+='</div>';
   });
 
-  h+='<button class="btn btn-o btn-full" style="border:1.5px dashed var(--line);background:#FBFAF6;margin-bottom:8px;" onclick="addGroup()">＋ '+(G.groups.length+1)+'조 추가</button>';
+  if(myRole==='host'){
+    h+='<button class="btn btn-o btn-full" style="border:1.5px dashed var(--line);background:#FBFAF6;margin-bottom:8px;" onclick="addGroup()">＋ '+(G.groups.length+1)+'조 추가</button>';
+  }
+  return h;
+}
+
+/* ══════════ 전체 현황 (실시간) ══════════ */
+function viewLive(){
+  const all=[];
+  G.groups.forEach((g,gi)=>{
+    g.players.forEach(p=>{
+      if(!p.name||!p.name.trim()) return;
+      const done=holeCount(p);
+      const tot=holeSum(p);
+      const gross=(tot!==null)?tot:p.gross;
+      all.push({
+        name:p.name.trim(), group:g.name, gi,
+        leader:(g.leader===String(p.name).trim()),
+        done, gross, handi:p.handi||0,
+        net:(gross!==null&&gross!==undefined)?gross-(p.handi||0):null,
+        thru:done>0?done:null
+      });
+    });
+  });
+
+  if(all.length===0){
+    return '<div class="empty"><div class="e">👥</div><div class="t">참가자가 없습니다</div>'
+      +'<div class="d">성적 입력 탭에서 이름을 넣어주세요</div></div>';
+  }
+
+  // 진행률
+  const totalHoles=all.length*18;
+  const doneHoles=all.reduce((s,p)=>s+p.done,0);
+  const pct=totalHoles>0?Math.round(doneHoles/totalHoles*100):0;
+
+  let h='<div class="live-top">'
+    +'<div class="lt-l"><div class="lt-n">'+all.length+'</div><div class="lt-c">참가자</div></div>'
+    +'<div class="lt-bar"><div class="lt-fill" style="width:'+pct+'%"></div>'
+      +'<div class="lt-pct">'+pct+'% 진행</div></div>'
+    +'<div class="lt-l"><div class="lt-n">'+G.groups.length+'</div><div class="lt-c">조</div></div>'
+    +'</div>';
+
+  // 넷 순위 (성적 있는 사람만)
+  const scored=all.filter(p=>p.net!==null).sort((a,b)=>a.net-b.net||a.gross-b.gross);
+  const waiting=all.filter(p=>p.net===null);
+
+  if(scored.length>0){
+    h+='<div class="card"><div class="card-h">실시간 순위<span style="font-size:11px;color:var(--t3);font-weight:600;">넷스코어</span></div>';
+    h+='<table class="rk-tbl"><tr><th style="width:36px;">순위</th><th style="text-align:left;padding-left:9px;">이름</th>'
+      +'<th style="width:46px;">조</th><th style="width:40px;">홀</th><th style="width:42px;">타수</th><th style="width:42px;">넷</th></tr>';
+    scored.forEach((p,i)=>{
+      const cls=i===0?'g1':i===1?'g2':i===2?'g3':'';
+      const thru=(p.thru===null)?'—':(p.thru===18?'F':p.thru);
+      h+='<tr><td><span class="rk-no '+cls+'">'+(i+1)+'</span></td>'
+        +'<td style="text-align:left;padding-left:9px;font-weight:700;">'+esc(p.name)
+          +(p.leader?'<span class="ldr-badge" style="margin-left:5px;">조장</span>':'')+'</td>'
+        +'<td style="font-size:11px;color:var(--t2);">'+esc(p.group)+'</td>'
+        +'<td style="font-size:11px;color:'+(p.thru===18?'var(--ok)':'var(--t3)')+';font-weight:700;">'+thru+'</td>'
+        +'<td style="font-weight:700;">'+p.gross+'</td>'
+        +'<td style="font-weight:900;color:var(--ok);">'+p.net+'</td></tr>';
+    });
+    h+='</table></div>';
+  }
+
+  if(waiting.length>0){
+    h+='<div class="card"><div class="card-h">입력 대기<span style="font-size:11px;color:var(--t3);font-weight:600;">'+waiting.length+'명</span></div><div class="card-b">';
+    h+='<div style="display:flex;flex-wrap:wrap;gap:6px;">';
+    waiting.forEach(p=>{
+      h+='<span style="background:#F4F2EC;border-radius:14px;padding:5px 11px;font-size:12px;font-weight:600;color:var(--t2);">'
+        +esc(p.name)+' <span style="color:var(--t3);font-size:10px;">'+esc(p.group)+'</span></span>';
+    });
+    h+='</div></div></div>';
+  }
+
+  // 조별 진행 현황
+  h+='<div class="card"><div class="card-h">조별 진행</div>';
+  G.groups.forEach((g,gi)=>{
+    const ps=g.players.filter(p=>p.name&&p.name.trim());
+    if(ps.length===0) return;
+    const gd=ps.reduce((s,p)=>s+holeCount(p),0);
+    const gt=ps.length*18;
+    const gp=gt>0?Math.round(gd/gt*100):0;
+    h+='<div class="gl-row">'
+      +'<div class="gl-n">'+esc(g.name)+(g.leader?'<span class="gl-ld">'+esc(g.leader)+'</span>':'')+'</div>'
+      +'<div class="gl-bar"><div class="gl-fill" style="width:'+gp+'%"></div></div>'
+      +'<div class="gl-p">'+gp+'%</div>'
+      +'</div>';
+  });
+  h+='</div>';
+
   return h;
 }
 
@@ -1347,7 +1763,7 @@ document.addEventListener('visibilitychange',()=>{ if(document.hidden) save(); }
 window.addEventListener('pagehide',save);
 
 /* ══════════ 시작 ══════════ */
-load();
+load(); loadRole();
 (function(){
   const params=new URLSearchParams(location.search);
   if(params.get('join')==='1'){

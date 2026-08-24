@@ -309,12 +309,18 @@ body{
 
 
 /* 세로 스코어카드 */
-.vcard{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+.vcard{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:visible;}
 .vtb{border-collapse:collapse;width:100%;table-layout:fixed;}
-.vtb th{background:var(--ink2);color:#fff;font-size:11px;font-weight:800;padding:8px 2px;text-align:center;}
+.vtb th{
+  background:var(--ink2);color:#fff;font-size:11px;font-weight:800;
+  padding:9px 2px;text-align:center;
+  position:sticky;top:0;z-index:10;
+  box-shadow:0 2px 6px rgba(14,42,30,0.25);
+}
 .vh-hole{width:34px;}
 .vh-par{width:38px;}
-.vh-p{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.vh-p{font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.25;}
+.vh-p small{display:block;font-size:9px;font-weight:700;opacity:0.75;margin-top:1px;}
 .vtb td{padding:2px;text-align:center;border-bottom:1px solid var(--line);}
 .vrow:nth-child(even) td{background:#FCFBF7;}
 .vturn td{border-top:2px solid var(--ink2);}
@@ -405,6 +411,17 @@ body{
 
 /* 역할 배지 */
 .role-tag{background:rgba(255,255,255,0.18);color:#fff;font-size:10px;font-weight:800;padding:3px 9px;border-radius:10px;cursor:pointer;}
+
+
+/* 핸디 대비 색상 */
+.netbox.hc-good{background:#E7F4EC;border-color:#8CC5A5;}
+.netbox.hc-good .netval{color:#1B7A4B;}
+.netbox.hc-bad{background:#FBEDE8;border-color:#E0AE96;}
+.netbox.hc-bad .netval{color:#B3452B;}
+.netbox.hc-even{background:#F2F0EA;border-color:#D5D0C4;}
+.netbox.hc-even .netval{color:var(--ink);}
+.vhcp td{background:#EFF4F1 !important;font-size:16px;font-weight:900;padding:9px 2px;border-top:1px solid var(--line);}
+.vhcp .vc-hole{font-size:10px;line-height:1.2;}
 
 .role-b{
   width:100%;display:flex;align-items:center;gap:12px;
@@ -936,8 +953,12 @@ function updateNet(gi,pi){
   const p=G.groups[gi].players[pi];
   const el=document.getElementById('net_'+gi+'_'+pi);
   if(!el) return;
-  if(p.gross===null){ el.textContent='—'; el.className='netval none'; }
-  else{ el.textContent=String(p.gross-(p.handi||0)); el.className='netval'; }
+  if(p.gross===null){ el.textContent='—'; el.className='netval none'; el.parentElement.className='netbox'; }
+  else{
+    const d=(p.gross-coursePar())-(p.handi||0);
+    el.textContent=String(d); el.className='netval';
+    el.parentElement.className='netbox '+(d<0?'hc-good':(d>0?'hc-bad':'hc-even'));
+  }
 }
 
 /* ══════════ 집계 ══════════ */
@@ -1116,7 +1137,8 @@ function renderCard(){
   html+='<tr><th class="vh-hole">홀</th><th class="vh-par">PAR</th>';
   players.forEach((p,i)=>{
     const c=AVC[(cardGi*4+i)%AVC.length];
-    html+='<th class="vh-p" style="background:'+c.b+';color:'+c.t+';">'+esc(shortName(p.name))+'</th>';
+    html+='<th class="vh-p" style="background:'+c.b+';color:'+c.t+';">'+esc(shortName(p.name))
+      +'<small>H'+(p.handi||0)+'</small></th>';
   });
   html+='</tr>';
 
@@ -1179,6 +1201,17 @@ function renderCard(){
   });
   html+='</tr>';
 
+  // 핸디 대비 오버 (핵심 지표)
+  const cp=coursePar();
+  html+='<tr class="vhcp"><td class="vc-hole">핸디<br>대비</td><td class="vc-par">'+cp+'</td>';
+  players.forEach(p=>{
+    const s=holeSum(p);
+    const d=(s===null)?null:(s-cp)-(p.handi||0);
+    const col=(d===null)?'var(--t3)':(d<0?'#1B7A4B':(d>0?'#B3452B':'var(--ink)'));
+    html+='<td class="vc-s"><b style="color:'+col+'">'+(d===null?'—':d)+'</b></td>';
+  });
+  html+='</tr>';
+
   html+='</table></div>';
 
   // 범례
@@ -1202,14 +1235,29 @@ function parHalf(half){
 
 /* 오버타수 표기: 실타수 v, 파 par → "-1" "E" "+2" 형태 */
 function ovSign(d){
-  if(d===0) return 'E';
-  return (d>0?'+':'')+d;
+  if(d===null||d===undefined) return '—';
+  return String(d);
 }
 function ovTxt(v,par){
   if(v===null||v===undefined) return '';
-  const d=v-par;
-  if(d===0) return 'E';
-  return (d>0?'+':'')+d;
+  return String(v-par);
+}
+/* 핸디 대비 오버 = (실타수 - 코스파) - 핸디
+   음수면 핸디보다 잘 친 것 */
+function hcpOver(gross,handi,coursePar){
+  if(gross===null||gross===undefined) return null;
+  return (gross-(coursePar||coursePar===0?coursePar:72))-(handi||0);
+}
+function hcpTxt(d){
+  if(d===null||d===undefined) return '—';
+  return String(d);
+}
+/* 코스 전체 파 합계 */
+function coursePar(){
+  if(Array.isArray(G.pars)&&G.pars.length===18){
+    return G.pars.reduce((a,b)=>a+(b||4),0);
+  }
+  return G.par||72;
 }
 function scoreCls(v,par){
   if(v===null||v===undefined) return '';
@@ -1246,7 +1294,7 @@ function openHolePad(gi,pi,hi){
     const v=par+o.d;
     const cls=scoreCls(v,par);
     const sel=(cur===v)?' sel':'';
-    const ov=(o.d===0)?'E':((o.d>0?'+':'')+o.d);
+    const ov=String(o.d);
     html+='<button class="pad-b '+cls+sel+'" onclick="pickHole('+v+')">'
       +'<span class="pv">'+ov+'</span>'
       +'<span class="pl">'+(o.ico?o.ico+' ':'')+o.label+'</span>'
@@ -1338,12 +1386,15 @@ function viewScore(){
       +'<div style="width:34px;"></div><div style="flex:1;"></div>'
       +'<div class="numlbl" style="width:56px;">핸디</div>'
       +'<div class="numlbl" style="width:56px;">타수</div>'
-      +'<div class="numlbl" style="width:54px;">넷</div>'
+      +'<div class="numlbl" style="width:54px;">핸디대비</div>'
       +'<div style="width:22px;"></div></div>';
 
     g.players.forEach((p,pi)=>{
       const c=AVC[(gi*4+pi)%AVC.length];
-      const net=p.gross===null?'—':String(p.gross-(p.handi||0));
+      const _cp=coursePar();
+      const _hd=(p.gross===null)?null:(p.gross-_cp)-(p.handi||0);
+      const net=(_hd===null)?'—':String(_hd);
+      const netCol=(_hd===null)?'':(_hd<0?'hc-good':(_hd>0?'hc-bad':'hc-even'));
       const isLdr=(g.leader&&g.leader===String(p.name||'').trim());
       h+='<div class="prow">'
         +'<div class="av" style="background:'+c.b+';color:'+c.t+';">'+(p.name?esc(ini(p.name)):(pi+1))+'</div>'
@@ -1361,7 +1412,7 @@ function viewScore(){
             : (ed
                 ? '<input class="numin gross" type="number" inputmode="numeric" value="'+(p.gross===null?'':p.gross)+'" placeholder="—" onchange="setField('+gi+','+pi+',\'gross\',this.value)">'
                 : '<div class="numin gross ro">'+(p.gross===null?'—':p.gross)+'</div>'))
-        +'<div class="netbox"><span class="netval'+(p.gross===null?' none':'')+'" id="net_'+gi+'_'+pi+'">'+net+'</span></div>'
+        +'<div class="netbox '+netCol+'"><span class="netval'+(p.gross===null?' none':'')+'" id="net_'+gi+'_'+pi+'">'+net+'</span></div>'
         +(ed?'<button onclick="delPlayer('+gi+','+pi+')" style="background:none;border:none;color:var(--t3);font-size:15px;cursor:pointer;width:22px;">✕</button>':'<div style="width:22px;"></div>')
       +'</div>';
     });
@@ -1416,20 +1467,25 @@ function viewLive(){
 
   if(scored.length>0){
     h+='<div class="card"><div class="card-h">실시간 순위<span style="font-size:11px;color:var(--t3);font-weight:600;">넷스코어</span></div>';
-    h+='<table class="rk-tbl"><tr><th style="width:36px;">순위</th><th style="text-align:left;padding-left:9px;">이름</th>'
-      +'<th style="width:46px;">조</th><th style="width:40px;">홀</th><th style="width:42px;">타수</th><th style="width:42px;">넷</th></tr>';
+    const cpL=coursePar();
+    h+='<table class="rk-tbl"><tr><th style="width:34px;">순위</th><th style="text-align:left;padding-left:8px;">이름</th>'
+      +'<th style="width:34px;">홀</th><th style="width:38px;">핸디</th><th style="width:40px;">타수</th><th style="width:52px;">핸디대비</th></tr>';
     scored.forEach((p,i)=>{
       const cls=i===0?'g1':i===1?'g2':i===2?'g3':'';
       const thru=(p.thru===null)?'—':(p.thru===18?'F':p.thru);
+      const d=(p.gross-cpL)-p.handi;
+      const dc=d<0?'#1B7A4B':(d>0?'#B3452B':'var(--ink)');
       h+='<tr><td><span class="rk-no '+cls+'">'+(i+1)+'</span></td>'
-        +'<td style="text-align:left;padding-left:9px;font-weight:700;">'+esc(p.name)
-          +(p.leader?'<span class="ldr-badge" style="margin-left:5px;">조장</span>':'')+'</td>'
-        +'<td style="font-size:11px;color:var(--t2);">'+esc(p.group)+'</td>'
-        +'<td style="font-size:11px;color:'+(p.thru===18?'var(--ok)':'var(--t3)')+';font-weight:700;">'+thru+'</td>'
-        +'<td style="font-weight:700;">'+p.gross+'</td>'
-        +'<td style="font-weight:900;color:var(--ok);">'+p.net+'</td></tr>';
+        +'<td style="text-align:left;padding-left:8px;font-weight:700;">'+esc(p.name)
+          +(p.leader?'<span class="ldr-badge" style="margin-left:4px;">조장</span>':'')
+          +'<span style="display:block;font-size:10px;color:var(--t3);font-weight:600;">'+esc(p.group)+'</span></td>'
+        +'<td style="font-size:11px;color:'+(p.thru===18?'var(--ok)':'var(--t3)')+';font-weight:800;">'+thru+'</td>'
+        +'<td style="font-size:12px;color:var(--t2);font-weight:700;">'+p.handi+'</td>'
+        +'<td style="font-weight:700;font-size:14px;">'+p.gross+'</td>'
+        +'<td style="font-weight:900;font-size:17px;color:'+dc+';">'+d+'</td></tr>';
     });
-    h+='</table></div>';
+    h+='</table>'
+      +'<div style="padding:8px 12px;font-size:11px;color:var(--t3);border-top:1px solid var(--line);">핸디대비 = (타수 − 코스파 '+cpL+') − 핸디 · 숫자가 작을수록 잘 친 것</div></div>';
   }
 
   if(waiting.length>0){
@@ -1524,8 +1580,12 @@ function viewResult(){
       const w=auto[a.id];
       if(w){
         nm=w.name;
-        if(a.id==='medal'){ sc=w.gross+'타'; sub=w.group+' · 그로스'; }
-        else{ sc=w.net+'타'; sub=w.group+' · 넷스코어'; }
+        if(a.id==='medal'){ sc=w.gross+'타'; sub=w.group+' · 그로스 최저'; }
+        else{
+          const dd=(w.gross-coursePar())-w.handi;
+          sc=(dd>0?'+':'')+dd;
+          sub=w.group+' · '+w.gross+'타 H'+w.handi;
+        }
       }
     }
     if(!nm) return;
@@ -1547,18 +1607,23 @@ function viewResult(){
 
   // 전체 순위
   const net=byNet();
-  h+='<div class="card"><div class="card-h">넷스코어 순위<span style="font-size:11px;color:var(--t3);font-weight:600;">'+net.length+'명</span></div>'
-    +'<table class="rk-tbl"><tr><th style="width:38px;">순위</th><th style="text-align:left;padding-left:10px;">이름</th>'
-    +'<th style="width:52px;">조</th><th style="width:44px;">타수</th><th style="width:40px;">핸디</th><th style="width:46px;">넷</th></tr>';
+  const cpR=coursePar();
+  h+='<div class="card"><div class="card-h">종합 순위<span style="font-size:11px;color:var(--t3);font-weight:600;">'+net.length+'명</span></div>'
+    +'<table class="rk-tbl"><tr><th style="width:34px;">순위</th><th style="text-align:left;padding-left:9px;">이름</th>'
+    +'<th style="width:38px;">핸디</th><th style="width:40px;">타수</th><th style="width:52px;">핸디대비</th></tr>';
   net.forEach((p,i)=>{
     const cls=i===0?'g1':i===1?'g2':i===2?'g3':'';
+    const d=(p.gross-cpR)-p.handi;
+    const dc=d<0?'#1B7A4B':(d>0?'#B3452B':'var(--ink)');
     h+='<tr><td><span class="rk-no '+cls+'">'+(i+1)+'</span></td>'
-      +'<td style="text-align:left;padding-left:10px;font-weight:700;">'+esc(p.name)+'</td>'
-      +'<td style="font-size:11px;color:var(--t2);">'+esc(p.group)+'</td>'
-      +'<td>'+p.gross+'</td><td style="color:var(--t2);">'+p.handi+'</td>'
-      +'<td style="font-weight:900;color:var(--ok);">'+p.net+'</td></tr>';
+      +'<td style="text-align:left;padding-left:9px;font-weight:700;">'+esc(p.name)
+        +'<span style="display:block;font-size:10px;color:var(--t3);font-weight:600;">'+esc(p.group)+'</span></td>'
+      +'<td style="color:var(--t2);font-weight:700;">'+p.handi+'</td>'
+      +'<td style="font-weight:700;font-size:14px;">'+p.gross+'</td>'
+      +'<td style="font-weight:900;font-size:17px;color:'+dc+';">'+d+'</td></tr>';
   });
-  h+='</table></div>';
+  h+='</table>'
+    +'<div style="padding:8px 12px;font-size:11px;color:var(--t3);border-top:1px solid var(--line);">핸디대비 = (타수 − 코스파 '+cpR+') − 핸디 · 음수일수록 핸디보다 잘 친 것</div></div>';
 
   // 그로스 순위
   const gr=byGross();
@@ -1725,14 +1790,22 @@ function shareResult(){
     if(a.type==='manual'){ nm=G.manual[a.id]||''; }
     else{
       const w=auto[a.id];
-      if(w){ nm=w.name; sc=(a.id==='medal'?w.gross+'타':w.net+'타(넷)'); }
+      if(w){
+        nm=w.name;
+        if(a.id==='medal') sc=w.gross+'타';
+        else { const dd=(w.gross-coursePar())-w.handi; sc='핸디대비 '+dd; }
+      }
     }
     if(!nm) return;
     txt+=a.ico+' '+a.name+' : '+nm+(sc?' ('+sc+')':'')+'\n';
   });
 
-  txt+='━━━━━━━━━━━━━━\n[넷스코어 순위]\n';
-  byNet().forEach((p,i)=>{ txt+=(i+1)+'. '+p.name+' '+p.net+'타 (그로스 '+p.gross+')\n'; });
+  const cpS=coursePar();
+  txt+='━━━━━━━━━━━━━━\n[종합 순위 · 핸디대비]\n';
+  byNet().forEach((p,i)=>{
+    const dd=(p.gross-cpS)-p.handi;
+    txt+=(i+1)+'. '+p.name+' '+dd+' ('+p.gross+'타 H'+p.handi+')\n';
+  });
 
   if(navigator.share){
     navigator.share({title:G.title||'골프 대회 결과', text:txt}).catch(()=>{});

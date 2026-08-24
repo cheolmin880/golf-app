@@ -435,41 +435,50 @@ body{
 .sctb th.ovc{background:#EFF5F1;color:var(--ink);}
 .sctb td{padding:6px 2px;text-align:center;border-bottom:1px solid var(--line);vertical-align:middle;}
 .sctb tr:last-child td{border-bottom:none;}
-.sc-nm{width:auto;text-align:left;padding-left:9px !important;}
-.sc-h{width:44px;}
-.sc-c{width:44px;}
-.sc-x{width:26px;}
+.sc-nm{width:auto;min-width:76px;text-align:left;padding-left:8px !important;}
+.sc-h{width:40px;}
+.sc-c{width:40px;}
+.sc-x{width:24px;}
 .sctb td.ovc{background:#F4F9F6;}
 
-.scn{display:flex;align-items:center;gap:6px;}
-.av.sm{width:24px;height:24px;font-size:10px;flex-shrink:0;}
 .scn-in{
-  flex:1;min-width:0;border:1px solid transparent;background:transparent;
-  font-size:15px;font-weight:700;color:var(--t1);padding:5px 4px;border-radius:6px;
-  font-family:inherit;
+  width:100%;box-sizing:border-box;
+  border:1.5px solid var(--line);background:#fff;
+  font-size:15px;font-weight:700;color:var(--t1);
+  padding:9px 8px;border-radius:8px;font-family:inherit;
 }
-.scn-in:focus{outline:none;border-color:var(--accent);background:#fff;}
-.scn-tx{font-size:15px;font-weight:700;padding:5px 4px;}
+.scn-in::placeholder{color:var(--t3);font-weight:500;font-size:13px;}
+.scn-in:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px rgba(228,87,46,0.12);}
+.scn-tx{font-size:15px;font-weight:700;padding:6px 2px;display:block;}
 
 .scin{
-  width:40px;height:36px;text-align:center;border:1.5px solid var(--line);
-  border-radius:8px;font-size:17px;font-weight:800;background:#FCFCFA;
-  color:var(--t1);font-family:inherit;
+  width:36px;height:36px;text-align:center;border:1.5px solid var(--line);
+  border-radius:8px;font-size:16px;font-weight:800;background:#FCFCFA;
+  color:var(--t1);font-family:inherit;padding:0;
 }
 .scin:focus{outline:none;border-color:var(--accent);background:#fff;}
 .scin.tot{background:#F7FBF8;border-color:#C5DCCD;}
 
-.scv{display:inline-block;font-size:17px;font-weight:800;color:var(--t1);line-height:36px;}
+.scv{display:inline-block;font-size:16px;font-weight:800;color:var(--t1);line-height:36px;}
 .scv.sub{font-size:15px;font-weight:700;color:var(--t2);}
 .scv.tot{font-size:18px;font-weight:900;color:var(--ink);}
 .scv.tot.auto{color:var(--ok);}
 .scv.net{font-size:17px;font-weight:800;color:var(--t1);}
-.scv.ov{font-size:19px;font-weight:900;}
+.scv.ov{font-size:18px;font-weight:900;}
 .scv.ov.hc-good{color:#1B7A4B;}
 .scv.ov.hc-bad{color:#B3452B;}
 .scv.ov.hc-even{color:var(--t1);}
 
 .scdel{background:none;border:none;color:var(--t3);font-size:14px;cursor:pointer;padding:4px;}
+
+.hsel-row{display:flex;align-items:center;gap:9px;}
+.hsel-l{font-size:11px;font-weight:800;color:var(--t2);width:20px;flex-shrink:0;}
+.hsel{
+  flex:1;height:40px;border:1.5px solid var(--line);border-radius:9px;
+  font-size:13.5px;font-weight:600;padding:0 10px;background:#FCFCFA;
+  color:var(--t1);font-family:inherit;
+}
+.hsel:focus{outline:none;border-color:var(--accent);}
 
 .role-b{
   width:100%;display:flex;align-items:center;gap:12px;
@@ -679,8 +688,8 @@ th.csum{background:#0A2117;}
 const AWARDS=[
   {id:'nearest', name:'니어리스트',    sub:'핀에 가장 가까이',           ico:'🎯', type:'manual', bg:'#EAF3EE', on:true},
   {id:'longest', name:'롱기스트',      sub:'가장 멀리 친 드라이브',       ico:'🚀', type:'manual', bg:'#EAF0F7', on:true},
-  {id:'ntl',     name:'니어 투 더 롱', sub:'롱홀 세컨샷 니어',           ico:'📍', type:'manual', bg:'#F3EEF7', on:true},
-  {id:'booby',   name:'부비상',        sub:'넷스코어 최하위',            ico:'🐢', type:'auto',   bg:'#F7F0E8', on:true, rank:'last'},
+  {id:'ntl',     name:'니어 투 더 롱', sub:'롱기스트홀 센터라인 최근접',  ico:'📍', type:'manual', bg:'#F3EEF7', on:true},
+  {id:'booby',   name:'부비상',        sub:'꼴찌 바로 앞 순위',          ico:'🐢', type:'auto',   bg:'#F7F0E8', on:true, rank:'second-last'},
   {id:'medal',   name:'메달리스트',    sub:'핸디 무관 최저타',           ico:'🥇', type:'auto',   bg:'#FBF3D8', on:true, rank:'gross'},
   {id:'r3',      name:'3rd Runner',    sub:'넷스코어 4위',              ico:'④', type:'auto',   bg:'#F1EFE8', on:true, rank:4},
   {id:'r2',      name:'2nd Runner',    sub:'넷스코어 3위',              ico:'🥉', type:'auto',   bg:'#F8EDE2', on:true, rank:3},
@@ -701,6 +710,7 @@ let G={
   groups:[],           // [{name, players:[{name,gross,handi}]}]
   awardOn:{},          // {awardId: true/false}
   manual:{},           // {awardId: "이름"}
+  awardHole:{},        // {awardId: 홀번호}
   curTab:'score'
 };
 AWARDS.forEach(a=>{G.awardOn[a.id]=a.on;});
@@ -1059,11 +1069,14 @@ function computeAuto(){
     const p=net[ra.r-1];
     if(p){ res[ra.id]=p; taken.add(p.name); }
   });
-  // 3) 부비상 — 최하위 (순위상 받은 사람 제외)
-  if(G.awardOn.booby && net.length){
-    for(let i=net.length-1;i>=0;i--){
-      if(!taken.has(net[i].name)){ res.booby=net[i]; break; }
+  // 3) 부비상 — 꼴찌 바로 앞 순위. 이미 순위상을 받았으면 뒤쪽으로 이동
+  if(G.awardOn.booby && net.length>=2){
+    let cand=net[net.length-2];              // 기본: 뒤에서 두 번째
+    if(cand && taken.has(cand.name)){
+      cand=net[net.length-1];                // 겹치면 꼴찌에게
+      if(cand && taken.has(cand.name)) cand=null;
     }
+    if(cand) res.booby=cand;
   }
   return res;
 }
@@ -1463,13 +1476,10 @@ function viewScore(){
       h+='<tr class="scrow">'
         // 이름
         +'<td class="sc-nm">'
-          +'<div class="scn">'
-            +'<span class="av sm" style="background:'+c.b+';color:'+c.t+';">'+(p.name?esc(ini(p.name)):(pi+1))+'</span>'
-            +(ed
-              ? '<input class="scn-in" type="text" value="'+esc(p.name)+'" placeholder="이름" onchange="setField('+gi+','+pi+',\'name\',this.value)">'
-              : '<span class="scn-tx">'+(p.name?esc(p.name):'<span style="color:var(--t3);">—</span>')+'</span>')
-          +'</div>'
-          +(isLdr?'<span class="ldr-badge" style="margin-left:30px;">조장</span>':'')
+          +(ed
+            ? '<input class="scn-in" type="text" value="'+esc(p.name)+'" placeholder="이름 '+(pi+1)+'" onchange="setField('+gi+','+pi+',\'name\',this.value)">'
+            : '<span class="scn-tx">'+(p.name?esc(p.name):'<span style="color:var(--t3);">—</span>')+'</span>')
+          +(isLdr?'<div class="ldr-badge" style="margin-top:2px;display:inline-block;">조장</div>':'')
         +'</td>'
         // 핸디
         +'<td class="sc-h">'
@@ -1600,8 +1610,8 @@ function viewLive(){
 function viewAward(){
   const names=namedPlayers();
   let h='<div class="card"><div class="card-b" style="font-size:12.5px;color:var(--t2);line-height:1.7;">'
-    +'시상할 항목만 켜두세요. <b style="color:var(--t1);">니어리스트·롱기스트·니어투더롱</b>은 직접 지정하고, '
-    +'나머지는 넷스코어로 자동 선정됩니다.</div></div>';
+    +'시상할 항목만 켜두세요. <b style="color:var(--t1);">니어리스트·롱기스트·니어투더롱</b>은 홀과 수상자를 직접 지정하고, '
+    +'나머지는 오버타 순위로 자동 선정됩니다.</div></div>';
 
   AWARDS.forEach(a=>{
     const on=!!G.awardOn[a.id];
@@ -1614,10 +1624,21 @@ function viewAward(){
 
     if(on && a.type==='manual'){
       h+='<div class="awd-body">';
+      // 홀 번호 선택
+      h+='<div class="hsel-row"><span class="hsel-l">홀</span>'
+        +'<select class="hsel" onchange="setAwardHole(\''+a.id+'\',this.value)">'
+        +'<option value="">— 미지정 —</option>';
+      for(let n=1;n<=18;n++){
+        const par=G.pars[n-1]||4;
+        const sel=(String(G.awardHole&&G.awardHole[a.id])===String(n))?' selected':'';
+        h+='<option value="'+n+'"'+sel+'>'+n+'번홀 (Par'+par+')</option>';
+      }
+      h+='</select></div>';
+
       if(names.length===0){
-        h+='<div style="font-size:12px;color:var(--t3);">성적 입력 탭에서 참가자 이름을 먼저 넣어주세요</div>';
+        h+='<div style="font-size:12px;color:var(--t3);margin-top:8px;">성적 입력 탭에서 참가자 이름을 먼저 넣어주세요</div>';
       }else{
-        h+='<select class="awd-sel" onchange="setManual(\''+a.id+'\',this.value)">'
+        h+='<select class="awd-sel" style="margin-top:8px;" onchange="setManual(\''+a.id+'\',this.value)">'
           +'<option value="">— 수상자 선택 —</option>';
         names.forEach(p=>{
           const sel=(G.manual[a.id]===p.name)?' selected':'';
@@ -1655,7 +1676,9 @@ function viewResult(){
     let nm='', sc='', sub='';
     if(a.type==='manual'){
       nm=G.manual[a.id]||'';
-      sub=nm?'직접 지정':'';
+      const hn=(G.awardHole&&G.awardHole[a.id])||null;
+      sc=hn?(hn+'번홀'):'';
+      sub=nm?(hn?('Par'+(G.pars[hn-1]||4)+' · 직접 지정'):'직접 지정'):'';
     }else{
       const w=auto[a.id];
       if(w){
@@ -1725,6 +1748,12 @@ function viewResult(){
 function toggleAward(id){
   G.awardOn[id]=!G.awardOn[id];
   push(); render();
+}
+function setAwardHole(id,v){
+  if(!G.awardHole) G.awardHole={};
+  if(v) G.awardHole[id]=parseInt(v); else delete G.awardHole[id];
+  push();
+  if(curTab==='result') render();
 }
 function setManual(id,v){
   if(v) G.manual[id]=v; else delete G.manual[id];
@@ -1867,7 +1896,11 @@ function shareResult(){
   AWARDS.forEach(a=>{
     if(!G.awardOn[a.id]) return;
     let nm='',sc='';
-    if(a.type==='manual'){ nm=G.manual[a.id]||''; }
+    if(a.type==='manual'){
+      nm=G.manual[a.id]||'';
+      const hn=(G.awardHole&&G.awardHole[a.id])||null;
+      if(hn) sc=hn+'번홀';
+    }
     else{
       const w=auto[a.id];
       if(w){

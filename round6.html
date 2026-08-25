@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#3B6D11">
+<meta name="theme-color" content="#1B4332">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -392,6 +392,7 @@ body{height:100%;background:var(--bg);font-family:-apple-system,'Noto Sans KR',s
       <button class="btn-main btn-save"  onclick="doSave()"  style="white-space:nowrap;font-size:11px;padding:10px 1px;">💾저장</button>
       <button class="btn-main" style="background:#CC5500;color:#fff;font-size:11px;white-space:nowrap;padding:10px 1px;" onclick="doReset()">🔄초기화</button>
       <button class="btn-main" style="background:#6B4C9A;color:#fff;font-size:11px;white-space:nowrap;padding:10px 1px;" onclick="openScoreBoard()">📋스코어</button>
+      <button class="btn-main" style="background:#CC5500;color:#fff;font-size:11px;white-space:nowrap;padding:10px 1px;" onclick="shareResult()">📤공유</button>
     </div>
   </div>
 </div>
@@ -1746,6 +1747,36 @@ function showConfirm(msg, onOk){
 
 function doSave(){
   saveResult();
+}
+
+function shareResult(){
+  try{
+    const has=G.scores&&G.scores.some(r=>r&&r.some(v=>v!==null&&v!==undefined));
+    if(!has){ showToast('입력된 성적이 없습니다'); return; }
+    let t='⛳ 명랑골프 6라운드\n';
+    if(G.gameDate) t+=G.gameDate.replace(/-/g,'.')+'\n';
+    t+='━━━━━━━━━━━━━━\n';
+    // 최종 순위 (18홀 핸디 기준)
+    const rows=G.players.slice(0,NP()).map((p,i)=>{
+      let tot=0,cnt=0;
+      for(let hh=0;hh<18;hh++){ const sv=scoreVal(G.scores[i][hh]); if(sv!==null){ tot+=sv; cnt++; } }
+      return {name:p.name, over:cnt>0?tot:null, net:cnt>0?tot-p.handi:null, handi:p.handi};
+    }).filter(x=>x.over!==null).sort((a,b)=>a.net-b.net);
+    const MED=['🥇','🥈','🥉','4️⃣','5️⃣'];
+    rows.forEach((r,i)=>{
+      t+=(MED[i]||(i+1)+'.')+' '+r.name+' 넷'+signTxt(r.net)+' (오버'+signTxt(r.over)+')\n';
+    });
+    // 정산
+    const {total:bf}=calcBuddyFine();
+    const pool=getConfirmedPool();
+    if(pool.total>0){
+      t+='━━━━━━━━━━━━━━\n';
+      t+='💰 총 공동경비 Rp'+pool.total.toLocaleString()+'\n';
+    }
+    if(navigator.share) navigator.share({title:'명랑골프 결과',text:t}).catch(()=>{});
+    else if(navigator.clipboard) navigator.clipboard.writeText(t).then(()=>showToast('복사했습니다'));
+    else showToast('공유를 지원하지 않습니다');
+  }catch(e){ showToast('공유 실패'); }
 }
 
 function goHome(){

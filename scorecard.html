@@ -136,12 +136,13 @@ if('serviceWorker' in navigator){
   <div class="topbar">
     <div class="tb1">
       <div style="display:flex;align-items:center;gap:6px;min-width:0;">
-        <a href="index.html" style="background:rgba(255,255,255,0.2);border:none;border-radius:7px;width:30px;height:30px;color:#fff;font-size:15px;display:flex;align-items:center;justify-content:center;text-decoration:none;flex-shrink:0;">🏠</a>
+        <button onclick="goHome()" style="background:rgba(255,255,255,0.2);border:none;border-radius:7px;width:30px;height:30px;color:#fff;font-size:15px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-family:inherit;">🏠</button>
         <h1 style="font-size:14px;font-weight:700;white-space:nowrap;">📋 스코어카드</h1>
       </div>
       <div style="display:flex;gap:5px;flex-shrink:0;align-items:center;">
         <span style="font-size:11px;font-weight:800;color:rgba(255,255,255,0.5);letter-spacing:1px;">KCM</span>
         <button class="tbtn" id="soundBtn" onclick="toggleSound()" style="height:30px;padding:0 8px;font-size:13px;">🔊</button>
+        <button class="tbtn" onclick="undo()" style="height:30px;padding:0 8px;font-size:16px;font-weight:900;">↩</button>
         <button class="tbtn" onclick="doLoad()" style="height:30px;padding:0 8px;font-size:13px;">📂</button>
         <button class="tbtn" onclick="resetAll()" style="height:30px;padding:0 8px;font-size:13px;">🔄</button>
         <button class="tbtn" onclick="doSave()" style="height:30px;padding:0 8px;font-size:13px;">💾</button>
@@ -183,8 +184,10 @@ if('serviceWorker' in navigator){
   <input type="file" id="photoGallery" accept="image/*" multiple style="display:none" onchange="handlePhoto(event)">
 
   <div class="foot">
-    <button class="btn btn-lt" id="switchBtn" onclick="ST(curTab===0?1:0)">후반 →</button>
-    <button class="btn btn-blue" onclick="doSave()">💾 저장</button>
+    <button class="btn btn-lt" id="switchBtn" onclick="ST(curTab===0?1:0)" style="font-size:12px;padding:12px 2px;white-space:nowrap;">후반 →</button>
+    <button class="btn" onclick="resetAll()" style="background:#8A4B08;color:#fff;font-size:12px;padding:12px 2px;white-space:nowrap;">🔄초기화</button>
+    <button class="btn btn-blue" onclick="doSave()" style="font-size:12px;padding:12px 2px;white-space:nowrap;">💾저장</button>
+    <button class="btn" onclick="shareCard()" style="background:#CC5500;color:#fff;font-size:12px;padding:12px 2px;white-space:nowrap;">📤공유</button>
   </div>
 </div>
 
@@ -528,8 +531,24 @@ function openPop(pi,h){
 }
 function closePop(){document.getElementById('scorePop').className='pop-ov';_popPi=null;_popH=null;}
 
+var _hist=[];
+function pushHist(){
+  try{
+    _hist.push(JSON.parse(JSON.stringify(G.scores)));
+    if(_hist.length>40) _hist.shift();
+  }catch(e){}
+}
+function undo(){
+  if(!_hist.length){ toast('되돌릴 항목이 없어요'); return; }
+  G.scores=_hist.pop();
+  SV(); ST(curTab); updTop();
+  if(typeof syncToFirebase==='function') syncToFirebase();
+  toast('↩ 되돌렸어요');
+}
+
 function setScore(val){
   if(_popPi===null) return;
+  pushHist();
   G.scores[_popPi][_popH]=(val===null||val==='null')?null:val;
   SV();closePop();
   if(G.scores[_popPi]&&G.scores[_popPi][_popH]!==null&&G.scores[_popPi][_popH]<=-1) showBirdie(G.scores[_popPi][_popH]);
@@ -672,6 +691,58 @@ function resetAll(){
 const ARCHIVE_KEY='mg_archive_sc';
 function getArchive(){try{return JSON.parse(localStorage.getItem(ARCHIVE_KEY)||'[]');}catch(e){return[];}}
 function setArchive(list){try{localStorage.setItem(ARCHIVE_KEY,JSON.stringify(list));return true;}catch(e){toast('⚠️ 저장공간 부족');return false;}}
+
+function hasAnyScore(){
+  try{ return G.scores.some(r=>r&&r.some(v=>v!==null&&v!==undefined)); }catch(e){ return false; }
+}
+
+function shareCard(){
+  if(!hasAnyScore()){ toast('입력된 성적이 없습니다'); return; }
+  try{
+    const cp=(G.pars||[]).reduce((a,b)=>a+(b||4),0)||72;
+    let t='📋 스코어카드\n';
+    const meta=[G.date||'',G.course||''].filter(Boolean).join(' · ');
+    if(meta) t+=meta+'\n';
+    t+='━━━━━━━━━━━━━━\n';
+    G.players.forEach((p,pi)=>{
+      if(!p.name) return;
+      let tot=0,cnt=0;
+      for(let hh=0;hh<18;hh++){ const v=G.scores[pi][hh]; if(v!==null&&v!==undefined){ tot+=v; cnt++; } }
+      if(cnt===0) return;
+      const gross=cp+tot;
+      const net=gross-(p.handi||0);
+      t+=p.name+' : '+gross+'타 (넷 '+net+')\n';
+    });
+    if(navigator.share) navigator.share({title:'스코어카드',text:t}).catch(()=>{});
+    else if(navigator.clipboard) navigator.clipboard.writeText(t).then(()=>toast('복사했습니다'));
+    else toast('공유를 지원하지 않습니다');
+  }catch(e){ toast('공유 실패'); }
+}
+
+function goHome(){
+  if(!hasAnyScore()){ location.href='index.html'; return; }
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;background:rgba(27,67,50,0.55);z-index:700;display:flex;align-items:center;justify-content:center;padding:24px;';
+  ov.innerHTML='<div style="background:#fff;border-radius:19px;padding:22px 20px 15px;max-width:310px;width:100%;text-align:center;">'
+    +'<div style="font-size:30px;margin-bottom:7px;">🏠</div>'
+    +'<div style="font-size:16px;font-weight:800;">홈으로 나갈까요?</div>'
+    +'<div style="font-size:12px;color:#888;margin-top:4px;">입력한 성적이 있습니다</div>'
+    +'<div style="display:flex;flex-direction:column;gap:8px;margin-top:17px;">'
+    +'<button id="_gh1" style="padding:14px;border-radius:12px;border:none;background:var(--green);color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">💾 저장하고 나가기</button>'
+    +'<button id="_gh2" style="padding:13px;border-radius:12px;border:none;background:#F0F0EE;font-size:14px;font-weight:600;cursor:pointer;color:#555;font-family:inherit;">저장 없이 나가기</button>'
+    +'<button id="_gh3" style="padding:10px;border-radius:12px;border:none;background:none;font-size:13px;font-weight:600;cursor:pointer;color:#999;font-family:inherit;">취소</button>'
+    +'</div></div>';
+  document.body.appendChild(ov);
+  ov.querySelector('#_gh1').onclick=()=>{ doSave({silent:true}); setTimeout(()=>{location.href='index.html';},300); };
+  ov.querySelector('#_gh2').onclick=()=>{ location.href='index.html'; };
+  ov.querySelector('#_gh3').onclick=()=>ov.remove();
+}
+
+// 화면 벗어날 때 자동저장
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='hidden') SV();
+});
+window.addEventListener('pagehide',function(){ SV(); });
 
 function doSave(opts){
   opts=opts||{};

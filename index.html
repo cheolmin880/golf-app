@@ -47,6 +47,14 @@ html,body{height:100%;font-family:-apple-system,'Noto Sans KR',sans-serif;}
 .game-card:not(.primary) .card-name{color:#fff;}
 .game-card:not(.primary) .card-desc{color:rgba(255,255,255,0.7);}
 .game-card:not(.primary) .card-arrow{color:#fff;}
+.hq{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:17px;height:17px;border-radius:50%;
+  background:rgba(27,67,50,0.14);color:#1B4332;
+  font-size:11px;font-weight:900;text-decoration:none;
+  vertical-align:middle;margin-left:3px;
+}
+.hq-w{background:rgba(255,255,255,0.22);color:#fff;}
 .version{margin-top:12px;font-size:11px;color:rgba(255,255,255,0.3);text-align:center;line-height:1.8;}
 </style>
 <script>
@@ -69,7 +77,7 @@ if('serviceWorker' in navigator){
       <div style="display:flex;align-items:center;gap:14px;width:100%;">
         <div class="card-icon g1">🏌️</div>
         <div class="card-text">
-          <div class="card-name">6라운드 게임</div>
+          <div class="card-name">6라운드 게임 <a href="help.html#round6" class="hq" onclick="event.stopPropagation()">?</a></div>
           <div class="card-desc">18홀을 6홀씩 3라운드로<br>핸디 조정 · 버디벌금 포함</div>
         </div>
       </div>
@@ -84,7 +92,7 @@ if('serviceWorker' in navigator){
       <div style="display:flex;align-items:center;gap:14px;width:100%;">
         <div class="card-icon g2">📊</div>
         <div class="card-text">
-          <div class="card-name">스트로크 게임</div>
+          <div class="card-name">스트로크 게임 <a href="help.html#stroke" class="hq hq-w" onclick="event.stopPropagation()">?</a></div>
           <div class="card-desc">18홀 총 타수 합산<br>핸디캡 적용 넷스코어</div>
         </div>
       </div>
@@ -99,7 +107,7 @@ if('serviceWorker' in navigator){
       <div style="display:flex;align-items:center;gap:14px;width:100%;">
         <div class="card-icon" style="background:linear-gradient(135deg,#1A5C8A,#2D8FC0);">📋</div>
         <div class="card-text">
-          <div class="card-name" style="color:#fff;">스코어카드</div>
+          <div class="card-name" style="color:#fff;">스코어카드 <a href="help.html#scorecard" class="hq hq-w" onclick="event.stopPropagation()">?</a></div>
           <div class="card-desc" style="color:rgba(255,255,255,0.7);">전반/후반 9홀 스코어 기록<br>핸디캡 · 넷스코어 자동 계산</div>
         </div>
       </div>
@@ -111,7 +119,7 @@ if('serviceWorker' in navigator){
       <div style="display:flex;align-items:center;gap:14px;width:100%;">
         <div class="card-icon" style="background:linear-gradient(135deg,#C9A227,#8C6F12);">🏆</div>
         <div class="card-text">
-          <div class="card-name" style="color:#fff;">대회 시상</div>
+          <div class="card-name" style="color:#fff;">대회 시상 <a href="help.html#award" class="hq hq-w" onclick="event.stopPropagation()">?</a></div>
           <div class="card-desc" style="color:rgba(255,255,255,0.7);">조별 성적 집계 · 시상자 선정<br>모임 · 협력회 대회용</div>
         </div>
       </div>
@@ -122,7 +130,7 @@ if('serviceWorker' in navigator){
     </div>
 
   </div>
-  <a href="help.html" style="margin-top:14px;display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:20px;color:rgba(255,255,255,0.7);font-size:13px;font-weight:700;text-decoration:none;">📖 도움말 · 사용방법</a>
+  <a href="help.html" style="margin-top:14px;display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:20px;color:rgba(255,255,255,0.7);font-size:13px;font-weight:700;text-decoration:none;">📖 사용법 · 도움말</a>
   <div class="version">명랑골프 v2.0<br>© 2026 Kim Cheol Min</div>
 </div>
 </body>

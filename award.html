@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#0E2A1E">
+<meta name="theme-color" content="#1B4332">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1316,9 +1316,9 @@ function render(){
   else{ b.innerHTML=viewResult(); }
 
   f.innerHTML=
-     (myRole==='host'?'<button class="btn btn-o" onclick="addGroup()">＋ 조 추가</button>':'')
-    +(canEditAny()?'<button class="btn btn-p" onclick="saveEvent()">저장</button>':'')
-    +'<button class="btn btn-a" onclick="shareResult()">결과 공유</button>';
+     (myRole==='host'?'<button class="btn btn-o" onclick="addGroup()" style="font-size:12px;padding:12px 2px;white-space:nowrap;">＋조추가</button>':'')
+    +(canEditAny()?'<button class="btn btn-p" onclick="saveEvent()" style="font-size:12px;padding:12px 2px;white-space:nowrap;">💾저장</button>':'')
+    +'<button class="btn btn-a" onclick="shareResult()" style="font-size:12px;padding:12px 2px;white-space:nowrap;">📤공유</button>';
 
   document.querySelectorAll('.tab').forEach((t,i)=>{
     t.classList.toggle('on', ['award','score','live','result'][i]===curTab);

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#1A3A5C">
+<meta name="theme-color" content="#1B4332">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -161,7 +161,8 @@ if('serviceWorker' in navigator){
         <span style="font-size:11px;font-weight:800;color:rgba(255,255,255,0.5);letter-spacing:1px;">KCM</span>
         <button id="soundBtn" onclick="toggleSound()" style="background:rgba(255,255,255,0.2);border:none;border-radius:7px;width:34px;height:34px;color:#fff;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;">🔊</button>
         <button onclick="undo()" style="background:rgba(255,255,255,0.2);border:none;border-radius:7px;width:34px;height:34px;color:#fff;font-size:20px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;">↩</button>
-        <button onclick="OMo()" style="background:rgba(255,255,255,0.2);border:none;border-radius:7px;height:34px;padding:0 10px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;">⚙️ 설정</button>
+        <button onclick="doLoad()" style="background:rgba(255,255,255,0.2);border:none;border-radius:7px;width:34px;height:34px;color:#fff;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;">📂</button>
+        <button onclick="OMo()" style="background:rgba(255,255,255,0.2);border:none;border-radius:7px;width:34px;height:34px;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">⚙️</button>
       </div>
     </div>
     <div class="r2">
@@ -507,7 +508,8 @@ function ST(tab){
     +'<button class="btn" style="background:#CC5500;color:#fff;font-size:11px;padding:10px 1px;white-space:nowrap;" onclick="doEnd()">■종료</button>'
     +'<button class="btn" style="background:#1A5C99;color:#fff;font-size:11px;padding:10px 1px;white-space:nowrap;" onclick="doSave()">💾저장</button>'
     +'<button class="btn" style="background:#8A4B08;color:#fff;font-size:11px;padding:10px 1px;white-space:nowrap;" onclick="doReset()">🔄초기화</button>'
-    +'<button class="btn" style="background:#6B4C9A;color:#fff;font-size:11px;padding:10px 1px;white-space:nowrap;" onclick="ST(\'result\')">📊결과</button>';
+    +'<button class="btn" style="background:#6B4C9A;color:#fff;font-size:11px;padding:10px 1px;white-space:nowrap;" onclick="ST(\'result\')">📊결과</button>'
+    +'<button class="btn" style="background:#CC5500;color:#fff;font-size:11px;padding:10px 1px;white-space:nowrap;" onclick="shareResult()">📤공유</button>';
   updTopInfo();
 }
 
@@ -1217,6 +1219,29 @@ function doReset(){
   G.scores=Array.from({length:G.players.length},()=>Array(18).fill(null));
   G.history=[];
   SV();syncToFirebase();ST('setup');toast('🔄 스코어가 초기화됐어요');
+}
+
+function shareResult(){
+  try{
+    const has=G.scores.some(r=>r.some(v=>v!==null));
+    if(!has){ toast('입력된 성적이 없습니다'); return; }
+    let t='📊 스트로크 게임\n';
+    if(G.gameDate) t+=G.gameDate.replace(/-/g,'.')+'\n';
+    t+='━━━━━━━━━━━━━━\n';
+    const rows=G.players.map((p,i)=>{
+      let tot=0,cnt=0;
+      for(let hh=0;hh<18;hh++){ const v=G.scores[i][hh]; if(v!==null){ tot+=v; cnt++; } }
+      return {name:p.name, over:cnt>0?tot:null, net:cnt>0?tot-p.handi:null};
+    }).filter(x=>x.over!==null).sort((a,b)=>a.net-b.net);
+    const MED=['🥇','🥈','🥉','4️⃣'];
+    rows.forEach((r,i)=>{
+      const sv=v=>v>0?'+'+v:String(v);
+      t+=(MED[i]||(i+1)+'.')+' '+r.name+' 넷'+sv(r.net)+' (오버'+sv(r.over)+')\n';
+    });
+    if(navigator.share) navigator.share({title:'스트로크 결과',text:t}).catch(()=>{});
+    else if(navigator.clipboard) navigator.clipboard.writeText(t).then(()=>toast('복사했습니다'));
+    else toast('공유를 지원하지 않습니다');
+  }catch(e){ toast('공유 실패'); }
 }
 
 // ── 홈으로 (저장 확인) ──

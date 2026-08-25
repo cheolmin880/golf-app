@@ -294,6 +294,7 @@ body{
 }
 .en-in:focus{outline:none;border-color:var(--accent);}
 .en-in::placeholder{letter-spacing:1px;font-size:14px;font-weight:600;color:rgba(255,255,255,0.3);}
+.en-note{font-size:11px;color:rgba(255,255,255,0.4);text-align:center;margin-top:8px;font-weight:600;}
 .en-st{margin-top:13px;font-size:12px;color:rgba(255,255,255,0.6);text-align:center;min-height:16px;}
 .en-lnk{margin-top:18px;font-size:12px;color:rgba(255,255,255,0.35);text-decoration:none;}
 
@@ -466,6 +467,14 @@ body{
   padding:9px 8px;border-radius:8px;font-family:inherit;
 }
 .scn-in::placeholder{color:var(--t3);font-weight:500;font-size:13px;}
+.scn-in.is-ldr{
+  background:#FBF3D8;border-color:#D9C173;color:#5C4A0F;
+}
+.scn-in.is-ldr:focus{border-color:var(--gold);}
+.scn-tx.is-ldr{
+  background:#FBF3D8;border:1.5px solid #D9C173;border-radius:8px;
+  color:#5C4A0F;padding:8px;
+}
 .scn-in:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px rgba(228,87,46,0.12);}
 .scn-tx{font-size:15px;font-weight:700;padding:6px 2px;display:block;}
 
@@ -497,6 +506,48 @@ body{
   padding:11px 13px;font-size:12.5px;color:var(--ink);font-weight:700;line-height:1.6;
 }
 .par-sum b{font-size:15px;font-weight:900;}
+
+/* 언더파 축하 */
+.celeb-ov{
+  position:fixed;inset:0;z-index:800;pointer-events:none;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(14,42,30,0.22);
+  animation:celebIn 0.25s ease;
+}
+.celeb-ov.out{animation:celebOut 0.45s ease forwards;}
+@keyframes celebIn{from{opacity:0}to{opacity:1}}
+@keyframes celebOut{to{opacity:0}}
+.celeb-box{text-align:center;animation:celebPop 1.8s ease forwards;}
+@keyframes celebPop{
+  0%{transform:scale(0.3) rotate(-12deg);opacity:0;}
+  18%{transform:scale(1.25) rotate(5deg);opacity:1;}
+  32%{transform:scale(0.96) rotate(-2deg);}
+  46%{transform:scale(1.06) rotate(1deg);}
+  70%{transform:scale(1);opacity:1;}
+  100%{transform:scale(0.9);opacity:1;}
+}
+.celeb-emo{font-size:56px;margin-bottom:2px;}
+.celeb-t{
+  font-size:46px;font-weight:900;letter-spacing:-1px;line-height:1.1;
+  filter:drop-shadow(0 3px 12px rgba(0,0,0,0.35));
+}
+.celeb-s{
+  font-size:19px;font-weight:800;color:#fff;margin-top:5px;
+  text-shadow:0 2px 10px rgba(0,0,0,0.55);letter-spacing:1px;
+}
+.celeb-n{
+  font-size:14px;font-weight:700;color:rgba(255,255,255,0.9);margin-top:9px;
+  background:rgba(0,0,0,0.32);border-radius:16px;padding:6px 16px;display:inline-block;
+}
+.celeb-p{
+  position:fixed;z-index:799;pointer-events:none;border-radius:50%;
+  animation:celebFall 1.5s ease-in forwards;
+}
+@keyframes celebFall{
+  0%{transform:translateY(-10px) rotate(0);opacity:1;}
+  100%{transform:translateY(72vh) rotate(680deg);opacity:0;}
+}
+
 .div-cut{display:flex;align-items:center;gap:9px;}
 .dc-l{font-size:11px;font-weight:800;color:var(--t2);width:52px;flex-shrink:0;}
 .dc-in{
@@ -541,6 +592,15 @@ body{
 }
 .hsel:focus{outline:none;border-color:var(--accent);}
 
+.role-b.role-main{
+  background:rgba(201,162,39,0.22);border-color:rgba(201,162,39,0.5);
+  padding:17px 15px;
+}
+.role-b.role-main .role-x b{font-size:16px;}
+.role-div{
+  text-align:center;font-size:11px;color:rgba(255,255,255,0.35);
+  font-weight:700;margin:14px 0 10px;
+}
 .role-b{
   width:100%;display:flex;align-items:center;gap:12px;
   background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.13);
@@ -605,7 +665,7 @@ th.csum{background:#0A2117;}
 <div class="enter" id="enterScreen">
   <div class="en-mark">🏆</div>
   <div class="en-t">골프 대회 시상</div>
-  <div class="en-s">조별 성적을 모아 시상자를 정합니다<br>진행자가 대회를 열고 조장이 코드로 참여해요</div>
+  <div class="en-s">조별 성적을 모아 시상자를 정합니다<br>진행자가 대회를 열면 코드로 함께 참여해요</div>
 
   <div class="en-box" id="resumeBox" style="display:none;background:rgba(201,162,39,0.14);border-color:rgba(201,162,39,0.4);">
     <div class="en-lb" style="color:rgba(255,255,255,0.7);">진행 중이던 대회</div>
@@ -621,15 +681,17 @@ th.csum{background:#0A2117;}
   </div>
 
   <div class="en-box" id="hostBox">
-    <div class="en-lb">대회 열기</div>
+    <div class="en-lb">대회를 여는 분</div>
     <button class="btn btn-a btn-full" id="btnCreate">새 대회 만들기</button>
+    <div class="en-note">대회 코드가 만들어집니다</div>
   </div>
 
   <div class="en-box">
-    <div class="en-lb">대회 참여</div>
+    <div class="en-lb">참가하는 분 · 조장 · 참가자 모두</div>
     <input class="en-in" id="codeInput" type="number" inputmode="numeric" placeholder="대회 코드 4자리"
       oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)">
     <button class="btn btn-p btn-full" id="btnJoin">참여하기</button>
+    <div class="en-note">들어간 뒤 역할을 고르면 됩니다</div>
   </div>
 
   <div class="en-st" id="enterStatus"></div>
@@ -650,6 +712,7 @@ th.csum{background:#0A2117;}
         <div class="top-title" id="evtTitle">골프 대회</div>
       </div>
       <div class="top-btns">
+        <button class="tb" id="sndBtn" onclick="toggleSound()">🔊</button>
         <button class="tb" onclick="openArchive()">📂</button>
         <button class="tb" id="setBtn" onclick="openSetting()">⚙️</button>
       </div>
@@ -874,6 +937,7 @@ function roleLabel(){
 function genCode(){ return String(Math.floor(Math.random()*9000)+1000); }
 
 function resetNewEvent(){
+  G.evtId=null;   // 새 대회는 새 ID
   const today=new Date();
   G.title=''; G.place=''; G.par=72;
   G.date=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
@@ -990,13 +1054,14 @@ function askRole(code){
     +'<div style="text-align:center;margin-bottom:18px;">'
       +'<div style="font-size:11px;letter-spacing:2px;color:rgba(255,255,255,0.45);font-weight:800;">'+esc(G.title||'대회')+'</div>'
       +'<div style="font-size:19px;font-weight:900;color:#fff;margin-top:5px;">어떤 역할로 참여하세요?</div>'
-      +'<div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:5px;">성적 입력은 진행자와 조장만 가능합니다</div>'
+      +'<div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:5px;">대부분의 참가자는 첫 번째를 고르시면 됩니다</div>'
     +'</div>'
+    +'<button class="role-b role-main" data-role="view"><span class="role-i">👀</span>'
+      +'<span class="role-x"><b>참가자로 보기</b><i>내 성적과 전체 순위를 실시간으로 확인합니다</i></span></button>'
+    +'<div class="role-div">성적을 입력하는 분만 아래에서 선택하세요</div>'
     +'<button class="role-b" data-role="host"><span class="role-i">🎬</span>'
-      +'<span class="role-x"><b>진행자</b><i>모든 조의 성적을 관리합니다</i></span></button>'
+      +'<span class="role-x"><b>진행자</b><i>모든 조의 성적과 시상을 관리합니다</i></span></button>'
     + opts
-    +'<button class="role-b" data-role="view"><span class="role-i">👀</span>'
-      +'<span class="role-x"><b>참가자 (보기 전용)</b><i>전체 성적을 실시간으로 봅니다</i></span></button>'
     +'</div>';
   document.body.appendChild(ov);
 
@@ -1004,9 +1069,9 @@ function askRole(code){
     b.addEventListener('click',function(){
       const r=b.getAttribute('data-role');
       const gi=b.getAttribute('data-gi');
-      if(r==='host'){ myRole='host'; myGroup=null; }
-      else if(r==='view'){ myRole='view'; myGroup=null; }
-      else { myRole='leader'; myGroup=parseInt(gi); }
+      if(r==='host'){ myRole='host'; myGroup=null; curTab='score'; }
+      else if(r==='view'){ myRole='view'; myGroup=null; curTab='live'; }
+      else { myRole='leader'; myGroup=parseInt(gi); curTab='score'; }
       saveRole();
       ov.remove();
       evtCode=code;
@@ -1069,7 +1134,7 @@ function getArc(){ try{ return JSON.parse(localStorage.getItem(ARC_KEY)||'[]'); 
 function setArc(l){ try{ localStorage.setItem(ARC_KEY,JSON.stringify(l)); return true; }catch(e){ toast('저장 공간이 부족합니다'); return false; } }
 
 /* ══════════ 조/선수 ══════════ */
-function newPlayer(){ return {name:'',gross:null,handi:0,mOut:null,mIn:null,holes:Array(18).fill(null)}; }
+function newPlayer(){ return {name:'',gross:null,handi:null,mOut:null,mIn:null,holes:Array(18).fill(null)}; }
 function newGroup(n){
   return { name:n+'조', leader:'', players:Array.from({length:4},()=>newPlayer()) };
 }
@@ -1101,7 +1166,7 @@ function setField(gi,pi,f,v){
   const p=G.groups[gi].players[pi];
   if(f==='name') p.name=v;
   else if(f==='gross'){ const n=parseInt(v); p.gross=(v===''||isNaN(n))?null:n; }
-  else if(f==='handi'){ const n=parseInt(v); p.handi=isNaN(n)?0:n; }
+  else if(f==='handi'){ const n=parseInt(v); p.handi=(v===''||isNaN(n))?null:n; }
   else if(f==='out'||f==='in'){
     const n=parseInt(v);
     const val=(v===''||isNaN(n))?null:n;
@@ -1273,6 +1338,8 @@ function updHead(){
   }
   const c=document.getElementById('evtCount');
   if(c) c.textContent='참가 '+namedPlayers().length+'명 · '+G.groups.length+'개조';
+  const snb=document.getElementById('sndBtn');
+  if(snb) snb.textContent=_soundOn?'🔊':'🔇';
   const sb=document.getElementById('setBtn');
   if(sb) sb.style.display=(myRole==='host')?'flex':'none';
   const rt=document.getElementById('roleTag');
@@ -1558,6 +1625,8 @@ function openHolePad(gi,pi,hi){
 function pickHole(v){
   if(padGi===null) return;
   const p=G.groups[padGi].players[padPi];
+  const par=G.pars[padHi]||4;
+  const prev=ensureHoles(p)[padHi];
   ensureHoles(p)[padHi]=v;
   syncGross(padGi,padPi);
   save();
@@ -1565,6 +1634,113 @@ function pickHole(v){
   renderCard();
   clearTimeout(pickHole._t);
   pickHole._t=setTimeout(push,400);
+  // 언더파 축하 (같은 값 다시 누른 경우는 제외)
+  const d=v-par;
+  if(d<=-1 && prev!==v) celebrate(d, p.name, padHi+1);
+}
+
+/* ══════════ 언더파 축하 연출 ══════════ */
+function celebrate(d, name, holeNo){
+  const cfg = d<=-3
+    ? {t:'ALBATROSS!', s:'🦅 알바트로스 🦅', emo:'🦅', c1:'#C9A227', c2:'#E4572E', n:36}
+    : d===-2
+    ? {t:'EAGLE!', s:'🦅 이글 🦅', emo:'🦅', c1:'#C9A227', c2:'#8C6F12', n:28}
+    : {t:'BIRDIE!', s:'🐦 버디 🐦', emo:'🐦', c1:'#2E7D52', c2:'#74C69D', n:20};
+
+  const ov=document.createElement('div');
+  ov.className='celeb-ov';
+  ov.innerHTML='<div class="celeb-box">'
+    +'<div class="celeb-emo">'+cfg.emo+'</div>'
+    +'<div class="celeb-t" style="background:linear-gradient(135deg,'+cfg.c1+','+cfg.c2+');-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">'+cfg.t+'</div>'
+    +'<div class="celeb-s">'+cfg.s+'</div>'
+    +'<div class="celeb-n">'+esc(name||'')+(holeNo?' · '+holeNo+'번홀':'')+'</div>'
+    +'</div>';
+  document.body.appendChild(ov);
+
+  // 진동
+  try{ if(navigator.vibrate) navigator.vibrate(d<=-2?[70,40,70,40,140]:[60,40,110]); }catch(e){}
+  // 사운드
+  playFanfare(d);
+  // 색종이
+  confetti(cfg.n);
+
+  setTimeout(()=>{ ov.classList.add('out'); }, 1500);
+  setTimeout(()=>{ if(ov.parentNode) ov.parentNode.removeChild(ov); }, 2000);
+}
+
+function confetti(n){
+  const colors=['#C9A227','#E4572E','#2E7D52','#74C69D','#F4D06F','#8E9BA6'];
+  for(let i=0;i<n;i++){
+    const p=document.createElement('div');
+    p.className='celeb-p';
+    p.style.background=colors[Math.floor(Math.random()*colors.length)];
+    p.style.left=(Math.random()*100)+'vw';
+    p.style.top=(Math.random()*22)+'vh';
+    const sz=5+Math.random()*7;
+    p.style.width=sz+'px'; p.style.height=sz+'px';
+    p.style.animationDuration=(1.1+Math.random()*0.7)+'s';
+    p.style.animationDelay=(Math.random()*0.35)+'s';
+    if(Math.random()>0.5) p.style.borderRadius='2px';
+    document.body.appendChild(p);
+    setTimeout(()=>{ if(p.parentNode) p.parentNode.removeChild(p); }, 2200);
+  }
+}
+
+/* 팡파레 (Web Audio 합성 — 음원파일 불필요) */
+var _actx=null;
+var _soundOn=(function(){ try{ return localStorage.getItem('award_sound')!=='off'; }catch(e){ return true; } })();
+function toggleSound(){
+  _soundOn=!_soundOn;
+  try{ localStorage.setItem('award_sound', _soundOn?'on':'off'); }catch(e){}
+  const b=document.getElementById('sndBtn');
+  if(b) b.textContent=_soundOn?'🔊':'🔇';
+  if(_soundOn){ ensureAudio(); beep(880,0.08,'sine',0.16,0); }
+  toast(_soundOn?'소리 켜짐':'소리 꺼짐');
+}
+function ensureAudio(){
+  try{
+    if(!_actx){
+      const AC=window.AudioContext||window.webkitAudioContext;
+      if(!AC) return null;
+      _actx=new AC();
+    }
+    if(_actx.state==='suspended') _actx.resume();
+    return _actx;
+  }catch(e){ return null; }
+}
+document.addEventListener('pointerdown', function _unlock(){
+  ensureAudio();
+  document.removeEventListener('pointerdown', _unlock);
+}, {once:true});
+
+function beep(freq,dur,type,vol,delay){
+  const ac=ensureAudio(); if(!ac||!_soundOn) return;
+  const t0=ac.currentTime+(delay||0);
+  const osc=ac.createOscillator(), g=ac.createGain();
+  osc.type=type||'triangle';
+  osc.frequency.setValueAtTime(freq,t0);
+  g.gain.setValueAtTime(0,t0);
+  g.gain.linearRampToValueAtTime(vol||0.2,t0+0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+  osc.connect(g); g.connect(ac.destination);
+  osc.start(t0); osc.stop(t0+dur+0.02);
+}
+function chordAt(freqs,dur,vol,delay){ freqs.forEach(f=>beep(f,dur,'triangle',vol||0.14,delay)); }
+function playFanfare(d){
+  if(!_soundOn) return;
+  if(!ensureAudio()) return;
+  const C=523.25,E=659.25,G2=784.0,C2=1046.5,E2=1318.5,G3=1568.0;
+  if(d<=-3){
+    beep(C,0.16,'triangle',0.22,0); beep(E,0.16,'triangle',0.22,0.13);
+    beep(G2,0.16,'triangle',0.22,0.26); beep(C2,0.20,'triangle',0.24,0.39);
+    chordAt([C,E,G2,C2],0.8,0.14,0.58); chordAt([G2,C2,E2,G3],0.95,0.12,0.80);
+  } else if(d===-2){
+    beep(G2,0.14,'triangle',0.22,0); beep(C2,0.14,'triangle',0.22,0.12);
+    beep(E2,0.28,'triangle',0.24,0.24); chordAt([C2,E2,G3],0.65,0.14,0.42);
+  } else {
+    beep(C2,0.11,'triangle',0.20,0); beep(E2,0.11,'triangle',0.20,0.10);
+    beep(G3,0.26,'triangle',0.22,0.20); chordAt([C2,E2,G3],0.42,0.10,0.30);
+  }
 }
 function clearHole(){
   if(padGi===null) return;
@@ -1661,15 +1837,14 @@ function viewScore(){
         // 이름
         +'<td class="sc-nm">'
           +(ed
-            ? '<input class="scn-in" type="text" value="'+esc(p.name)+'" placeholder="이름 '+(pi+1)+'" onchange="setField('+gi+','+pi+',\'name\',this.value)">'
-            : '<span class="scn-tx">'+(p.name?esc(p.name):'<span style="color:var(--t3);">—</span>')+'</span>')
-          +(isLdr?'<div class="ldr-badge" style="margin-top:2px;display:inline-block;">조장</div>':'')
+            ? '<input class="scn-in'+(isLdr?' is-ldr':'')+'" type="text" value="'+esc(p.name)+'" placeholder="이름 '+(pi+1)+'" onchange="setField('+gi+','+pi+',\'name\',this.value)">'
+            : '<span class="scn-tx'+(isLdr?' is-ldr':'')+'">'+(p.name?esc(p.name):'<span style="color:var(--t3);">—</span>')+'</span>')
         +'</td>'
         // 핸디
         +'<td class="sc-h">'
           +(ed
-            ? '<input class="scin" type="number" inputmode="numeric" value="'+(p.handi||0)+'" onchange="setField('+gi+','+pi+',\'handi\',this.value)">'
-            : '<span class="scv">'+(p.handi||0)+'</span>')
+            ? '<input class="scin" type="number" inputmode="numeric" value="'+(p.handi==null?'':p.handi)+'" placeholder="—" onchange="setField('+gi+','+pi+',\'handi\',this.value)">'
+            : '<span class="scv">'+(p.handi==null?'—':p.handi)+'</span>')
         +'</td>'
         // 전반 / 후반
         +'<td class="sc-c">'
@@ -2153,11 +2328,19 @@ function applySetting(){
 }
 
 /* ══════════ 아카이브 ══════════ */
+// 대회마다 고유 ID 부여 (같은 날 여러 대회도 구분)
+function ensureEventId(){
+  if(!G.evtId){
+    G.evtId='E'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+  }
+  return G.evtId;
+}
+
 function saveEvent(){
   const players=allPlayers();
   if(players.length===0){ toast('입력된 성적이 없습니다'); return; }
   const snap={
-    id:(G.date||'')+'_'+(G.title||'대회'),
+    id:ensureEventId(),
     title:G.title||'골프 대회',
     date:G.date||'', place:G.place||'',
     count:players.length, groups:G.groups.length,
@@ -2184,6 +2367,17 @@ function saveEvent(){
   ov.querySelector('#_s').onclick=()=>ov.remove();
 }
 
+function savedTimeTxt(ts){
+  try{
+    const d=new Date(ts), n=new Date();
+    const sameDay=d.toDateString()===n.toDateString();
+    const hh=String(d.getHours()).padStart(2,'0');
+    const mm=String(d.getMinutes()).padStart(2,'0');
+    if(sameDay) return '오늘 '+hh+':'+mm;
+    return (d.getMonth()+1)+'/'+d.getDate()+' '+hh+':'+mm;
+  }catch(e){ return ''; }
+}
+
 function openArchive(){
   const list=getArc();
   const el=document.getElementById('arcList');
@@ -2198,7 +2392,8 @@ function openArchive(){
       +'<div style="width:38px;height:38px;border-radius:10px;background:var(--gold-l);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">🏆</div>'
       +'<div style="flex:1;min-width:0;cursor:pointer;" onclick="loadArc('+i+')">'
         +'<div style="font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(s.title)+'</div>'
-        +'<div style="font-size:11px;color:var(--t3);margin-top:2px;">'+(s.date||'').replace(/-/g,'.')+' · '+s.count+'명</div>'
+        +'<div style="font-size:11px;color:var(--t3);margin-top:2px;">'+(s.date||'').replace(/-/g,'.')+' · '+s.count+'명'
+          +(s.savedAt?' · '+savedTimeTxt(s.savedAt):'')+'</div>'
       +'</div>'
       +'<button onclick="exportArc('+i+')" style="background:none;border:none;font-size:15px;cursor:pointer;padding:6px;color:#1A5C99;">📤</button>'
       +'<button onclick="delArc('+i+')" style="background:none;border:none;font-size:15px;cursor:pointer;padding:6px;color:#C0392B;">🗑️</button>'
@@ -2214,6 +2409,7 @@ function loadArc(i){
   if(!s) return;
   if(!confirm('"'+s.title+'" 을 불러올까요?\n현재 내용이 바뀝니다.')) return;
   Object.assign(G,JSON.parse(JSON.stringify(s.data)));
+  if(!G.evtId) G.evtId=s.id;   // 같은 대회로 이어서 저장되도록
   closeArchive(); push(); render();
   toast('불러왔습니다');
 }
@@ -2349,7 +2545,7 @@ function quietSave(){
   const players=allPlayers();
   if(players.length===0) return;
   const snap={
-    id:(G.date||'')+'_'+(G.title||'대회'),
+    id:ensureEventId(),
     title:G.title||'골프 대회', date:G.date||'', place:G.place||'',
     count:players.length, groups:G.groups.length, savedAt:Date.now(),
     data:JSON.parse(JSON.stringify(G))

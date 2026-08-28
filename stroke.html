@@ -91,6 +91,26 @@ html,body{height:100%;background:var(--bg);font-family:-apple-system,'Noto Sans 
 .photo-add{width:80px;height:80px;border-radius:8px;border:2px dashed #ccc;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;background:#f9f9f9;flex-shrink:0;gap:2px;}
 .photo-add span{font-size:22px;}
 .photo-add small{font-size:10px;color:#aaa;font-weight:600;}
+
+/* 도움말 팝업 */
+.hp-ov{display:none;position:fixed;inset:0;background:rgba(15,32,26,0.55);z-index:850;align-items:flex-end;}
+.hp-ov.on{display:flex;}
+.hp-in{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:520px;margin:0 auto;
+  max-height:86vh;overflow-y:auto;padding-bottom:calc(env(safe-area-inset-bottom,0px) + 18px);
+  animation:hpUp 0.22s ease;}
+@keyframes hpUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.hp-bar{width:34px;height:4px;background:#DDD8CC;border-radius:2px;margin:11px auto 13px;}
+.hp-hd{padding:0 18px 13px;border-bottom:1px solid #E4E0D6;display:flex;align-items:center;
+  justify-content:space-between;gap:10px;}
+.hp-t{font-size:17px;font-weight:800;color:#15201A;}
+.hp-x{background:#F1EFE8;border:none;border-radius:16px;padding:7px 14px;font-size:13px;
+  font-weight:700;color:#5F6B63;cursor:pointer;font-family:inherit;flex-shrink:0;}
+.hp-sec{font-size:12px;font-weight:800;color:#1A3A5C;padding:15px 18px 5px;letter-spacing:0.3px;}
+.hp-ul{margin:0;padding:0 18px 4px 34px;}
+.hp-ul li{font-size:13.5px;color:#5F6B63;line-height:1.75;margin-bottom:5px;}
+.hp-ul li b{color:#15201A;font-weight:800;}
+.hp-more{display:block;margin:14px 18px 0;padding:13px;border-radius:11px;background:#F1EFE8;
+  text-align:center;font-size:13px;font-weight:700;color:#5F6B63;text-decoration:none;}
 </style>
 <script>
 if('serviceWorker' in navigator){
@@ -154,15 +174,16 @@ if('serviceWorker' in navigator){
   <div class="topbar">
     <div class="r1">
       <div style="display:flex;align-items:center;gap:6px;">
-        <button onclick="goHome()" style="background:rgba(255,255,255,0.2);border:none;border-radius:7px;width:34px;height:34px;color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;">🏠</button>
-        <h1 style="font-size:16px;font-weight:700;">📊 스트로크 게임</h1>
+        <button onclick="goHome()" style="background:rgba(255,255,255,0.2);border:none;border-radius:7px;width:31px;height:31px;color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;">🏠</button>
+        <h1 style="font-size:16px;font-weight:700;">📊 스트로크</h1>
       </div>
-      <div style="display:flex;gap:5px;align-items:center;">
-        <span style="font-size:11px;font-weight:800;color:rgba(255,255,255,0.5);letter-spacing:1px;">KCM</span>
-        <button id="soundBtn" onclick="toggleSound()" style="background:rgba(255,255,255,0.2);border:none;border-radius:7px;width:34px;height:34px;color:#fff;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;">🔊</button>
-        <button onclick="undo()" style="background:rgba(255,255,255,0.2);border:none;border-radius:7px;width:34px;height:34px;color:#fff;font-size:20px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;">↩</button>
-        <button onclick="doLoad()" style="background:rgba(255,255,255,0.2);border:none;border-radius:7px;width:34px;height:34px;color:#fff;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;">📂</button>
-        <button onclick="OMo()" style="background:rgba(255,255,255,0.2);border:none;border-radius:7px;width:34px;height:34px;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">⚙️</button>
+      <div style="display:flex;gap:3px;align-items:center;">
+        <span style="font-size:10px;font-weight:800;color:rgba(255,255,255,0.45);letter-spacing:0.5px;">KCM</span>
+        <button onclick="openHelp()" style="background:rgba(255,255,255,0.2);border:none;border-radius:7px;width:31px;height:31px;color:#fff;font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;">?</button>
+        <button id="soundBtn" onclick="toggleSound()" style="background:rgba(255,255,255,0.2);border:none;border-radius:7px;width:31px;height:31px;color:#fff;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;">🔊</button>
+        <button onclick="undo()" style="background:rgba(255,255,255,0.2);border:none;border-radius:7px;width:31px;height:31px;color:#fff;font-size:20px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;">↩</button>
+        <button onclick="doLoad()" style="background:rgba(255,255,255,0.2);border:none;border-radius:7px;width:31px;height:31px;color:#fff;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;">📂</button>
+        <button onclick="OMo()" style="background:rgba(255,255,255,0.2);border:none;border-radius:7px;width:31px;height:31px;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">⚙️</button>
       </div>
     </div>
     <div class="r2">
@@ -1361,6 +1382,21 @@ function clearResume(){
   document.getElementById('resumeSection').style.display='none';
   document.getElementById('newGameSection').style.display='block';
 }
+
+function openHelp(){ var e=document.getElementById('hpOv'); if(e) e.classList.add('on'); }
+function closeHelp(){ var e=document.getElementById('hpOv'); if(e) e.classList.remove('on'); }
 </script>
+
+<div class="hp-ov" id="hpOv" onclick="if(event.target===this)closeHelp()">
+  <div class="hp-in">
+    <div class="hp-bar"></div>
+    <div class="hp-hd">
+      <div class="hp-t">📊 스트로크 게임</div>
+      <button class="hp-x" onclick="closeHelp()">닫기</button>
+    </div>
+<div class="hp-sec">진행 순서</div><ul class="hp-ul"><li><b>▶시작</b>에서 이름·핸디·1타 금액을 정합니다</li><li>홀마다 타수를 입력합니다</li><li><b>📊결과</b>에서 순위와 정산을 봅니다</li></ul><div class="hp-sec">계산 방식</div><ul class="hp-ul"><li><b>넷스코어 = 총타수 − 핸디캡</b></li><li>넷스코어 차이 × 1타 금액으로 정산합니다</li><li><b>배판</b>을 켜면 꼴찌가 배수로 물게 됩니다</li></ul><div class="hp-sec">버튼 안내</div><ul class="hp-ul"><li><b>↩</b> 직전 입력 되돌리기</li><li><b>📂</b> 저장한 게임 불러오기</li><li><b>🔄초기화</b> 성적만 지우고 설정은 유지</li><li><b>📤공유</b> 카톡용 결과 문구 만들기</li></ul>
+    <a class="hp-more" href="help.html#stroke">📖 자세한 사용법 보기</a>
+  </div>
+</div>
 </body>
 </html>

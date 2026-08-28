@@ -657,6 +657,26 @@ th.csum{background:#0A2117;}
 .ctot-c .l{display:block;font-size:9px;color:var(--t3);font-weight:700;margin-bottom:1px;}
 .ctot-p{width:38px;text-align:right;font-size:10px;color:var(--t3);font-weight:700;flex-shrink:0;}
 
+
+/* 도움말 팝업 */
+.hp-ov{display:none;position:fixed;inset:0;background:rgba(15,32,26,0.55);z-index:850;align-items:flex-end;}
+.hp-ov.on{display:flex;}
+.hp-in{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:520px;margin:0 auto;
+  max-height:86vh;overflow-y:auto;padding-bottom:calc(env(safe-area-inset-bottom,0px) + 18px);
+  animation:hpUp 0.22s ease;}
+@keyframes hpUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.hp-bar{width:34px;height:4px;background:#DDD8CC;border-radius:2px;margin:11px auto 13px;}
+.hp-hd{padding:0 18px 13px;border-bottom:1px solid #E4E0D6;display:flex;align-items:center;
+  justify-content:space-between;gap:10px;}
+.hp-t{font-size:17px;font-weight:800;color:#15201A;}
+.hp-x{background:#F1EFE8;border:none;border-radius:16px;padding:7px 14px;font-size:13px;
+  font-weight:700;color:#5F6B63;cursor:pointer;font-family:inherit;flex-shrink:0;}
+.hp-sec{font-size:12px;font-weight:800;color:#0E2A1E;padding:15px 18px 5px;letter-spacing:0.3px;}
+.hp-ul{margin:0;padding:0 18px 4px 34px;}
+.hp-ul li{font-size:13.5px;color:#5F6B63;line-height:1.75;margin-bottom:5px;}
+.hp-ul li b{color:#15201A;font-weight:800;}
+.hp-more{display:block;margin:14px 18px 0;padding:13px;border-radius:11px;background:#F1EFE8;
+  text-align:center;font-size:13px;font-weight:700;color:#5F6B63;text-decoration:none;}
 </style>
 </head>
 <body>
@@ -712,6 +732,7 @@ th.csum{background:#0A2117;}
         <div class="top-title" id="evtTitle">골프 대회</div>
       </div>
       <div class="top-btns">
+        <button class="tb" onclick="openHelp()" style="font-weight:800;">?</button>
         <button class="tb" id="sndBtn" onclick="toggleSound()">🔊</button>
         <button class="tb" onclick="openArchive()">📂</button>
         <button class="tb" id="setBtn" onclick="openSetting()">⚙️</button>
@@ -2607,6 +2628,21 @@ load(); loadRole();
     });
   }
 })();
+
+function openHelp(){ var e=document.getElementById('hpOv'); if(e) e.classList.add('on'); }
+function closeHelp(){ var e=document.getElementById('hpOv'); if(e) e.classList.remove('on'); }
 </script>
+
+<div class="hp-ov" id="hpOv" onclick="if(event.target===this)closeHelp()">
+  <div class="hp-in">
+    <div class="hp-bar"></div>
+    <div class="hp-hd">
+      <div class="hp-t">🏆 대회 시상</div>
+      <button class="hp-x" onclick="closeHelp()">닫기</button>
+    </div>
+<div class="hp-sec">역할 안내</div><ul class="hp-ul"><li><b>🎬진행자</b> 모든 조 관리 · 시상 설정</li><li><b>🏌️조장</b> 자기 조 성적만 입력</li><li><b>👀참가자</b> 전체 순위 보기만</li><li>상단 우측 배지를 눌러 역할을 바꿉니다</li></ul><div class="hp-sec">성적 입력</div><ul class="hp-ul"><li><b>간단히</b> 전반·후반 또는 총타수만 입력</li><li><b>자세히</b> 18홀 성적입력으로 홀마다 기록</li><li>18홀을 마쳐야 순위·시상에 반영됩니다</li></ul><div class="hp-sec">오버타란?</div><ul class="hp-ul"><li><b>(총타수 − 코스파) − 핸디</b></li><li>핸디 대비 얼마나 잘 쳤는지 나타냅니다</li><li><b>작을수록 좋습니다</b></li></ul><div class="hp-sec">시상 규칙</div><ul class="hp-ul"><li>중복되면 <b>상금 큰 상</b>이 먼저 배정됩니다</li><li>밀린 상은 다음 순위로 넘어갑니다</li><li><b>부비상</b>은 꼴찌 바로 앞 순위입니다</li></ul>
+    <a class="hp-more" href="help.html#award">📖 자세한 사용법 보기</a>
+  </div>
+</div>
 </body>
 </html>

@@ -123,6 +123,26 @@ tr.final-row td{background:#1A3A5C;color:#fff;font-weight:900;}
 .photo-add{width:80px;height:80px;border-radius:8px;border:2px dashed #ccc;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;background:#f9f9f9;flex-shrink:0;gap:2px;}
 .photo-add span{font-size:22px;}
 .photo-add small{font-size:10px;color:#aaa;font-weight:600;}
+
+/* 도움말 팝업 */
+.hp-ov{display:none;position:fixed;inset:0;background:rgba(15,32,26,0.55);z-index:850;align-items:flex-end;}
+.hp-ov.on{display:flex;}
+.hp-in{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:520px;margin:0 auto;
+  max-height:86vh;overflow-y:auto;padding-bottom:calc(env(safe-area-inset-bottom,0px) + 18px);
+  animation:hpUp 0.22s ease;}
+@keyframes hpUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.hp-bar{width:34px;height:4px;background:#DDD8CC;border-radius:2px;margin:11px auto 13px;}
+.hp-hd{padding:0 18px 13px;border-bottom:1px solid #E4E0D6;display:flex;align-items:center;
+  justify-content:space-between;gap:10px;}
+.hp-t{font-size:17px;font-weight:800;color:#15201A;}
+.hp-x{background:#F1EFE8;border:none;border-radius:16px;padding:7px 14px;font-size:13px;
+  font-weight:700;color:#5F6B63;cursor:pointer;font-family:inherit;flex-shrink:0;}
+.hp-sec{font-size:12px;font-weight:800;color:#1A5C8A;padding:15px 18px 5px;letter-spacing:0.3px;}
+.hp-ul{margin:0;padding:0 18px 4px 34px;}
+.hp-ul li{font-size:13.5px;color:#5F6B63;line-height:1.75;margin-bottom:5px;}
+.hp-ul li b{color:#15201A;font-weight:800;}
+.hp-more{display:block;margin:14px 18px 0;padding:13px;border-radius:11px;background:#F1EFE8;
+  text-align:center;font-size:13px;font-weight:700;color:#5F6B63;text-decoration:none;}
 </style>
 <script>
 if('serviceWorker' in navigator){
@@ -141,11 +161,12 @@ if('serviceWorker' in navigator){
       </div>
       <div style="display:flex;gap:5px;flex-shrink:0;align-items:center;">
         <span style="font-size:11px;font-weight:800;color:rgba(255,255,255,0.5);letter-spacing:1px;">KCM</span>
+        <button class="tbtn" onclick="openHelp()" style="height:30px;padding:0 9px;font-size:14px;font-weight:800;">?</button>
         <button class="tbtn" id="soundBtn" onclick="toggleSound()" style="height:30px;padding:0 8px;font-size:13px;">🔊</button>
         <button class="tbtn" onclick="undo()" style="height:30px;padding:0 8px;font-size:16px;font-weight:900;">↩</button>
         <button class="tbtn" onclick="doLoad()" style="height:30px;padding:0 8px;font-size:13px;">📂</button>
-        <button class="tbtn" onclick="resetAll()" style="height:30px;padding:0 8px;font-size:13px;">🔄</button>
-        <button class="tbtn" onclick="doSave()" style="height:30px;padding:0 8px;font-size:13px;">💾</button>
+        
+        
         <button class="tbtn" onclick="openMo()" style="width:30px;height:30px;font-size:15px;">⚙️</button>
       </div>
     </div>
@@ -987,6 +1008,21 @@ function viewPhoto(src){
 
 // 초기 사진 로드
 setTimeout(renderPhotos, 300);
+
+function openHelp(){ var e=document.getElementById('hpOv'); if(e) e.classList.add('on'); }
+function closeHelp(){ var e=document.getElementById('hpOv'); if(e) e.classList.remove('on'); }
 </script>
+
+<div class="hp-ov" id="hpOv" onclick="if(event.target===this)closeHelp()">
+  <div class="hp-in">
+    <div class="hp-bar"></div>
+    <div class="hp-hd">
+      <div class="hp-t">📋 스코어카드</div>
+      <button class="hp-x" onclick="closeHelp()">닫기</button>
+    </div>
+<div class="hp-sec">진행 순서</div><ul class="hp-ul"><li><b>⚙️</b>에서 코스명·스타트홀·홀별 파를 정합니다</li><li>이름과 핸디캡을 넣습니다</li><li>표에서 칸을 눌러 타수를 고릅니다</li><li><b>📋전체보기</b>로 18홀을 한눈에 봅니다</li></ul><div class="hp-sec">홀별 파 설정</div><ul class="hp-ul"><li>파는 <b>실제 홀 번호 기준</b>으로 넣습니다</li><li>스타트홀이 10번이어도 1번홀부터 순서대로</li><li>숫자를 누를 때마다 P3 → P4 → P5</li></ul><div class="hp-sec">새 게임 시작</div><ul class="hp-ul"><li>저장하고 나가면 <b>다음에 새 게임</b>으로 시작합니다</li><li>코스명·파 설정은 그대로 남습니다</li><li><b>🔄초기화</b>에서 이름까지 지울 수 있습니다</li></ul>
+    <a class="hp-more" href="help.html#scorecard">📖 자세한 사용법 보기</a>
+  </div>
+</div>
 </body>
 </html>

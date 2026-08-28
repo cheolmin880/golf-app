@@ -677,6 +677,23 @@ th.csum{background:#0A2117;}
 .hp-ul li b{color:#15201A;font-weight:800;}
 .hp-more{display:block;margin:14px 18px 0;padding:13px;border-radius:11px;background:#F1EFE8;
   text-align:center;font-size:13px;font-weight:700;color:#5F6B63;text-decoration:none;}
+
+/* 라운딩 사진 */
+.photo-section{background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:14px;margin-bottom:11px;}
+.photo-title{font-size:13px;font-weight:800;color:var(--t1);
+  display:flex;align-items:center;justify-content:space-between;}
+.photo-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px;}
+.photo-item{position:relative;width:80px;height:80px;border-radius:9px;overflow:hidden;flex-shrink:0;}
+.photo-item img{width:100%;height:100%;object-fit:cover;cursor:pointer;display:block;}
+.photo-del{position:absolute;top:3px;right:3px;background:rgba(0,0,0,0.6);color:#fff;
+  border:none;border-radius:50%;width:20px;height:20px;font-size:11px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;}
+.photo-add{width:80px;height:80px;border-radius:9px;border:2px dashed var(--line);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;background:#FBFAF6;flex-shrink:0;gap:2px;}
+.photo-add span{font-size:22px;}
+.photo-add small{font-size:10px;color:var(--t3);font-weight:700;}
 </style>
 </head>
 <body>
@@ -1326,6 +1343,80 @@ function computeDivision(){
   };
 }
 
+
+/* ══════════ 라운딩 사진 ══════════ */
+function awPhotoKey(){
+  const d=G.date||new Date().toISOString().slice(0,10);
+  return 'aw_photos_'+(G.evtId||d);
+}
+function loadAwPhotos(){ try{ const s=localStorage.getItem(awPhotoKey()); return s?JSON.parse(s):[]; }catch(e){ return []; } }
+function saveAwPhotos(p){ try{ localStorage.setItem(awPhotoKey(),JSON.stringify(p)); }catch(e){ toast('저장 공간이 부족합니다'); } }
+
+function renderAwPhotos(){
+  const grid=document.getElementById('awPhotoGrid');
+  if(!grid) return;
+  const photos=loadAwPhotos();
+  const cnt=document.getElementById('awPhotoCount');
+  if(cnt) cnt.textContent=photos.length?photos.length+'장':'';
+  let s='';
+  photos.forEach(function(src,i){
+    s+='<div class="photo-item"><img src="'+src+'" onclick="viewAwPhoto('+i+')">'
+      +'<button class="photo-del" onclick="delAwPhoto('+i+')">✕</button></div>';
+  });
+  s+='<div class="photo-add" onclick="document.getElementById(\'awPhotoCam\').click()" style="background:#EAF3EE;border-color:#74C69D;"><span>📸</span><small style="color:#2D6A4F;">촬영</small></div>';
+  s+='<div class="photo-add" onclick="document.getElementById(\'awPhotoGal\').click()"><span>🖼️</span><small>갤러리</small></div>';
+  grid.innerHTML=s;
+}
+
+function handleAwPhoto(e){
+  const files=Array.prototype.slice.call(e.target.files);
+  if(!files.length) return;
+  const photos=loadAwPhotos();
+  let loaded=0;
+  files.forEach(function(file){
+    const reader=new FileReader();
+    reader.onload=function(ev){
+      const img=new Image();
+      img.onload=function(){
+        try{
+          const canvas=document.createElement('canvas');
+          const max=800;
+          let w=img.width, hh=img.height;
+          if(w>max){ hh=hh*(max/w); w=max; }
+          if(hh>max){ w=w*(max/hh); hh=max; }
+          canvas.width=w; canvas.height=hh;
+          canvas.getContext('2d').drawImage(img,0,0,w,hh);
+          photos.push(canvas.toDataURL('image/jpeg',0.7));
+        }catch(err){}
+        loaded++;
+        if(loaded===files.length){ saveAwPhotos(photos); renderAwPhotos(); }
+      };
+      img.onerror=function(){ loaded++; if(loaded===files.length){ saveAwPhotos(photos); renderAwPhotos(); } };
+      img.src=ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+  e.target.value='';
+}
+
+function delAwPhoto(i){
+  if(!confirm('사진을 삭제할까요?')) return;
+  const p=loadAwPhotos();
+  p.splice(i,1);
+  saveAwPhotos(p);
+  renderAwPhotos();
+}
+function viewAwPhoto(i){
+  const p=loadAwPhotos();
+  const src=p[i];
+  if(!src) return;
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:900;display:flex;align-items:center;justify-content:center;';
+  ov.innerHTML='<img src="'+src+'" style="max-width:95vw;max-height:90vh;border-radius:8px;object-fit:contain;">';
+  ov.onclick=function(){ if(ov.parentNode) ov.parentNode.removeChild(ov); };
+  document.body.appendChild(ov);
+}
+
 /* ══════════ 렌더 ══════════ */
 function render(){
   updHead();
@@ -1334,7 +1425,7 @@ function render(){
   if(curTab==='score'){ b.innerHTML=viewScore(); }
   else if(curTab==='live'){ b.innerHTML=viewLive(); }
   else if(curTab==='award'){ b.innerHTML=viewAward(); }
-  else{ b.innerHTML=viewResult(); }
+  else{ b.innerHTML=viewResult(); setTimeout(renderAwPhotos,80); }
 
   f.innerHTML=
      (myRole==='host'?'<button class="btn btn-o" onclick="addGroup()" style="font-size:12px;padding:12px 2px;white-space:nowrap;">＋조추가</button>':'')
@@ -2227,6 +2318,15 @@ function viewResult(){
   });
   h+='</table>'
     +'<div style="padding:8px 12px;font-size:11px;color:var(--t3);border-top:1px solid var(--line);">오버타 = (타수 − 코스파 '+cpR+') − 핸디 · 음수일수록 핸디보다 잘 친 것</div></div>';
+
+  // 라운딩 사진
+  h+='<div class="photo-section">'
+    +'<div class="photo-title"><span>📸 라운딩 사진</span>'
+    +'<span id="awPhotoCount" style="font-size:11px;color:var(--t3);font-weight:600;"></span></div>'
+    +'<div class="photo-grid" id="awPhotoGrid"></div>'
+    +'<input type="file" id="awPhotoCam" accept="image/*" capture="environment" style="display:none" onchange="handleAwPhoto(event)">'
+    +'<input type="file" id="awPhotoGal" accept="image/*" multiple style="display:none" onchange="handleAwPhoto(event)">'
+    +'</div>';
 
   // 그로스 순위
   const gr=byGross();

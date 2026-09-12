@@ -189,34 +189,50 @@ body{
 /* ── 결과 시상표 ── */
 .sheet{
   background:linear-gradient(170deg,#123024,#0B2117);
-  border-radius:16px;padding:20px 16px;color:#fff;margin-bottom:12px;
+  border-radius:16px;padding:15px 14px;color:#fff;margin-bottom:11px;
 }
-.sheet-top{text-align:center;padding-bottom:14px;border-bottom:1px dashed rgba(255,255,255,0.2);}
+.sheet-top{text-align:center;padding-bottom:10px;margin-bottom:2px;border-bottom:1px dashed rgba(255,255,255,0.18);}
 .sheet-kick{font-size:10px;letter-spacing:3px;color:rgba(255,255,255,0.45);font-weight:800;}
-.sheet-ttl{font-size:20px;font-weight:900;margin-top:5px;letter-spacing:-0.3px;}
+.sheet-ttl{font-size:17px;font-weight:900;margin-top:3px;letter-spacing:-0.3px;}
 .sheet-sub{font-size:11px;color:rgba(255,255,255,0.5);margin-top:4px;}
 .wrow{
-  display:flex;align-items:center;gap:11px;padding:12px 2px;
-  border-bottom:1px solid rgba(255,255,255,0.08);
+  display:flex;align-items:center;gap:8px;padding:5px 2px;
+  border-bottom:1px solid rgba(255,255,255,0.07);
 }
 .wrow:last-child{border-bottom:none;}
 .wrow-pz{font-size:12px;font-weight:800;color:var(--gold);margin-top:2px;}
 .div-sep{
-  margin:14px 0 4px;padding-top:11px;
+  margin:9px 0 2px;padding-top:8px;
   border-top:1px dashed rgba(255,255,255,0.18);
   font-size:10px;font-weight:800;letter-spacing:1.5px;
   color:rgba(255,255,255,0.4);
 }
 .prize-total{
-  margin-top:13px;padding-top:12px;border-top:1px dashed rgba(255,255,255,0.2);
+  margin-top:9px;padding-top:9px;border-top:1px dashed rgba(255,255,255,0.2);
   display:flex;align-items:center;justify-content:space-between;
 }
 .prize-total span{font-size:12px;color:rgba(255,255,255,0.55);font-weight:700;}
 .prize-total b{font-size:18px;color:var(--gold);font-weight:900;}
 
 .wrow-no{
-  width:20px;flex-shrink:0;text-align:center;
-  font-size:12px;font-weight:900;color:rgba(255,255,255,0.35);
+  width:17px;flex-shrink:0;text-align:center;
+  font-size:11px;font-weight:900;color:rgba(255,255,255,0.3);
+}
+.wrow-l1{
+  font-size:11px;font-weight:700;color:rgba(255,255,255,0.62);line-height:1.25;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.wrow-l1 em{
+  font-style:normal;color:var(--gold);font-weight:800;font-size:11px;
+}
+.wrow-l2{
+  display:flex;align-items:baseline;gap:6px;margin-top:1px;
+  white-space:nowrap;overflow:hidden;
+}
+.wrow-l2 b{font-size:15px;font-weight:800;color:#fff;line-height:1.25;}
+.wrow-l2 span{
+  font-size:10.5px;color:rgba(255,255,255,0.42);font-weight:600;
+  overflow:hidden;text-overflow:ellipsis;
 }
 .wrow-ico{
   width:38px;height:38px;border-radius:10px;flex-shrink:0;
@@ -226,9 +242,10 @@ body{
 .wrow-tx{flex:1;min-width:0;}
 .wrow-aw{font-size:10px;color:rgba(255,255,255,0.5);font-weight:700;letter-spacing:0.6px;}
 .wrow-nm{font-size:16px;font-weight:800;margin-top:1px;}
-.wrow-sc{text-align:right;flex-shrink:0;}
-.wrow-sc .a{font-size:15px;font-weight:900;color:var(--gold);}
-.wrow-sc .b{font-size:10px;color:rgba(255,255,255,0.45);margin-top:1px;}
+.wrow-sc{
+  flex-shrink:0;font-size:16px;font-weight:900;color:var(--gold);
+  min-width:42px;text-align:right;letter-spacing:-0.3px;
+}
 
 /* ── 순위표 ── */
 .rk-tbl{width:100%;border-collapse:collapse;font-size:13px;}
@@ -546,6 +563,25 @@ body{
 @keyframes celebFall{
   0%{transform:translateY(-10px) rotate(0);opacity:1;}
   100%{transform:translateY(72vh) rotate(680deg);opacity:0;}
+}
+
+
+/* 게스트 */
+.nmwrap{display:flex;align-items:center;gap:5px;}
+.nmwrap .scn-in,.nmwrap .scn-tx{flex:1;min-width:0;}
+.gbtn{
+  width:23px;height:23px;border-radius:50%;flex-shrink:0;
+  border:1.5px solid var(--line);background:#fff;
+  font-size:11px;font-weight:900;color:var(--t3);
+  cursor:pointer;font-family:inherit;padding:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.gbtn.on{background:#6B7B8C;border-color:#6B7B8C;color:#fff;}
+.scrow.is-guest{background:#FAFAF8;}
+.scn-in.gst,.scn-tx.gst{color:var(--t2);}
+.gst-note{
+  font-size:10.5px;color:var(--t3);padding:7px 12px;
+  border-top:1px solid var(--line);background:#FBFAF6;font-weight:600;
 }
 
 .div-cut{display:flex;align-items:center;gap:9px;}
@@ -1172,7 +1208,7 @@ function getArc(){ try{ return JSON.parse(localStorage.getItem(ARC_KEY)||'[]'); 
 function setArc(l){ try{ localStorage.setItem(ARC_KEY,JSON.stringify(l)); return true; }catch(e){ toast('저장 공간이 부족합니다'); return false; } }
 
 /* ══════════ 조/선수 ══════════ */
-function newPlayer(){ return {name:'',gross:null,handi:null,mOut:null,mIn:null,holes:Array(18).fill(null)}; }
+function newPlayer(){ return {name:'',gross:null,handi:null,guest:false,mOut:null,mIn:null,holes:Array(18).fill(null)}; }
 function newGroup(n){
   return { name:n+'조', leader:'', players:Array.from({length:4},()=>newPlayer()) };
 }
@@ -1216,10 +1252,34 @@ function setField(gi,pi,f,v){
     else p.gross=null;
   }
   save();
-  if(f!=='name'){ updateNet(gi,pi); }
+  updateNet(gi,pi);
+  if(f==='name'){ updHead(); updLeaderSel(gi); }
   clearTimeout(setField._t);
-  setField._t=setTimeout(()=>{ push(); updHead(); if(curTab==='score') render(); },500);
+  setField._t=setTimeout(()=>{ push(); },450);
 }
+
+// 조장 드롭다운 옵션만 갱신 (이름 바뀔 때)
+function updLeaderSel(gi){
+  const sel=document.getElementById('ldr_'+gi);
+  if(!sel) return;
+  const g=G.groups[gi];
+  const cur=g.leader||'';
+  const names=g.players.filter(p=>p.name&&p.name.trim()).map(p=>p.name.trim());
+  let s='<option value="">— 미지정 —</option>';
+  names.forEach(n=>{ s+='<option value="'+esc(n)+'"'+(cur===n?' selected':'')+'>'+esc(n)+'</option>'; });
+  sel.innerHTML=s;
+}
+// 게스트 토글 — 게스트는 시상 대상에서 제외
+function toggleGuest(gi,pi){
+  const p=G.groups[gi].players[pi];
+  p.guest=!p.guest;
+  // 게스트가 조장이면 해제
+  if(p.guest && G.groups[gi].leader===String(p.name||'').trim()) G.groups[gi].leader='';
+  save(); push(); render();
+  toast(p.guest ? (p.name||'선수')+' 님을 게스트로 지정했습니다 (시상 제외)'
+                : (p.name||'선수')+' 님을 정회원으로 변경했습니다');
+}
+
 function setLeader(gi,v){
   G.groups[gi].leader=v||'';
   push(); render();
@@ -1232,31 +1292,60 @@ function setGroupName(gi,v){
   setGroupName._t=setTimeout(push,500);
 }
 
+// 한 행의 계산값만 갱신 (화면 전체를 다시 그리지 않음 → 포커스 유지)
 function updateNet(gi,pi){
   const p=G.groups[gi].players[pi];
-  const el=document.getElementById('net_'+gi+'_'+pi);
-  if(!el) return;
+  const cp=coursePar();
   const gross=dispGross(p);
-  if(gross===null||gross===undefined){
-    el.textContent='—'; el.className='scv ov';
-  }else{
-    const d=(gross-coursePar())-(p.handi||0);
-    el.textContent=String(d);
-    el.className='scv ov '+(d<0?'hc-good':(d>0?'hc-bad':'hc-even'));
+  const out=dispHalf(p,0), inn=dispHalf(p,1);
+
+  // 오버타
+  const el=document.getElementById('net_'+gi+'_'+pi);
+  if(el){
+    if(gross===null||gross===undefined){
+      el.textContent='—'; el.className='scv ov';
+    }else{
+      const d=(gross-cp)-(p.handi||0);
+      el.textContent=String(d);
+      el.className='scv ov '+(d<0?'hc-good':(d>0?'hc-bad':'hc-even'));
+    }
   }
-  // 넷·합계 칸도 함께 갱신되도록 행 전체 다시 그림
-  clearTimeout(updateNet._t);
-  updateNet._t=setTimeout(()=>{ if(curTab==='score') render(); },400);
+  // 넷
+  const ne=document.getElementById('nt_'+gi+'_'+pi);
+  if(ne) ne.textContent=(gross===null||gross===undefined)?'—':String(gross-(p.handi||0));
+  // 합계 (자동계산 표시일 때만)
+  const te=document.getElementById('tt_'+gi+'_'+pi);
+  if(te) te.textContent=(gross===null||gross===undefined)?'—':String(gross);
+  // 전·후반 (18홀 카드로 채워진 경우)
+  const oe=document.getElementById('ot_'+gi+'_'+pi);
+  if(oe) oe.textContent=(out===null)?'—':String(out);
+  const ie=document.getElementById('in_'+gi+'_'+pi);
+  if(ie) ie.textContent=(inn===null)?'—':String(inn);
+  // 조 입력 현황
+  updGroupMeta(gi);
+}
+
+function updGroupMeta(gi){
+  const g=G.groups[gi];
+  if(!g) return;
+  const done=g.players.filter(p=>p.name&&p.name.trim()&&dispGross(p)!==null).length;
+  const named=g.players.filter(p=>p.name&&p.name.trim()).length;
+  const el=document.getElementById('gm_'+gi);
+  if(el) el.textContent=done+'/'+named;
 }
 
 /* ══════════ 집계 ══════════ */
+// 시상·순위 집계 대상: 게스트 제외 + 18홀 완주자만
 function allPlayers(){
   const out=[];
   G.groups.forEach((g,gi)=>{
     g.players.forEach((p,pi)=>{
       if(!p.name||!p.name.trim()) return;
+      if(p.guest) return;                    // 게스트는 시상 제외
       const gr=dispGross(p);
       if(gr===null||gr===undefined) return;
+      const hc=holeCount(p);
+      if(hc>0 && hc<18) return;              // 라운딩 중 → 제외
       out.push({
         name:p.name.trim(), group:g.name, gi, pi,
         gross:gr, handi:p.handi||0, net:gr-(p.handi||0)
@@ -1268,7 +1357,15 @@ function allPlayers(){
 function namedPlayers(){
   const out=[];
   G.groups.forEach(g=>g.players.forEach(p=>{
-    if(p.name&&p.name.trim()) out.push({name:p.name.trim(),group:g.name});
+    if(p.name&&p.name.trim()&&!p.guest) out.push({name:p.name.trim(),group:g.name});
+  }));
+  return out;
+}
+// 참가 인원 집계용 (게스트 포함)
+function allNamed(){
+  const out=[];
+  G.groups.forEach(g=>g.players.forEach(p=>{
+    if(p.name&&p.name.trim()) out.push({name:p.name.trim(),group:g.name,guest:!!p.guest});
   }));
   return out;
 }
@@ -1449,7 +1546,11 @@ function updHead(){
     d.textContent=parts.join(' · ')||'날짜 미정';
   }
   const c=document.getElementById('evtCount');
-  if(c) c.textContent='참가 '+namedPlayers().length+'명 · '+G.groups.length+'개조';
+  if(c){
+    const an=allNamed();
+    const gcnt=an.filter(x=>x.guest).length;
+    c.textContent='참가 '+an.length+'명'+(gcnt?' (G '+gcnt+')':'')+' · '+G.groups.length+'개조';
+  }
   const snb=document.getElementById('sndBtn');
   if(snb) snb.textContent=_soundOn?'🔊':'🔇';
   const sb=document.getElementById('setBtn');
@@ -1902,7 +2003,7 @@ function viewScore(){
           : '<span style="font-size:14px;font-weight:800;color:#fff;">'+esc(g.name)+'</span>')
         +(mine?'<span class="mine-tag">내 조</span>':'')
         +'<div style="display:flex;align-items:center;gap:7px;margin-left:auto;">'
-          +'<span class="grp-meta">'+done+'/'+named+'</span>'
+          +'<span class="grp-meta" id="gm_'+gi+'">'+done+'/'+named+'</span>'
           +'<button onclick="openCard('+gi+')" style="background:rgba(201,162,39,0.5);border:none;border-radius:6px;color:#fff;height:26px;padding:0 9px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;">18홀 성적입력</button>'
           +(ed?'<button onclick="addPlayer('+gi+')" style="background:rgba(255,255,255,0.16);border:none;border-radius:6px;color:#fff;width:26px;height:26px;font-size:15px;cursor:pointer;">＋</button>':'')
           +(myRole==='host'?'<button onclick="delGroup('+gi+')" style="background:rgba(255,255,255,0.1);border:none;border-radius:6px;color:rgba(255,255,255,0.7);width:26px;height:26px;font-size:13px;cursor:pointer;">✕</button>':'')
@@ -1913,7 +2014,7 @@ function viewScore(){
     if(myRole==='host'){
       const names=g.players.filter(p=>p.name&&p.name.trim()).map(p=>p.name.trim());
       h+='<div class="ldr-row"><span class="ldr-l">조장</span>'
-        +'<select class="ldr-s" onchange="setLeader('+gi+',this.value)">'
+        +'<select class="ldr-s" id="ldr_'+gi+'" onchange="setLeader('+gi+',this.value)">'
         +'<option value="">— 미지정 —</option>'
         + names.map(n=>'<option value="'+esc(n)+'"'+(g.leader===n?' selected':'')+'>'+esc(n)+'</option>').join('')
         +'</select></div>';
@@ -1945,50 +2046,57 @@ function viewScore(){
       const isLdr=(g.leader&&g.leader===String(p.name||'').trim());
       const hasHoles=holeCount(p)>0;
 
-      h+='<tr class="scrow">'
-        // 이름
+      h+='<tr class="scrow'+(p.guest?' is-guest':'')+'">'
+        // 이름 + 게스트 토글
         +'<td class="sc-nm">'
+          +'<div class="nmwrap">'
           +(ed
-            ? '<input class="scn-in'+(isLdr?' is-ldr':'')+'" type="text" value="'+esc(p.name)+'" placeholder="이름 '+(pi+1)+'" onchange="setField('+gi+','+pi+',\'name\',this.value)">'
-            : '<span class="scn-tx'+(isLdr?' is-ldr':'')+'">'+(p.name?esc(p.name):'<span style="color:var(--t3);">—</span>')+'</span>')
+            ? '<input class="scn-in'+(isLdr?' is-ldr':'')+(p.guest?' gst':'')+'" type="text" value="'+esc(p.name)+'" placeholder="이름 '+(pi+1)+'" oninput="setField('+gi+','+pi+',\'name\',this.value)">'
+            : '<span class="scn-tx'+(isLdr?' is-ldr':'')+(p.guest?' gst':'')+'">'+(p.name?esc(p.name):'<span style="color:var(--t3);">—</span>')+'</span>')
+          +(ed
+            ? '<button class="gbtn'+(p.guest?' on':'')+'" onclick="toggleGuest('+gi+','+pi+')" title="게스트">G</button>'
+            : (p.guest?'<span class="gbtn on" style="cursor:default;">G</span>':''))
+          +'</div>'
         +'</td>'
         // 핸디
         +'<td class="sc-h">'
           +(ed
-            ? '<input class="scin" type="number" inputmode="numeric" value="'+(p.handi==null?'':p.handi)+'" placeholder="—" onchange="setField('+gi+','+pi+',\'handi\',this.value)">'
+            ? '<input class="scin" type="number" inputmode="numeric" value="'+(p.handi==null?'':p.handi)+'" placeholder="—" oninput="setField('+gi+','+pi+',\'handi\',this.value)">'
             : '<span class="scv">'+(p.handi==null?'—':p.handi)+'</span>')
         +'</td>'
         // 전반 / 후반
         +'<td class="sc-c">'
           +(outCard
-            ? '<span class="scv sub auto">'+(out===null?'—':out)+'</span>'
+            ? '<span class="scv sub auto" id="ot_'+gi+'_'+pi+'">'+(out===null?'—':out)+'</span>'
             : (ed
-                ? '<input class="scin half" type="number" inputmode="numeric" value="'+(out===null?'':out)+'" placeholder="—" onchange="setField('+gi+','+pi+',\'out\',this.value)">'
-                : '<span class="scv sub">'+(out===null?'—':out)+'</span>'))
+                ? '<input class="scin half" type="number" inputmode="numeric" value="'+(out===null?'':out)+'" placeholder="—" oninput="setField('+gi+','+pi+',\'out\',this.value)">'
+                : '<span class="scv sub" id="ot_'+gi+'_'+pi+'">'+(out===null?'—':out)+'</span>'))
         +'</td>'
         +'<td class="sc-c">'
           +(inCard
-            ? '<span class="scv sub auto">'+(inn===null?'—':inn)+'</span>'
+            ? '<span class="scv sub auto" id="in_'+gi+'_'+pi+'">'+(inn===null?'—':inn)+'</span>'
             : (ed
-                ? '<input class="scin half" type="number" inputmode="numeric" value="'+(inn===null?'':inn)+'" placeholder="—" onchange="setField('+gi+','+pi+',\'in\',this.value)">'
-                : '<span class="scv sub">'+(inn===null?'—':inn)+'</span>'))
+                ? '<input class="scin half" type="number" inputmode="numeric" value="'+(inn===null?'':inn)+'" placeholder="—" oninput="setField('+gi+','+pi+',\'in\',this.value)">'
+                : '<span class="scv sub" id="in_'+gi+'_'+pi+'">'+(inn===null?'—':inn)+'</span>'))
         +'</td>'
         // 합계
         +'<td class="sc-c">'
           +((hasHoles||p.mOut!=null||p.mIn!=null)
-            ? '<span class="scv tot auto">'+(gross===null?'—':gross)+'</span>'
+            ? '<span class="scv tot auto" id="tt_'+gi+'_'+pi+'">'+(gross===null?'—':gross)+'</span>'
             : (ed
-                ? '<input class="scin tot" type="number" inputmode="numeric" value="'+(p.gross===null?'':p.gross)+'" placeholder="—" onchange="setField('+gi+','+pi+',\'gross\',this.value)">'
-                : '<span class="scv tot">'+(gross===null?'—':gross)+'</span>'))
+                ? '<input class="scin tot" type="number" inputmode="numeric" value="'+(p.gross===null?'':p.gross)+'" placeholder="—" oninput="setField('+gi+','+pi+',\'gross\',this.value)">'
+                : '<span class="scv tot" id="tt_'+gi+'_'+pi+'">'+(gross===null?'—':gross)+'</span>'))
         +'</td>'
         // 넷
-        +'<td class="sc-c"><span class="scv net">'+(netv===null?'—':netv)+'</span></td>'
+        +'<td class="sc-c"><span class="scv net" id="nt_'+gi+'_'+pi+'">'+(netv===null?'—':netv)+'</span></td>'
         // 오버타
         +'<td class="sc-c ovc"><span class="scv ov '+ovCol+'" id="net_'+gi+'_'+pi+'">'+(ov===null?'—':ov)+'</span></td>'
         +(ed?'<td class="sc-x"><button onclick="delPlayer('+gi+','+pi+')" class="scdel">✕</button></td>':'')
       +'</tr>';
     });
     h+='</table>';
+    const gn=g.players.filter(p=>p.guest&&p.name&&p.name.trim()).length;
+    if(gn>0) h+='<div class="gst-note">G 표시 '+gn+'명은 게스트로 시상·순위에서 제외됩니다</div>';
     h+='</div>';
   });
 
@@ -2008,6 +2116,7 @@ function viewLive(){
       const gross=dispGross(p);
       all.push({
         name:p.name.trim(), group:g.name, gi,
+        guest:!!p.guest,
         leader:(g.leader===String(p.name).trim()),
         done, gross, handi:p.handi||0,
         net:(gross!==null&&gross!==undefined)?gross-(p.handi||0):null,
@@ -2257,12 +2366,11 @@ function viewResult(){
     if(pz) totalPrize+=pz;
     h+='<div class="wrow">'
       +'<div class="wrow-no">'+cnt+'</div>'
-      +'<div class="wrow-ico">'+a.ico+'</div>'
-      +'<div class="wrow-tx"><div class="wrow-aw">'+a.name.toUpperCase()+'</div>'
-        +'<div class="wrow-nm">'+esc(nm)+'</div>'
-        +(pz?'<div class="wrow-pz">Rp '+pz.toLocaleString()+'</div>':'')+'</div>'
-      +'<div class="wrow-sc">'+(sc?'<div class="a">'+sc+'</div>':'')
-        +(sub?'<div class="b">'+esc(sub)+'</div>':'')+'</div>'
+      +'<div class="wrow-tx">'
+        +'<div class="wrow-l1">'+a.ico+' '+a.name+(pz?' <em>Rp'+Math.round(pz/1000)+'k</em>':'')+'</div>'
+        +'<div class="wrow-l2"><b>'+esc(nm)+'</b>'+(sub?'<span>'+esc(sub)+'</span>':'')+'</div>'
+      +'</div>'
+      +(sc?'<div class="wrow-sc">'+sc+'</div>':'')
     +'</div>';
   });
 
@@ -2284,12 +2392,11 @@ function viewResult(){
       const dd=(w.gross-coursePar())-w.handi;
       h+='<div class="wrow">'
         +'<div class="wrow-no">'+cnt+'</div>'
-        +'<div class="wrow-ico">'+(k==='low'?'🔷':'🔶')+'</div>'
-        +'<div class="wrow-tx"><div class="wrow-aw">'+label+'</div>'
-          +'<div class="wrow-nm">'+esc(w.name)+'</div>'
-          +(pz?'<div class="wrow-pz">Rp '+pz.toLocaleString()+'</div>':'')+'</div>'
-        +'<div class="wrow-sc"><div class="a">'+(dd>0?'+':'')+dd+'</div>'
-          +'<div class="b">'+esc(desc)+' · H'+w.handi+'</div></div>'
+        +'<div class="wrow-tx">'
+          +'<div class="wrow-l1">'+(k==='low'?'🔷':'🔶')+' '+label+(pz?' <em>Rp'+Math.round(pz/1000)+'k</em>':'')+'</div>'
+          +'<div class="wrow-l2"><b>'+esc(w.name)+'</b><span>'+esc(desc)+' · H'+w.handi+'</span></div>'
+        +'</div>'
+        +'<div class="wrow-sc">'+(dd>0?'+':'')+dd+'</div>'
         +'</div>';
     });
   }

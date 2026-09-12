@@ -584,6 +584,63 @@ body{
   border-top:1px solid var(--line);background:#FBFAF6;font-weight:600;
 }
 
+
+/* 시상 설정 압축 */
+.aw-sum{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--ink);color:#fff;border-radius:11px;
+  padding:9px 13px;margin-bottom:7px;font-size:12.5px;font-weight:700;
+}
+.aw-sum b{font-size:17px;font-weight:900;}
+.aw-sum em{font-style:normal;color:var(--gold);font-weight:800;}
+.aw-all{
+  background:rgba(255,255,255,0.18);border:none;border-radius:14px;
+  padding:6px 12px;font-size:11.5px;font-weight:700;color:#fff;
+  cursor:pointer;font-family:inherit;
+}
+.awd2{
+  background:var(--card);border:1px solid var(--line);border-radius:10px;
+  margin-bottom:4px;overflow:hidden;
+}
+.awd2.off{opacity:0.48;}
+.awd2.open{border-color:#C5B26A;}
+.awd2-h{display:flex;align-items:center;gap:8px;padding:7px 10px;}
+.awd2-ico{font-size:17px;flex-shrink:0;width:22px;text-align:center;}
+.awd2-tx{flex:1;min-width:0;cursor:pointer;}
+.awd2-tx b{display:block;font-size:13px;font-weight:800;color:var(--t1);line-height:1.3;}
+.awd2-tx i{
+  display:block;font-style:normal;font-size:11px;color:var(--t3);
+  font-weight:600;margin-top:1px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.awd2-cv{
+  font-size:10px;color:var(--t3);flex-shrink:0;cursor:pointer;
+  padding:4px 5px;
+}
+.sw.sm{width:38px;height:22px;border-radius:11px;flex-shrink:0;}
+.sw.sm::after{width:17px;height:17px;top:2.5px;left:2.5px;}
+.sw.sm.on::after{transform:translateX(15px);}
+.awd2-b{padding:2px 11px 10px;border-top:1px solid var(--line);}
+.fr2{display:flex;align-items:center;gap:7px;margin-top:7px;}
+.fl2{
+  font-size:11px;font-weight:800;color:var(--t2);
+  width:36px;flex-shrink:0;
+}
+.fu2{font-size:11.5px;font-weight:700;color:var(--t3);flex-shrink:0;}
+.fi2{
+  flex:1;min-width:0;height:36px;border:1.5px solid var(--line);
+  border-radius:8px;font-size:15px;font-weight:800;padding:0 9px;
+  background:#FCFCFA;color:var(--t1);font-family:inherit;text-align:right;
+}
+.fi2:focus{outline:none;border-color:var(--accent);background:#fff;}
+.fs2{
+  flex:1;min-width:0;height:36px;border:1.5px solid var(--line);
+  border-radius:8px;font-size:13px;font-weight:600;padding:0 8px;
+  background:#FCFCFA;color:var(--t1);font-family:inherit;
+}
+.fs2:focus{outline:none;border-color:var(--accent);}
+.fn2{font-size:11.5px;color:var(--t3);margin-top:7px;font-weight:600;}
+
 .div-cut{display:flex;align-items:center;gap:9px;}
 .dc-l{font-size:11px;font-weight:800;color:var(--t2);width:52px;flex-shrink:0;}
 .dc-in{
@@ -1170,6 +1227,18 @@ function enterApp(code){
   render();
 }
 
+// 입력 중 여부 — 타이핑 도중에는 화면을 다시 그리지 않음
+let _typing=false, _typingT=null;
+function markTyping(){
+  _typing=true;
+  clearTimeout(_typingT);
+  _typingT=setTimeout(()=>{
+    _typing=false;
+    if(_pendingRender){ _pendingRender=false; render(); }
+  },1200);
+}
+let _pendingRender=false;
+
 function startSync(){
   if(!dbRef||!_db) return;
   dbRef.child('data').on('value',snap=>{
@@ -1177,7 +1246,9 @@ function startSync(){
     _syncing=true;
     try{ Object.assign(G,JSON.parse(snap.val())); }catch(e){}
     _syncing=false;
-    render();
+    // 입력 중이면 나중에 그림 (커서 유지)
+    if(_typing || isEditingInput()){ _pendingRender=true; }
+    else render();
     const el=document.getElementById('syncDisp');
     if(el){ el.textContent='● 연결됨'; el.style.color='var(--ok)'; }
   });
@@ -1187,6 +1258,14 @@ function startSync(){
     if(snap.val()){ el.textContent='● 연결됨'; el.style.color='var(--ok)'; }
     else{ el.textContent='● 오프라인'; el.style.color='#D9534F'; }
   });
+}
+
+// 지금 입력칸에 커서가 있는가
+function isEditingInput(){
+  const a=document.activeElement;
+  if(!a) return false;
+  const t=(a.tagName||'').toLowerCase();
+  return t==='input' || t==='textarea' || t==='select';
 }
 
 function push(){
@@ -1251,11 +1330,16 @@ function setField(gi,pi,f,v){
     if(o!==null||i2!==null) p.gross=(o||0)+(i2||0);
     else p.gross=null;
   }
+  markTyping();
   save();
   updateNet(gi,pi);
-  if(f==='name'){ updHead(); updLeaderSel(gi); }
+  if(f==='name') updHead();
+  // 서버 전송은 입력이 멈춘 뒤에
   clearTimeout(setField._t);
-  setField._t=setTimeout(()=>{ push(); },450);
+  setField._t=setTimeout(()=>{
+    push();
+    if(f==='name') updLeaderSel(gi);
+  },1000);
 }
 
 // 조장 드롭다운 옵션만 갱신 (이름 바뀔 때)
@@ -1286,6 +1370,7 @@ function setLeader(gi,v){
   if(v) toast(v+' 님을 '+G.groups[gi].name+' 조장으로 지정했습니다');
 }
 function setGroupName(gi,v){
+  markTyping();
   G.groups[gi].name=v;
   save();
   clearTimeout(setGroupName._t);
@@ -1512,6 +1597,25 @@ function viewAwPhoto(i){
   ov.innerHTML='<img src="'+src+'" style="max-width:95vw;max-height:90vh;border-radius:8px;object-fit:contain;">';
   ov.onclick=function(){ if(ov.parentNode) ov.parentNode.removeChild(ov); };
   document.body.appendChild(ov);
+}
+
+// 시상 설정 펼침 상태
+let _awdOpen=false;
+let _awdOpenSet={};
+function toggleOpen(id){
+  _awdOpenSet[id]=!(_awdOpenSet[id]===true||_awdOpen);
+  if(_awdOpen){
+    // 전체 펼침 상태에서 하나를 접으면 개별 모드로
+    _awdOpen=false;
+    AWARDS.forEach(a=>{ if(a.id!==id) _awdOpenSet[a.id]=true; });
+    _awdOpenSet[id]=false;
+  }
+  render();
+}
+function expandAll(){
+  _awdOpen=!_awdOpen;
+  _awdOpenSet={};
+  render();
 }
 
 /* ══════════ 렌더 ══════════ */
@@ -2200,64 +2304,81 @@ function viewLive(){
 
 function viewAward(){
   const names=namedPlayers();
-  let h='<div class="card"><div class="card-b" style="font-size:12.5px;color:var(--t2);line-height:1.7;">'
-    +'시상할 항목만 켜두세요. <b style="color:var(--t1);">니어리스트·롱기스트·니어투더롱</b>은 홀과 수상자를 직접 지정하고, '
-    +'나머지는 오버타 순위로 자동 선정됩니다.<br>'
-    +'<span style="color:var(--t3);">중복 수상이 생기면 <b style="color:var(--t1);">상금이 큰 상</b>이 먼저 배정되고, 나머지는 다음 순위로 넘어갑니다.</span>'
-    +'</div></div>';
+  const onCnt=AWARDS.filter(a=>G.awardOn[a.id]).length;
+  const tot=AWARDS.filter(a=>G.awardOn[a.id]).reduce((s,a)=>s+prizeOf(a.id),0);
+
+  let h='<div class="aw-sum">'
+    +'<div><b>'+onCnt+'</b>개 시상'+(tot?' · <em>Rp'+tot.toLocaleString()+'</em>':'')+'</div>'
+    +'<button class="aw-all" onclick="expandAll()">'+(_awdOpen?'모두 접기':'모두 펼치기')+'</button>'
+    +'</div>';
 
   AWARDS.forEach(a=>{
     const on=!!G.awardOn[a.id];
-    h+='<div class="awd'+(on?'':' off')+'">'
-      +'<div class="awd-h">'
-        +'<div class="awd-ico" style="background:'+a.bg+';">'+a.ico+'</div>'
-        +'<div class="awd-tx"><div class="awd-nm">'+a.name+'</div><div class="awd-sb">'+a.sub+'</div></div>'
-        +'<div class="sw'+(on?' on':'')+'" onclick="toggleAward(\''+a.id+'\')"></div>'
+    const open=(_awdOpenSet[a.id]===true)||_awdOpen;
+    const pz=prizeOf(a.id);
+    const hn=(G.awardHole&&G.awardHole[a.id])||null;
+    const wn=G.manual[a.id]||'';
+    const dm=(G.dist&&G.dist[a.id]!=null)?G.dist[a.id]:null;
+
+    // 요약 문구
+    const bits=[];
+    if(pz) bits.push('Rp'+Math.round(pz/1000)+'k');
+    if(a.type==='manual'){
+      if(hn) bits.push(hn+'홀');
+      if(wn) bits.push(wn);
+      if(dm!=null) bits.push(dm+'m');
+    }
+    const meta=bits.length?bits.join(' · '):(on?'설정 필요':'');
+
+    h+='<div class="awd2'+(on?'':' off')+(open&&on?' open':'')+'">'
+      +'<div class="awd2-h">'
+        +'<span class="awd2-ico">'+a.ico+'</span>'
+        +'<span class="awd2-tx" onclick="'+(on?"toggleOpen('"+a.id+"')":"toggleAward('"+a.id+"')")+'">'
+          +'<b>'+a.name+'</b>'
+          +(meta?'<i>'+esc(meta)+'</i>':'')
+        +'</span>'
+        +(on?'<span class="awd2-cv" onclick="toggleOpen(\''+a.id+'\')">'+(open?'▲':'▼')+'</span>':'')
+        +'<span class="sw sm'+(on?' on':'')+'" onclick="toggleAward(\''+a.id+'\')"></span>'
       +'</div>';
 
-    if(on){
-      h+='<div class="awd-body">';
-      // 상금 입력
-      h+='<div class="prize-row"><span class="prize-l">상금</span>'
-        +'<span class="prize-cur">Rp</span>'
-        +'<input class="prize-in" type="text" inputmode="numeric" value="'+(prizeOf(a.id)?prizeOf(a.id).toLocaleString():'')+'" '
-        +'placeholder="0" oninput="fmtPrize(this)" onchange="setPrize(\''+a.id+'\',this)">'
-        +'</div>';
-    }
+    if(on && open){
+      h+='<div class="awd2-b">';
+      // 상금
+      h+='<div class="fr2"><span class="fl2">상금</span>'
+        +'<span class="fu2">Rp</span>'
+        +'<input class="fi2" type="text" inputmode="numeric" value="'+(pz?pz.toLocaleString():'')+'" '
+        +'placeholder="0" oninput="fmtPrize(this)" onchange="setPrize(\''+a.id+'\',this)"></div>';
 
-    if(on && a.type==='manual'){
-      // 홀 번호 선택
-      h+='<div class="hsel-row"><span class="hsel-l">홀</span>'
-        +'<select class="hsel" onchange="setAwardHole(\''+a.id+'\',this.value)">'
-        +'<option value="">— 미지정 —</option>';
-      for(let n=1;n<=18;n++){
-        const par=G.pars[n-1]||4;
-        const sel=(String(G.awardHole&&G.awardHole[a.id])===String(n))?' selected':'';
-        h+='<option value="'+n+'"'+sel+'>'+n+'번홀 (Par'+par+')</option>';
+      if(a.type==='manual'){
+        // 홀
+        h+='<div class="fr2"><span class="fl2">홀</span>'
+          +'<select class="fs2" onchange="setAwardHole(\''+a.id+'\',this.value)">'
+          +'<option value="">—</option>';
+        for(let n=1;n<=18;n++){
+          const par=G.pars[n-1]||4;
+          h+='<option value="'+n+'"'+(String(hn)===String(n)?' selected':'')+'>'+n+'번홀 P'+par+'</option>';
+        }
+        h+='</select></div>';
+        // 수상자
+        if(names.length===0){
+          h+='<div class="fn2">성적 현황 탭에서 이름을 먼저 넣어주세요</div>';
+        }else{
+          h+='<div class="fr2"><span class="fl2">수상</span>'
+            +'<select class="fs2" onchange="setManual(\''+a.id+'\',this.value)">'
+            +'<option value="">—</option>';
+          names.forEach(p=>{
+            h+='<option value="'+esc(p.name)+'"'+(wn===p.name?' selected':'')+'>'+esc(p.name)+'</option>';
+          });
+          h+='</select></div>';
+          // 거리
+          h+='<div class="fr2"><span class="fl2">'+(a.id==='longest'?'비거리':'남은')+'</span>'
+            +'<input class="fi2" type="number" inputmode="decimal" step="0.1" value="'+(dm!=null?dm:'')+'" '
+            +'placeholder="0" onchange="setDist(\''+a.id+'\',this.value)">'
+            +'<span class="fu2">m</span></div>';
+        }
       }
-      h+='</select></div>';
-
-      if(names.length===0){
-        h+='<div style="font-size:12px;color:var(--t3);margin-top:8px;">성적 입력 탭에서 참가자 이름을 먼저 넣어주세요</div>';
-      }else{
-        h+='<select class="awd-sel" style="margin-top:8px;" onchange="setManual(\''+a.id+'\',this.value)">'
-          +'<option value="">— 수상자 선택 —</option>';
-        names.forEach(p=>{
-          const sel=(G.manual[a.id]===p.name)?' selected':'';
-          h+='<option value="'+esc(p.name)+'"'+sel+'>'+esc(p.name)+' ('+esc(p.group)+')</option>';
-        });
-        h+='</select>';
-        // 거리 입력
-        const dv=(G.dist&&G.dist[a.id]!=null)?G.dist[a.id]:'';
-        const dlabel=(a.id==='longest')?'비거리':'남은거리';
-        h+='<div class="dist-row"><span class="dist-l">'+dlabel+'</span>'
-          +'<input class="dist-in" type="number" inputmode="decimal" step="0.1" value="'+dv+'" '
-          +'placeholder="0" onchange="setDist(\''+a.id+'\',this.value)">'
-          +'<span class="dist-u">m</span></div>';
-      }
+      h+='</div>';
     }
-
-    if(on) h+='</div>';   // awd-body 닫기
     h+='</div>';
   });
 
@@ -2305,17 +2426,26 @@ function toggleDivision(){
   push(); render();
 }
 function setDivCut(v){
+  markTyping();
   const n=parseInt(v);
   G.divCut=isNaN(n)?15:Math.max(0,Math.min(54,n));
-  push(); render();
+  save();
+  // 인원 표시만 갱신
+  const dv=computeDivision();
+  const el=document.querySelector('.div-info');
+  if(el&&dv) el.textContent='로우 '+dv.lowCount+'명 · 하이 '+dv.highCount+'명';
+  clearTimeout(setDivCut._t);
+  setDivCut._t=setTimeout(()=>{ push(); },900);
 }
 function setDivPrize(key,el){
+  markTyping();
   const raw=(el._raw!=null?el._raw:String(el.value).replace(/[^0-9]/g,''));
   const n=parseInt(raw);
   if(!G.divPrize) G.divPrize={low:0,high:0};
   G.divPrize[key]=(!raw||isNaN(n))?0:n;
-  push();
-  if(curTab==='result') render();
+  save();
+  clearTimeout(setDivPrize._t);
+  setDivPrize._t=setTimeout(()=>{ push(); },900);
 }
 
 function viewResult(){
@@ -2454,6 +2584,7 @@ function viewResult(){
 
 function toggleAward(id){
   G.awardOn[id]=!G.awardOn[id];
+  if(G.awardOn[id]) _awdOpenSet[id]=true;   // 켜면 자동으로 펼침
   push(); render();
 }
 // 입력 중 천단위 콤마
@@ -2463,22 +2594,26 @@ function fmtPrize(el){
   el._raw=raw;
 }
 function setPrize(id,el){
+  markTyping();
   const raw=(el._raw!=null?el._raw:String(el.value).replace(/[^0-9]/g,''));
   const n=parseInt(raw);
   if(!G.prize) G.prize={};
   if(!raw||isNaN(n)||n===0) delete G.prize[id];
   else G.prize[id]=n;
-  push();
-  if(curTab==='result') render();
+  save();
+  clearTimeout(setPrize._t);
+  setPrize._t=setTimeout(()=>{ push(); },900);
 }
 
 function setDist(id,v){
+  markTyping();
   if(!G.dist) G.dist={};
   const n=parseFloat(v);
   if(v===''||isNaN(n)) delete G.dist[id];
   else G.dist[id]=n;
-  push();
-  if(curTab==='result') render();
+  save();
+  clearTimeout(setDist._t);
+  setDist._t=setTimeout(()=>{ push(); },900);
 }
 
 function setAwardHole(id,v){
@@ -2565,13 +2700,14 @@ function ensureEventId(){
 }
 
 function saveEvent(){
-  const players=allPlayers();
-  if(players.length===0){ toast('입력된 성적이 없습니다'); return; }
+  const named=allNamed();
+  if(named.length===0){ toast('참가자 이름을 먼저 입력해주세요'); return; }
+  const scored=allPlayers();
   const snap={
     id:ensureEventId(),
     title:G.title||'골프 대회',
     date:G.date||'', place:G.place||'',
-    count:players.length, groups:G.groups.length,
+    count:named.length, scored:scored.length, groups:G.groups.length,
     savedAt:Date.now(),
     data:JSON.parse(JSON.stringify(G))
   };
@@ -2586,7 +2722,9 @@ function saveEvent(){
   ov.innerHTML='<div style="background:#fff;border-radius:19px;padding:26px 22px 18px;max-width:310px;width:100%;text-align:center;">'
     +'<div style="width:58px;height:58px;border-radius:50%;background:#EAF3EE;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 13px;">✅</div>'
     +'<div style="font-size:17px;font-weight:800;">저장했습니다</div>'
-    +'<div style="font-size:12.5px;color:var(--t2);margin-top:6px;line-height:1.5;">'+esc(snap.title)+'<br>참가 '+snap.count+'명 · '+snap.groups+'개조</div>'
+    +'<div style="font-size:12.5px;color:var(--t2);margin-top:6px;line-height:1.5;">'+esc(snap.title)
+    +'<br>참가 '+snap.count+'명 · '+snap.groups+'개조'
+    +(snap.scored>0?' · 성적 '+snap.scored+'명':'<br><span style="color:var(--t3);font-size:11.5px;">명단만 저장됨 (성적 미입력)</span>')+'</div>'
     +'<div style="display:flex;gap:9px;margin-top:18px;">'
     +'<button id="_h" class="btn btn-o" style="flex:1;">나가기</button>'
     +'<button id="_s" class="btn btn-p" style="flex:1;">계속하기</button></div></div>';
@@ -2621,6 +2759,7 @@ function openArchive(){
       +'<div style="flex:1;min-width:0;cursor:pointer;" onclick="loadArc('+i+')">'
         +'<div style="font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(s.title)+'</div>'
         +'<div style="font-size:11px;color:var(--t3);margin-top:2px;">'+(s.date||'').replace(/-/g,'.')+' · '+s.count+'명'
+          +((s.scored!=null&&s.scored===0)?' (명단)':'')
           +(s.savedAt?' · '+savedTimeTxt(s.savedAt):'')+'</div>'
       +'</div>'
       +'<button onclick="exportArc('+i+')" style="background:none;border:none;font-size:15px;cursor:pointer;padding:6px;color:#1A5C99;">📤</button>'
@@ -2751,7 +2890,7 @@ function shareResult(){
 }
 
 function goHome(){
-  const has=allPlayers().length>0;
+  const has=allNamed().length>0;
   if(!has){ location.href='index.html'; return; }
   const ov=document.createElement('div');
   ov.style.cssText='position:fixed;inset:0;background:rgba(14,42,30,0.55);z-index:700;display:flex;align-items:center;justify-content:center;padding:24px;';
@@ -2770,12 +2909,13 @@ function goHome(){
   ov.querySelector('#_c').onclick=()=>ov.remove();
 }
 function quietSave(){
-  const players=allPlayers();
-  if(players.length===0) return;
+  const named=allNamed();
+  if(named.length===0) return;
+  const scored=allPlayers();
   const snap={
     id:ensureEventId(),
     title:G.title||'골프 대회', date:G.date||'', place:G.place||'',
-    count:players.length, groups:G.groups.length, savedAt:Date.now(),
+    count:named.length, scored:scored.length, groups:G.groups.length, savedAt:Date.now(),
     data:JSON.parse(JSON.stringify(G))
   };
   const list=getArc();
